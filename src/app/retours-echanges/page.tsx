@@ -22,8 +22,8 @@ import { formatPrice } from "@/lib/utils";
 import { SAMPLE_ORDERS } from "@/lib/data";
 
 export default function ReturnsExchangesPage() {
-  const [orderCodeInput, setOrderCodeInput] = useState("AILYS-2609-4182");
-  const [phoneInput, setPhoneInput] = useState("98123456");
+  const [orderCodeInput, setOrderCodeInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
   const [orderData, setOrderData] = useState<any | null>(null);
   const [searchError, setSearchError] = useState("");
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
@@ -177,28 +177,7 @@ export default function ReturnsExchangesPage() {
             </form>
 
             <div className="mt-4 pt-4 border-t border-ailys-bone-border text-[11px] text-ailys-muted">
-              Codes de test disponibles pour démonstration :{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setOrderCodeInput("AILYS-2609-4182");
-                  setPhoneInput("98123456");
-                }}
-                className="underline hover:text-ailys-black font-mono font-medium"
-              >
-                AILYS-2609-4182
-              </button>{" "}
-              ou{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setOrderCodeInput("AILYS-2609-9051");
-                  setPhoneInput("22987654");
-                }}
-                className="underline hover:text-ailys-black font-mono font-medium"
-              >
-                AILYS-2609-9051
-              </button>
+              Le code de commande se trouve sur votre reçu de livraison ou dans votre confirmation de commande (ex. AILYS-2609-XXXX).
             </div>
           </div>
         )}

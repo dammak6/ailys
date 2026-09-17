@@ -68,7 +68,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
           {/* Brand Presentation (Col 1-4) */}
           <div className="md:col-span-4 flex flex-col items-start space-y-6">
-            <AilysLogo variant="gold" size="lg" />
+            <AilysLogo variant="light" size="lg" />
             <p className="text-xs font-sans text-ailys-bone/70 leading-relaxed max-w-sm">
               Maison de confection contemporaine tunisienne. Des silhouettes
               sport-chic et intemporelles, pensées pour le quotidien et façonnées

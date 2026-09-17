@@ -224,97 +224,105 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E8E6DF]">
-              {filteredProducts.map((p) => (
-                <tr key={p.id} className="hover:bg-[#FBFBF9] transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-16 relative bg-[#EFECE4] rounded-sm overflow-hidden shrink-0">
-                        <Image
-                          src={p.primaryImage || "/images/products/ensemble-tailleur.jpg"}
-                          alt={p.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-serif font-medium text-sm text-[#0B0B0B]">
-                          {p.name}
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((p) => (
+                  <tr key={p.id} className="hover:bg-[#FBFBF9] transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-16 relative bg-[#EFECE4] rounded-sm overflow-hidden shrink-0">
+                          <Image
+                            src={p.primaryImage || "/images/products/ensemble-tailleur.jpg"}
+                            alt={p.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
-                        <div className="text-[11px] text-[#7A7770]">
-                          {p.subtitle || p.collection}
+                        <div>
+                          <div className="font-serif font-medium text-sm text-[#0B0B0B]">
+                            {p.name}
+                          </div>
+                          <div className="text-[11px] text-[#7A7770]">
+                            {p.subtitle || p.collection}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="capitalize font-medium text-[#444]">
-                      {p.category}
-                    </span>
-                    <div className="text-[10px] text-[#7A7770]">{p.subCategory}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-serif font-medium text-sm text-[#0B0B0B]">
-                      {Number(p.price).toFixed(3)} TND
-                    </div>
-                    {p.salePrice && (
-                      <div className="text-[10px] text-red-600 line-through">
-                        {Number(p.salePrice).toFixed(3)} TND
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="capitalize font-medium text-[#444]">
+                        {p.category}
+                      </span>
+                      <div className="text-[10px] text-[#7A7770]">{p.subCategory}</div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-serif font-medium text-sm text-[#0B0B0B]">
+                        {Number(p.price).toFixed(3)} TND
                       </div>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {p.isSoldOut ? (
-                      <span className="inline-block px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] uppercase font-semibold">
-                        Épuisé
-                      </span>
-                    ) : (
-                      <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[10px] uppercase font-semibold">
-                        En Stock ({p.stockQuantity ?? 25})
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() => handleTogglePublish(p.id)}
-                      className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-[10px] uppercase tracking-wider font-semibold cursor-pointer transition-colors ${
-                        p.isPublished
-                          ? "bg-[#B79A5B]/20 text-[#6B572B] hover:bg-[#B79A5B]/30"
-                          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                      }`}
-                    >
-                      {p.isPublished ? (
-                        <>
-                          <Eye className="w-3 h-3" />
-                          <span>Publié</span>
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="w-3 h-3" />
-                          <span>Brouillon</span>
-                        </>
+                      {p.salePrice && (
+                        <div className="text-[10px] text-red-600 line-through">
+                          {Number(p.salePrice).toFixed(3)} TND
+                        </div>
                       )}
-                    </button>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
+                    </td>
+                    <td className="py-3 px-4">
+                      {p.isSoldOut ? (
+                        <span className="inline-block px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] uppercase font-semibold">
+                          Épuisé
+                        </span>
+                      ) : (
+                        <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[10px] uppercase font-semibold">
+                          En Stock ({p.stockQuantity ?? 25})
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
                       <button
-                        onClick={() => handleOpenEdit(p)}
-                        className="p-1.5 text-[#555] hover:text-[#B79A5B] transition-colors cursor-pointer"
-                        title="Modifier"
+                        onClick={() => handleTogglePublish(p.id)}
+                        className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-[10px] uppercase tracking-wider font-semibold cursor-pointer transition-colors ${
+                          p.isPublished
+                            ? "bg-[#B79A5B]/20 text-[#6B572B] hover:bg-[#B79A5B]/30"
+                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                        }`}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        {p.isPublished ? (
+                          <>
+                            <Eye className="w-3 h-3" />
+                            <span>Publié</span>
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="w-3 h-3" />
+                            <span>Brouillon</span>
+                          </>
+                        )}
                       </button>
-                      <button
-                        onClick={() => setDeleteConfirmId(p.id)}
-                        className="p-1.5 text-[#555] hover:text-red-600 transition-colors cursor-pointer"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => handleOpenEdit(p)}
+                          className="p-1.5 text-[#555] hover:text-[#B79A5B] transition-colors cursor-pointer"
+                          title="Modifier"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(p.id)}
+                          className="p-1.5 text-[#555] hover:text-red-600 transition-colors cursor-pointer"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-[#7A7770]">
+                    Aucun produit enregistré. Utilisez le bouton « Nouveau Produit » pour créer votre première silhouette.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

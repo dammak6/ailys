@@ -141,70 +141,75 @@ export default function AdminPromotionsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E8E6DF]">
-            {promotions.map((promo) => (
-              <tr key={promo.id} className="hover:bg-[#FBFBF9] transition-colors">
-                <td className="py-3 px-4">
-                  <span className="font-mono font-bold text-sm bg-[#F5F3EC] px-2.5 py-1 rounded text-[#0B0B0B] border border-[#E8E6DF]">
-                    {promo.code}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-[#555] max-w-xs truncate">
-                  {promo.description}
-                </td>
-                <td className="py-3 px-4 font-semibold text-[#0B0B0B]">
-                  {promo.discountType === "percentage"
-                    ? `-${promo.discountValue}%`
-                    : `-${promo.discountValue} TND`}
-                </td>
-                <td className="py-3 px-4 text-[#555]">
-                  {promo.minOrderAmount ? `${promo.minOrderAmount} TND` : "Aucun"}
-                </td>
-                <td className="py-3 px-4 text-[#7A7770]">
-                  {promo.startDate} au {promo.endDate}
-                </td>
-                <td className="py-3 px-4 font-medium text-[#444]">
-                  {promo.usageCount || 0} fois
-                </td>
-                <td className="py-3 px-4">
-                  <button
-                    onClick={() => handleToggleActive(promo.id)}
-                    className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-[10px] uppercase font-semibold cursor-pointer transition-colors ${
-                      promo.isActive
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
-                    }`}
-                  >
-                    {promo.isActive ? (
-                      <>
-                        <CheckCircle className="w-3 h-3" />
-                        <span>Actif</span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="w-3 h-3" />
-                        <span>Désactivé</span>
-                      </>
-                    )}
-                  </button>
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex items-center justify-end space-x-2">
+            {promotions.length > 0 ? (
+              promotions.map((promo) => (
+                <tr key={promo.id} className="hover:bg-[#FBFBF9] transition-colors">
+                  <td className="py-3 px-4">
+                    <span className="font-mono font-bold text-sm bg-[#F5F3EC] px-2.5 py-1 rounded text-[#0B0B0B] border border-[#E8E6DF]">
+                      {promo.code}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-[#555] max-w-xs truncate">
+                    {promo.description}
+                  </td>
+                  <td className="py-3 px-4 font-semibold text-[#0B0B0B]">
+                    {promo.discountType === "percentage"
+                      ? `-${promo.discountValue}%`
+                      : `-${promo.discountValue} TND`}
+                  </td>
+                  <td className="py-3 px-4 text-[#555]">
+                    {promo.minOrderAmount ? `${promo.minOrderAmount} TND` : "Aucun"}
+                  </td>
+                  <td className="py-3 px-4 text-[#7A7770]">
+                    {promo.startDate} au {promo.endDate}
+                  </td>
+                  <td className="py-3 px-4 font-medium text-[#444]">
+                    {promo.usageCount || 0} fois
+                  </td>
+                  <td className="py-3 px-4">
                     <button
-                      onClick={() => handleOpenEdit(promo)}
-                      className="p-1.5 text-[#555] hover:text-[#B79A5B] cursor-pointer"
+                      onClick={() => handleToggleActive(promo.id)}
+                      className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-[10px] uppercase font-semibold cursor-pointer transition-colors ${
+                        promo.isActive
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : "bg-gray-100 text-gray-500 border border-gray-200"
+                      }`}
                     >
-                      <Edit2 className="w-4 h-4" />
+                      {promo.isActive ? (
+                        <>
+                          <CheckCircle className="w-3 h-3" />
+                          <span>Actif</span>
+                        </>
+                      ) : (
+                        <span>Inactif</span>
+                      )}
                     </button>
-                    <button
-                      onClick={() => handleDeletePromo(promo.id)}
-                      className="p-1.5 text-[#555] hover:text-red-600 cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => handleOpenEdit(promo)}
+                        className="p-1.5 text-[#555] hover:text-[#B79A5B] cursor-pointer"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePromo(promo.id)}
+                        className="p-1.5 text-[#555] hover:text-red-600 cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} className="py-12 text-center text-[#7A7770]">
+                  Aucun code promotionnel enregistré.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

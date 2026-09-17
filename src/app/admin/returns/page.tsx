@@ -191,47 +191,55 @@ export default function AdminReturnsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E8E6DF]">
-              {filteredReturns.map((ret) => (
-                <tr key={ret.id || ret.requestCode} className="hover:bg-[#FBFBF9] transition-colors">
-                  <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
-                    {ret.requestCode}
-                  </td>
-                  <td className="py-3 px-4 font-mono text-[#555]">
-                    {ret.orderCode}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-medium text-[#0B0B0B]">{ret.customerName}</div>
-                    <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
-                      <Phone className="w-3 h-3 text-[#B79A5B]" />
-                      <span>{ret.customerPhone}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
-                        ret.type === "echange"
-                          ? "bg-[#B79A5B]/20 text-[#6B572B]"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {ret.type}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-[#555] max-w-xs truncate">
-                    {ret.reason}
-                  </td>
-                  <td className="py-3 px-4">{getStatusBadge(ret.status)}</td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      onClick={() => handleOpenDetail(ret)}
-                      className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Traiter</span>
-                    </button>
+              {filteredReturns.length > 0 ? (
+                filteredReturns.map((ret) => (
+                  <tr key={ret.id || ret.requestCode} className="hover:bg-[#FBFBF9] transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
+                      {ret.requestCode}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-[#555]">
+                      {ret.orderCode}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-[#0B0B0B]">{ret.customerName}</div>
+                      <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
+                        <Phone className="w-3 h-3 text-[#B79A5B]" />
+                        <span>{ret.customerPhone}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
+                          ret.type === "echange"
+                            ? "bg-[#B79A5B]/20 text-[#6B572B]"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {ret.type}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-[#555] max-w-xs truncate">
+                      {ret.reason}
+                    </td>
+                    <td className="py-3 px-4">{getStatusBadge(ret.status)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => handleOpenDetail(ret)}
+                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Traiter</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-[#7A7770]">
+                    Aucune demande de retour ou d&apos;échange enregistrée.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

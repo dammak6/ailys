@@ -95,8 +95,8 @@ export const AilysRepository = {
             subCategory: row.sub_category || "",
             price: Number(row.price),
             salePrice: row.sale_price ? Number(row.sale_price) : undefined,
-            collection: "Lumière d'Été",
-            collectionSlug: "lumiere-d-ete",
+            collection: "Nouvelle Collection",
+            collectionSlug: "nouvelle-collection",
             primaryImage: row.product_images?.find((img: any) => img.is_primary)?.image_url || "/images/products/ensemble-tailleur.jpg",
             secondaryImage: row.product_images?.find((img: any) => !img.is_primary)?.image_url || "/images/campaign/hero-portrait-woman.jpg",
             gallery: row.product_images?.map((img: any) => img.image_url) || [],
@@ -118,7 +118,7 @@ export const AilysRepository = {
     }
 
     // Default Fallback
-    let result = [...PRODUCTS];
+    let result = [...ADMIN_PRODUCTS];
     if (filters?.category && filters.category !== "all") {
       result = result.filter((p) => p.category === filters.category);
     }
@@ -174,7 +174,12 @@ export const AilysRepository = {
       }
     }
 
-    return COLLECTIONS;
+    return ADMIN_COLLECTIONS.filter((c: any) => c.isPublished);
+  },
+
+  async getCollectionBySlug(slug: string): Promise<Collection | null> {
+    const collections = await this.getCollections();
+    return collections.find((c) => c.slug === slug) || null;
   },
 
   // ---------------------------------------------------------------------------
@@ -500,6 +505,7 @@ export const AilysRepository = {
       createdAt: new Date().toISOString(),
     };
     ADMIN_PRODUCTS.unshift(newProduct);
+    PRODUCTS.unshift(newProduct);
     return newProduct;
   },
 
@@ -507,6 +513,8 @@ export const AilysRepository = {
     const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error("Produit non trouvé");
     ADMIN_PRODUCTS[idx] = { ...ADMIN_PRODUCTS[idx], ...updates };
+    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
+    if (pIdx !== -1) PRODUCTS[pIdx] = { ...PRODUCTS[pIdx], ...updates };
     return ADMIN_PRODUCTS[idx];
   },
 
@@ -514,6 +522,8 @@ export const AilysRepository = {
     const product = ADMIN_PRODUCTS.find((p) => p.id === id);
     if (!product) throw new Error("Produit non trouvé");
     product.isPublished = !product.isPublished;
+    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
+    if (pIdx !== -1) (PRODUCTS[pIdx] as any).isPublished = product.isPublished;
     return product;
   },
 
@@ -521,6 +531,8 @@ export const AilysRepository = {
     const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error("Produit non trouvé");
     const [deleted] = ADMIN_PRODUCTS.splice(idx, 1);
+    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
+    if (pIdx !== -1) PRODUCTS.splice(pIdx, 1);
     return deleted;
   },
 
@@ -538,14 +550,17 @@ export const AilysRepository = {
       title: data.title,
       subtitle: data.subtitle || "",
       description: data.description || "",
+      story: data.story || data.description || "",
       heroDesktopImage: data.heroDesktopImage || "/images/campaign/hero-editorial-woman.jpg",
       heroMobileImage: data.heroMobileImage || "/images/campaign/hero-portrait-woman.jpg",
       isCapsule: data.isCapsule ?? false,
       isPublished: data.isPublished ?? true,
       productCount: data.productCount || 0,
+      productSlugs: data.productSlugs || [],
       createdAt: new Date().toISOString(),
     };
     ADMIN_COLLECTIONS.unshift(newCol);
+    COLLECTIONS.unshift(newCol);
     return newCol;
   },
 
@@ -553,6 +568,8 @@ export const AilysRepository = {
     const idx = ADMIN_COLLECTIONS.findIndex((c) => c.id === id);
     if (idx === -1) throw new Error("Collection non trouvée");
     ADMIN_COLLECTIONS[idx] = { ...ADMIN_COLLECTIONS[idx], ...updates };
+    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
+    if (cIdx !== -1) COLLECTIONS[cIdx] = { ...COLLECTIONS[cIdx], ...updates };
     return ADMIN_COLLECTIONS[idx];
   },
 
@@ -560,6 +577,8 @@ export const AilysRepository = {
     const col = ADMIN_COLLECTIONS.find((c) => c.id === id);
     if (!col) throw new Error("Collection non trouvée");
     col.isPublished = !col.isPublished;
+    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
+    if (cIdx !== -1) COLLECTIONS[cIdx].isPublished = col.isPublished;
     return col;
   },
 
@@ -567,6 +586,8 @@ export const AilysRepository = {
     const idx = ADMIN_COLLECTIONS.findIndex((c) => c.id === id);
     if (idx === -1) throw new Error("Collection non trouvée");
     const [deleted] = ADMIN_COLLECTIONS.splice(idx, 1);
+    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
+    if (cIdx !== -1) COLLECTIONS.splice(cIdx, 1);
     return deleted;
   },
 
@@ -770,206 +791,28 @@ export const AilysRepository = {
 // IN-MEMORY ADMIN DATA STORES
 // =============================================================================
 
-export const ADMIN_PRODUCTS = PRODUCTS.map((p) => ({
-  ...p,
-  isPublished: true,
-  stockQuantity: p.isSoldOut ? 0 : 25,
-}));
+export const ADMIN_PRODUCTS: any[] = [];
 
-export const ADMIN_COLLECTIONS = COLLECTIONS.map((c) => ({
-  ...c,
-  isPublished: true,
-  productCount: c.productSlugs?.length || 0,
-}));
+export const ADMIN_COLLECTIONS: any[] = [];
 
-export const ADMIN_PROMOTIONS = [
-  {
-    id: "promo-001",
-    code: "BIENVENUE10",
-    description: "Remise de bienvenue pour première commande",
-    discountType: "percentage",
-    discountValue: 10,
-    minOrderAmount: 150,
-    startDate: "2026-01-01",
-    endDate: "2026-12-31",
-    isActive: true,
-    usageCount: 42,
-  },
-  {
-    id: "promo-002",
-    code: "LUMIERE15",
-    description: "Privilège Collection Lumière d'Été",
-    discountType: "percentage",
-    discountValue: 15,
-    minOrderAmount: 300,
-    startDate: "2026-06-01",
-    endDate: "2026-09-30",
-    isActive: true,
-    usageCount: 19,
-  },
-  {
-    id: "promo-003",
-    code: "PRIVILEGE50",
-    description: "Remise exclusive atelier 50 TND dès 500 TND",
-    discountType: "fixed",
-    discountValue: 50,
-    minOrderAmount: 500,
-    startDate: "2026-01-01",
-    endDate: "2026-12-31",
-    isActive: false,
-    usageCount: 7,
-  },
-];
+export const ADMIN_PROMOTIONS: any[] = [];
 
-export const ADMIN_ORDERS: any[] = [
-  {
-    id: "ord-001",
-    orderCode: "AILYS-2609-4182",
-    customerName: "Sarra Mansour",
-    customerEmail: "sarra.mansour@example.tn",
-    customerPhone: "+216 98 123 456",
-    governorate: "Tunis",
-    city: "La Marsa",
-    address: "Avenue Habib Bourguiba, Résidence Les Palmiers, Apt 4B",
-    notes: "Sonner à l'interphone Mansour",
-    subtotal: 580.0,
-    shippingFee: 0,
-    total: 580.0,
-    paymentMethod: "COD",
-    status: "confirme",
-    createdAt: "2026-09-17T10:15:00Z",
-    items: [
-      {
-        id: "it-001",
-        productName: "Veste Tailleur Riviera en Lin",
-        size: "S",
-        color: "Lin Naturel",
-        quantity: 1,
-        unitPrice: 580.0,
-        imageUrl: "/images/products/ensemble-tailleur.jpg",
-      },
-    ],
-  },
-  {
-    id: "ord-002",
-    orderCode: "AILYS-2609-9051",
-    customerName: "Mehdi Ben Salem",
-    customerEmail: "mehdi.bensalem@gmail.com",
-    customerPhone: "+216 55 987 654",
-    governorate: "Sousse",
-    city: "Kantaoui",
-    address: "Villa Les Jasmins, Boulevard du 14 Janvier",
-    notes: "Livraison de préférence l'après-midi",
-    subtotal: 470.0,
-    shippingFee: 0,
-    total: 470.0,
-    paymentMethod: "COD",
-    status: "en_preparation",
-    createdAt: "2026-09-16T14:30:00Z",
-    items: [
-      {
-        id: "it-002",
-        productName: "Polo Maille Piquée Méditerranée",
-        size: "L",
-        color: "Blanc Os",
-        quantity: 2,
-        unitPrice: 235.0,
-        imageUrl: "/images/products/polo-homme.jpg",
-      },
-    ],
-  },
-  {
-    id: "ord-003",
-    orderCode: "AILYS-2609-1142",
-    customerName: "Leila Chahed",
-    customerEmail: "leila.chahed@outlook.com",
-    customerPhone: "+216 21 345 678",
-    governorate: "Sfax",
-    city: "Route de Téniour",
-    address: "Km 3, Résidence El Amen, Bâtiment B",
-    notes: "Appeler 30 minutes à l'avance",
-    subtotal: 820.0,
-    shippingFee: 0,
-    total: 820.0,
-    paymentMethod: "COD",
-    status: "nouveau",
-    createdAt: "2026-09-17T12:00:00Z",
-    items: [
-      {
-        id: "it-003",
-        productName: "Robe Longue Soie & Lin Carthage",
-        size: "38",
-        color: "Or Mat",
-        quantity: 1,
-        unitPrice: 820.0,
-        imageUrl: "/images/products/robe-soie.jpg",
-      },
-    ],
-  },
-];
+export const ADMIN_ORDERS: any[] = [];
 
-export const ADMIN_RETURNS: any[] = [
-  {
-    id: "ret-001",
-    requestCode: "RET-841920",
-    orderId: "ord-001",
-    orderCode: "AILYS-2609-4182",
-    customerName: "Sarra Mansour",
-    customerPhone: "+216 98 123 456",
-    customerEmail: "sarra.mansour@example.tn",
-    type: "echange",
-    reason: "Taille trop petite",
-    comments: "La veste est magnifique mais j'ai besoin d'une taille M au lieu du S.",
-    status: "en_attente",
-    tagsIntactConfirmed: true,
-    adminNotes: "",
-    createdAt: "2026-09-17T11:00:00Z",
-    items: [
-      {
-        id: "rit-001",
-        productName: "Veste Tailleur Riviera en Lin",
-        quantity: 1,
-        requestedExchangeSize: "M",
-      },
-    ],
-  },
-  {
-    id: "ret-002",
-    requestCode: "RET-319042",
-    orderId: "ord-002",
-    orderCode: "AILYS-2609-9051",
-    customerName: "Mehdi Ben Salem",
-    customerPhone: "+216 55 987 654",
-    customerEmail: "mehdi.bensalem@gmail.com",
-    type: "retour",
-    reason: "Coupe ne convient pas",
-    comments: "Étiquettes intactes dans la boîte d'origine.",
-    status: "approuve",
-    tagsIntactConfirmed: true,
-    adminNotes: "Coursier planifié pour enlèvement le 18/09",
-    createdAt: "2026-09-16T16:00:00Z",
-    items: [
-      {
-        id: "rit-002",
-        productName: "Polo Maille Piquée Méditerranée",
-        quantity: 1,
-      },
-    ],
-  },
-];
+export const ADMIN_RETURNS: any[] = [];
 
 export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
   {
     id: "sec-hero",
     key: "hero",
-    badge: "Nouvelle Collection • 2026",
-    title: "L'Élégance Contemporaine Tunisienne",
-    subtitle: "Silhouettes sport-chic sculptées par la lumière méditerranéenne",
-    description: "Des pièces intemporelles façonnées par la lumière tunisienne. La rencontre entre le vestiaire sport-chic et la noblesse des matières naturelles.",
-    ctaText: "Découvrir la Collection",
+    badge: "Nouvelle Collection",
+    title: "L'Élégance Contemporaine au Quotidien",
+    subtitle: "Silhouettes sport-chic façonnées par la lumière tunisienne",
+    description: "Des coupes épurées et confortables pensées pour accompagner le rythme de la femme moderne avec assurance et simplicité.",
+    ctaText: "DÉCOUVRIR AÏLYS",
     ctaLink: "#nouvelle-collection",
-    secondaryCtaText: "L'Histoire AÏLYS",
-    secondaryCtaLink: "/a-propos",
+    secondaryCtaText: "",
+    secondaryCtaLink: "",
     desktopImage: "/images/campaign/hero-editorial-woman.jpg",
     mobileImage: "/images/campaign/hero-portrait-woman.jpg",
     desktopImageTransform: {
@@ -992,12 +835,12 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
   {
     id: "sec-collection",
     key: "new_collection",
-    badge: "Lumière d'Été",
-    title: "Nouvelle Collection — Lumière d'Été",
-    subtitle: "Matières nobles, coupes épurées et légèreté méditerranéenne",
-    description: "Inspirée par la pureté des lignes de Sidi Bou Saïd et la noblesse du lin lavé. Chaque silhouette allie rigueur de confection et aisance sport-chic.",
-    ctaText: "Voir toute la collection",
-    ctaLink: "/collections/lumiere-d-ete",
+    badge: "Nouvelle Collection",
+    title: "Nouvelle Collection",
+    subtitle: "Matières douces, coupes nettes et confort contemporain",
+    description: "Des pièces faciles à vivre au tombé impeccable, où la pureté des lignes rencontre le confort des matières naturelles.",
+    ctaText: "Découvrir les collections",
+    ctaLink: "/collections",
     desktopImage: "/images/campaign/editorial-portrait-tunisian-light.jpg",
     mobileImage: "/images/campaign/editorial-portrait-tunisian-light.jpg",
     desktopImageTransform: {
@@ -1014,11 +857,7 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
       objectPosition: "50% 35%",
       aspectRatio: "3:4",
     },
-    selectedProductSlugs: [
-      "ensemble-tailleur-lin-ivoire",
-      "veste-zippee-sport-chic-noire",
-      "robe-longue-soie-lin-carthage"
-    ],
+    selectedProductSlugs: [],
     order: 2,
     isEnabled: true,
   },
@@ -1026,10 +865,10 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     id: "sec-philosophy",
     key: "philosophy",
     badge: "La Philosophie",
-    title: "Philosophie AÏLYS",
+    title: "L'Allure AÏLYS",
     subtitle: "« Quiet confidence, shaped by Tunisian light. »",
-    description: "Notre démarche refuse l'ostentation. Elle privilégie la tenue impeccable d'un col, la texture vivante d'un lin brut et la subtilité d'un reflet doré au coucher du soleil.",
-    ctaText: "Notre Vision",
+    description: "Une élégance sans artifice. Des volumes équilibrés et des matières agréables à porter pour traverser les journées actives avec aisance.",
+    ctaText: "L'Esprit AÏLYS",
     ctaLink: "/a-propos",
     desktopImage: "/images/campaign/editorial-portrait-tunisian-light.jpg",
     mobileImage: "/images/campaign/editorial-portrait-tunisian-light.jpg",
@@ -1053,11 +892,11 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
   {
     id: "sec-craftsmanship",
     key: "craftsmanship",
-    badge: "Savoir-Faire & Confection",
-    title: "Savoir-Faire & Confection",
-    subtitle: "Lin naturel, finitions cousues main et zips signature dorés",
-    description: "Chaque vêtement AÏLYS est confectionné en Tunisie dans des ateliers partenaires sélectionnés pour leur rigueur artisanale.",
-    ctaText: "Découvrir l'Atelier",
+    badge: "Confection & Matières",
+    title: "Confection & Matières",
+    subtitle: "Matières sélectionnées, coupes précises et finitions soignées",
+    description: "Chaque silhouette AÏLYS est confectionnée en Tunisie avec un souci constant du détail, de la qualité des coutures et du confort d'usage.",
+    ctaText: "En savoir plus",
     ctaLink: "/a-propos",
     desktopImage: "/images/campaign/hero-editorial-woman.jpg",
     mobileImage: "/images/campaign/hero-editorial-woman.jpg",
@@ -1081,11 +920,11 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
   {
     id: "sec-about",
     key: "about",
-    badge: "Transmission Mère-Fille",
-    title: "L'Origine d'AÏLYS",
-    subtitle: "Une transmission mère-fille au cœur de Tunis",
-    description: "AÏLYS est née d'un dialogue complice entre Aïda, attachée aux belles matières et à la coupe classique, et sa fille, guidée par une allure sport-chic dynamique.",
-    ctaText: "Lire l'histoire",
+    badge: "Origine du Nom",
+    title: "Aïcha & la Fleur de Lys",
+    subtitle: "L'union du prénom et de la fleur",
+    description: "Le nom AÏLYS réunit Aïcha, la fille de la fondatrice, et la fleur de lys, sa fleur de prédilection. Une histoire de transmission et d'élégance naturelle.",
+    ctaText: "Découvrir l'histoire",
     ctaLink: "/a-propos",
     desktopImage: "/images/campaign/hero-portrait-woman.jpg",
     mobileImage: "/images/campaign/hero-portrait-woman.jpg",
@@ -1109,11 +948,11 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
   {
     id: "sec-cta",
     key: "final_cta",
-    badge: "Atelier AÏLYS",
-    title: "Rejoindre l'Univers AÏLYS",
-    subtitle: "Accédez en avant-première aux pièces numérotées et capsules limitées",
-    description: "Explorez notre vestiaire contemporain et découvrez l'élégance sobre de notre maison.",
-    ctaText: "Explorer le Shop",
+    badge: "L'Univers AÏLYS",
+    title: "Découvrir la Collection",
+    subtitle: "Une allure contemporaine pensée pour le quotidien",
+    description: "Explorez notre sélection de pièces pour Femme, Homme et Enfant, alliant confort et élégance sobre.",
+    ctaText: "Découvrir la boutique",
     ctaLink: "/shop",
     desktopImage: "/images/campaign/hero-editorial-woman.jpg",
     mobileImage: "/images/campaign/hero-editorial-woman.jpg",
@@ -1233,12 +1072,12 @@ export const ADMIN_MEDIA: any[] = [
   },
   {
     id: "med-008",
-    name: "ailys-emblem-gold-transparent.png",
-    url: "/brand/ailys-emblem-gold-transparent.png",
-    dimensions: "512 x 512",
-    size: "45 KB",
-    mimeType: "image/png",
-    createdAt: "2026-09-15",
+    name: "logo.svg",
+    url: "/logo.svg",
+    dimensions: "567 x 567",
+    size: "5 KB",
+    mimeType: "image/svg+xml",
+    createdAt: "2026-09-17",
   },
 ];
 

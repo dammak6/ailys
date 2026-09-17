@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
+import { AilysLogo } from "@/components/brand/AilysLogo";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils";
 
@@ -128,7 +128,9 @@ export default function CheckoutPage() {
       <div className="w-full bg-ailys-bone py-20 sm:py-28">
         <Container size="md">
           <div className="bg-white border border-ailys-bone-border p-8 sm:p-12 text-center space-y-8 shadow-editorial animate-in zoom-in-95">
-            <BotanicalEmblem size={32} variant="gold" className="mx-auto" />
+            <div className="flex justify-center">
+              <AilysLogo size="lg" />
+            </div>
 
             <div className="space-y-2">
               <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold">

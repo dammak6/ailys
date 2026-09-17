@@ -1,117 +1,94 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { BotanicalEmblem } from "./BotanicalEmblem";
 
-interface AilysLogoProps {
+export interface AilysLogoProps {
   className?: string;
   variant?: "dark" | "light" | "gold";
   size?: "sm" | "md" | "lg" | "xl";
-  showEmblem?: boolean;
   href?: string;
-  useImage?: boolean;
   onClick?: () => void;
+  priority?: boolean;
 }
 
 export function AilysLogo({
   className,
   variant = "dark",
   size = "md",
-  showEmblem = true,
   href = "/",
-  useImage = true,
   onClick,
+  priority = true,
 }: AilysLogoProps) {
+  // Proportional 1:1 aspect ratio strictly preserving the official 566.93 x 566.93 SVG geometry
   const sizeMap = {
-    sm: { width: 110, height: 50, textSize: "text-xl", emblemSize: 16 },
-    md: { width: 140, height: 64, textSize: "text-2xl", emblemSize: 20 },
-    lg: { width: 190, height: 86, textSize: "text-3xl", emblemSize: 26 },
-    xl: { width: 260, height: 118, textSize: "text-5xl", emblemSize: 34 },
+    sm: {
+      width: 72,
+      height: 72,
+      className: "w-[64px] h-[64px] sm:w-[72px] sm:h-[72px]",
+    },
+    md: {
+      width: 96,
+      height: 96,
+      className: "w-[80px] h-[80px] sm:w-[96px] sm:h-[96px]",
+    },
+    lg: {
+      width: 128,
+      height: 128,
+      className: "w-[110px] h-[110px] sm:w-[128px] sm:h-[128px]",
+    },
+    xl: {
+      width: 160,
+      height: 160,
+      className: "w-[140px] h-[140px] sm:w-[160px] sm:h-[160px]",
+    },
   };
 
   const currentSize = sizeMap[size];
+  const isLight = variant === "light" || variant === "gold";
 
-  const content = useImage ? (
-    <div className={cn("relative flex items-center justify-center select-none", className)}>
-      <Image
-        src={
-          variant === "light"
-            ? "/brand/ailys-logo-reversed.png"
-            : variant === "gold"
-            ? "/brand/ailys-logo-gold-transparent.png"
-            : "/brand/ailys-logo-black-transparent.png"
-        }
-        alt="AÏLYS"
-        width={currentSize.width}
-        height={currentSize.height}
-        priority
-        className={cn(
-          "object-contain transition-all duration-300",
-          variant === "light" && "brightness-0 invert"
-        )}
-      />
-    </div>
-  ) : (
+  const content = (
     <div
       className={cn(
-        "flex flex-col items-center justify-center select-none group",
-        variant === "light" ? "text-ailys-bone" : variant === "gold" ? "text-ailys-gold" : "text-ailys-black",
+        "relative flex items-center justify-center select-none shrink-0 transition-transform duration-300",
+        currentSize.className,
         className
       )}
     >
-      {/* Editorial wordmark */}
-      <span
+      <Image
+        src="/logo.svg"
+        alt="AÏLYS"
+        width={currentSize.width}
+        height={currentSize.height}
+        priority={priority}
         className={cn(
-          "font-editorial-heading tracking-[0.18em] leading-none font-medium transition-colors",
-          currentSize.textSize
+          "w-full h-full object-contain transition-all duration-300",
+          isLight && "brightness-0 invert"
         )}
-      >
-        AÏLYS
-      </span>
-
-      {/* Emblem with flanking hairline rules */}
-      {showEmblem && (
-        <div className="flex items-center justify-center gap-2 mt-1.5 w-full max-w-[120px]">
-          <span
-            className={cn(
-              "flex-1 border-t",
-              variant === "light"
-                ? "border-ailys-bone/30"
-                : variant === "gold"
-                ? "border-ailys-gold/40"
-                : "border-ailys-black/20"
-            )}
-          />
-          <BotanicalEmblem
-            size={currentSize.emblemSize}
-            variant={variant === "gold" ? "gold" : variant === "light" ? "bone" : "black"}
-          />
-          <span
-            className={cn(
-              "flex-1 border-t",
-              variant === "light"
-                ? "border-ailys-bone/30"
-                : variant === "gold"
-                ? "border-ailys-gold/40"
-                : "border-ailys-black/20"
-            )}
-          />
-        </div>
-      )}
+      />
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} onClick={onClick} className="inline-block transition-opacity hover:opacity-90">
+      <Link
+        href={href}
+        onClick={onClick}
+        aria-label="AÏLYS - Accueil"
+        className="inline-flex items-center justify-center transition-opacity hover:opacity-85 focus:outline-none"
+      >
         {content}
       </Link>
     );
   }
 
   return (
-    <div onClick={onClick} className={cn(onClick && "cursor-pointer")}>
+    <div
+      onClick={onClick}
+      className={cn("inline-flex items-center justify-center", onClick && "cursor-pointer")}
+    >
       {content}
     </div>
   );

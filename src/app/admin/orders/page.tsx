@@ -179,42 +179,50 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E8E6DF]">
-              {filteredOrders.map((ord) => (
-                <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
-                  <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
-                    {ord.orderCode}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
-                    <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
-                      <Phone className="w-3 h-3 text-[#B79A5B]" />
-                      <span>{ord.customerPhone}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-medium text-[#444]">{ord.governorate}</div>
-                    <div className="text-[11px] text-[#7A7770] truncate max-w-xs">
-                      {ord.city}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-[#555]">
-                    {ord.items?.length || 1} pièce(s)
-                  </td>
-                  <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
-                    {Number(ord.total).toFixed(3)} TND
-                  </td>
-                  <td className="py-3 px-4">{getStatusBadge(ord.status)}</td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      onClick={() => setSelectedOrder(ord)}
-                      className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Examiner</span>
-                    </button>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((ord) => (
+                  <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
+                      {ord.orderCode}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
+                      <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
+                        <Phone className="w-3 h-3 text-[#B79A5B]" />
+                        <span>{ord.customerPhone}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-[#444]">{ord.governorate}</div>
+                      <div className="text-[11px] text-[#7A7770] truncate max-w-xs">
+                        {ord.city}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-[#555]">
+                      {ord.items?.length || 1} pièce(s)
+                    </td>
+                    <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
+                      {Number(ord.total).toFixed(3)} TND
+                    </td>
+                    <td className="py-3 px-4">{getStatusBadge(ord.status)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => setSelectedOrder(ord)}
+                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Examiner</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-[#7A7770]">
+                    Aucune commande enregistrée.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

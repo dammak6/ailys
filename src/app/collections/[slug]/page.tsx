@@ -7,22 +7,23 @@ import { Container } from "@/components/layout/Container";
 import { Frame } from "@/components/layout/Frame";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 import { ProductCard } from "@/components/common/ProductCard";
-import { COLLECTIONS, PRODUCTS } from "@/lib/data";
+import { AilysRepository } from "@/lib/db/repository";
 
 interface SingleCollectionProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function SingleCollectionPage({ params }: SingleCollectionProps) {
-  const resolvedParams = use(params);
-  const collection = COLLECTIONS.find((c) => c.slug === resolvedParams.slug);
+export default async function SingleCollectionPage({ params }: SingleCollectionProps) {
+  const resolvedParams = await params;
+  const collection = await AilysRepository.getCollectionBySlug(resolvedParams.slug);
 
   if (!collection) {
     notFound();
   }
 
-  const collectionProducts = PRODUCTS.filter((p) =>
-    collection.productSlugs.includes(p.slug)
+  const allProducts = await AilysRepository.getProducts();
+  const collectionProducts = allProducts.filter((p) =>
+    collection.productSlugs?.includes(p.slug)
   );
 
   return (
@@ -81,11 +82,22 @@ export default function SingleCollectionPage({ params }: SingleCollectionProps) 
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
-            {collectionProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          {collectionProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
+              {collectionProducts.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center space-y-3 border border-dashed border-ailys-bone-border">
+              <p className="font-editorial-heading text-2xl text-ailys-black">
+                Pièces en cours de confection
+              </p>
+              <p className="text-xs text-ailys-muted font-sans">
+                Les créations de cette collection seront bientôt disponibles en boutique.
+              </p>
+            </div>
+          )}
 
           {/* Lookbook Quote */}
           <div className="mt-20">

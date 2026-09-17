@@ -26,9 +26,9 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "AÏLYS | Maison de Confection Contemporaine Tunisienne",
+  title: "AÏLYS | Prêt-à-Porter Contemporain Tunisien",
   description:
-    "AÏLYS incarne l'élégance contemporaine tunisienne. Silhouettes sport-chic, matières nobles et finitions raffinées façonnées par la lumière méditerranéenne.",
+    "AÏLYS incarne une élégance contemporaine sobre et naturelle. Silhouettes sport-chic, matières confortables et finitions soignées conçues pour la femme moderne et sa famille.",
   keywords: [
     "AÏLYS",
     "mode tunisienne",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "AÏLYS" }],
   icons: {
-    icon: "/brand/ailys-emblem-gold-transparent.png",
+    icon: "/logo.svg",
   },
 };
 

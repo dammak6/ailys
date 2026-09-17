@@ -58,7 +58,7 @@ export function Header({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between">
           {/* Mobile menu button */}
-          <div className="flex items-center lg:hidden">
+          <div className="flex items-center lg:hidden w-12">
             <button
               type="button"
               onClick={() => setIsMobileNavOpen(true)}
@@ -70,7 +70,7 @@ export function Header({
           </div>
 
           {/* Desktop Left: Clean Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-sans uppercase tracking-[0.2em] font-medium text-ailys-black">
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-sans uppercase tracking-[0.2em] font-medium text-ailys-black lg:w-1/3">
             {/* SHOP with MegaMenu trigger */}
             <div
               className="relative py-2"
@@ -109,8 +109,8 @@ export function Header({
             </Link>
           </nav>
 
-          {/* Center: AÏLYS Logo */}
-          <div className="flex-1 lg:flex-none flex justify-center items-center">
+          {/* Center: Authoritative AÏLYS Official Logo */}
+          <div className="flex-1 lg:w-1/3 flex justify-center items-center px-4">
             <AilysLogo
               size={isScrolled ? "sm" : "md"}
               className={cn(
@@ -121,7 +121,7 @@ export function Header({
           </div>
 
           {/* Right: Search & Cart (No Accounts per instructions) */}
-          <div className="flex items-center gap-4 sm:gap-6 text-ailys-black">
+          <div className="flex items-center justify-end gap-4 sm:gap-6 text-ailys-black lg:w-1/3">
             <button
               type="button"
               onClick={handleOpenSearch}

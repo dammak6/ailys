@@ -92,8 +92,8 @@ export default function AdminDashboardPage() {
             <span className="font-serif text-3xl font-light text-[#0B0B0B]">
               {totalRevenue.toLocaleString("fr-TN", { minimumFractionDigits: 3 })} TND
             </span>
-            <p className="text-[11px] text-emerald-700 mt-1 flex items-center space-x-1 font-medium">
-              <span>+18.4% ce mois</span>
+            <p className="text-[11px] text-[#7A7770] mt-1 flex items-center space-x-1 font-medium">
+              <span>{orders.length} commande(s)</span>
               <span>• Toutes livraisons COD</span>
             </p>
           </div>
@@ -195,40 +195,48 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0EFEB]">
-                {orders.map((ord) => (
-                  <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
-                    <td className="py-3 font-mono font-medium text-[#0B0B0B]">
-                      {ord.orderCode}
-                    </td>
-                    <td className="py-3">
-                      <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
-                      <div className="text-[11px] text-[#7A7770]">
-                        {ord.governorate} • {ord.customerPhone}
-                      </div>
-                    </td>
-                    <td className="py-3 text-[#555]">
-                      {ord.items?.length || 1} pièce(s)
-                    </td>
-                    <td className="py-3 font-serif font-medium text-[#0B0B0B]">
-                      {Number(ord.total).toFixed(3)} TND
-                    </td>
-                    <td className="py-3">
-                      <span
-                        className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider rounded font-medium ${
-                          ord.status === "confirme"
-                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                            : ord.status === "en_preparation"
-                            ? "bg-blue-50 text-blue-800 border border-blue-200"
-                            : ord.status === "en_livraison"
-                            ? "bg-purple-50 text-purple-800 border border-purple-200"
-                            : "bg-amber-50 text-amber-800 border border-amber-200"
-                        }`}
-                      >
-                        {ord.status}
-                      </span>
+                {orders.length > 0 ? (
+                  orders.map((ord) => (
+                    <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
+                      <td className="py-3 font-mono font-medium text-[#0B0B0B]">
+                        {ord.orderCode}
+                      </td>
+                      <td className="py-3">
+                        <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
+                        <div className="text-[11px] text-[#7A7770]">
+                          {ord.governorate} • {ord.customerPhone}
+                        </div>
+                      </td>
+                      <td className="py-3 text-[#555]">
+                        {ord.items?.length || 1} pièce(s)
+                      </td>
+                      <td className="py-3 font-serif font-medium text-[#0B0B0B]">
+                        {Number(ord.total).toFixed(3)} TND
+                      </td>
+                      <td className="py-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider rounded font-medium ${
+                            ord.status === "confirme"
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              : ord.status === "en_preparation"
+                              ? "bg-blue-50 text-blue-800 border border-blue-200"
+                              : ord.status === "en_livraison"
+                              ? "bg-purple-50 text-purple-800 border border-purple-200"
+                              : "bg-amber-50 text-amber-800 border border-amber-200"
+                          }`}
+                        >
+                          {ord.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-[#7A7770]">
+                      Aucune commande enregistrée pour le moment.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -250,27 +258,33 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {returns.map((ret) => (
-                <div
-                  key={ret.id || ret.requestCode}
-                  className="p-3 bg-[#FBFBF9] border border-[#E8E6DF] rounded-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold text-[#0B0B0B]">
-                      {ret.requestCode}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-[#EAE8E1] text-[#4A4740] rounded">
-                      {ret.type}
-                    </span>
+              {returns.length > 0 ? (
+                returns.map((ret) => (
+                  <div
+                    key={ret.id || ret.requestCode}
+                    className="p-3 bg-[#FBFBF9] border border-[#E8E6DF] rounded-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-semibold text-[#0B0B0B]">
+                        {ret.requestCode}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-[#EAE8E1] text-[#4A4740] rounded">
+                        {ret.type}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-[#0B0B0B] mt-1">
+                      {ret.customerName}
+                    </p>
+                    <p className="text-[11px] text-[#7A7770]">
+                      Raison: {ret.reason}
+                    </p>
                   </div>
-                  <p className="text-xs font-medium text-[#0B0B0B] mt-1">
-                    {ret.customerName}
-                  </p>
-                  <p className="text-[11px] text-[#7A7770]">
-                    Raison: {ret.reason}
-                  </p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-xs text-[#7A7770] py-4 text-center">
+                  Aucune demande de retour en attente.
+                </p>
+              )}
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAdminAuth } from "@/lib/admin-auth-context";
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { AilysLogo } from "@/components/brand/AilysLogo";
 
 function LoginForm() {
   const router = useRouter();
@@ -45,18 +46,9 @@ function LoginForm() {
       <div className="w-full max-w-md z-10">
         {/* Header Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Image
-              src="/brand/ailys-emblem-gold-transparent.png"
-              alt="AÏLYS Crest"
-              width={64}
-              height={64}
-              className="object-contain"
-            />
+          <div className="flex justify-center mb-4">
+            <AilysLogo variant="light" size="xl" href="/admin/login" />
           </div>
-          <h1 className="font-serif text-3xl font-light tracking-wide text-[#F5F3EC]">
-            AÏLYS
-          </h1>
           <p className="text-xs uppercase tracking-[0.25em] text-[#B79A5B] mt-1 font-sans">
             Portail d'Administration Privée
           </p>

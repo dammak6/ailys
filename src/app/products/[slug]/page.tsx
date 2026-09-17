@@ -20,7 +20,6 @@ import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ProductCard } from "@/components/common/ProductCard";
-import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 import { PRODUCTS, Product } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";

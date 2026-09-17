@@ -1,13 +1,20 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface BotanicalEmblemProps {
+export interface BotanicalEmblemProps {
   className?: string;
   size?: number | string;
   color?: string;
   variant?: "gold" | "black" | "bone" | "current";
 }
 
+/**
+ * Authoritative AÏLYS Official Flower Symbol
+ * Extracted directly from the official AÏLYS logo SVG (Adobe Illustrator master artwork).
+ * Geometry, proportions, curves, and angles are preserved without redrawing or approximation.
+ */
 export function BotanicalEmblem({
   className,
   size = 28,
@@ -20,88 +27,34 @@ export function BotanicalEmblem({
     current: "currentColor",
   };
 
-  const fill = colorMap[variant];
+  const fill = colorMap[variant] || colorMap.gold;
+
+  // ViewBox bounds of the flower group in logo.svg:
+  // x: 224 to 345 (width: 121), y: 325 to 403 (height: 78)
+  const width = size;
+  const height =
+    typeof size === "number" ? Math.round((size * 78) / 121) : undefined;
 
   return (
     <svg
-      width={size}
-      height={typeof size === "number" ? Math.round(size * 0.75) : size}
-      viewBox="0 0 100 75"
-      fill="none"
+      width={width}
+      height={height}
+      viewBox="224 325 121 78"
+      fill={fill}
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("inline-block transition-transform duration-300", className)}
+      className={cn("inline-block transition-transform duration-300 shrink-0", className)}
       aria-hidden="true"
     >
-      {/* Central petal */}
-      <path
-        d="M50 4 C50 4 39 20 40 46 C44 48 49 49 50 49 C51 49 56 48 60 46 C61 20 50 4 50 4Z"
-        fill={fill}
-      />
-      <path
-        d="M50 10 L50 46"
-        stroke="#F5F3EC"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-
-      {/* Mid Left petal */}
-      <path
-        d="M48 24 C48 24 28 20 20 38 C27 48 37 49 42 48 C41 40 45 28 48 24Z"
-        fill={fill}
-      />
-      <path
-        d="M46 27 C36 31 29 37 26 41"
-        stroke="#F5F3EC"
-        strokeWidth="1"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-
-      {/* Mid Right petal */}
-      <path
-        d="M52 24 C52 24 72 20 80 38 C73 48 63 49 58 48 C59 40 55 28 52 24Z"
-        fill={fill}
-      />
-      <path
-        d="M54 27 C64 31 71 37 74 41"
-        stroke="#F5F3EC"
-        strokeWidth="1"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-
-      {/* Bottom Left petal */}
-      <path
-        d="M41 49 C41 49 18 42 12 55 C22 66 36 62 42 57 C41 54 41 51 41 49Z"
-        fill={fill}
-      />
-      <path
-        d="M38 51 C27 52 20 57 17 60"
-        stroke="#F5F3EC"
-        strokeWidth="0.9"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-
-      {/* Bottom Right petal */}
-      <path
-        d="M59 49 C59 49 82 42 88 55 C78 66 64 62 58 57 C59 54 59 51 59 49Z"
-        fill={fill}
-      />
-      <path
-        d="M62 51 C73 52 80 57 83 60"
-        stroke="#F5F3EC"
-        strokeWidth="0.9"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-
-      {/* Bottom decorative base calyx */}
-      <path
-        d="M45 56 C47 62 50 65 50 65 C50 65 53 62 55 56 C52 57 48 57 45 56Z"
-        fill={fill}
-      />
+      <g>
+        <path d="M234.74,379.38c.7,2.26,9.76,12.92,11.76,11.55l1.19-2.81c2.11,4.4,7.51,6.06,12.03,5.89-1.23-1.8-2.83-4.01-2.83-4.01,2.53.05,5.1-.29,7.54.47.21-.81-.33-.94-.7-1.42-1.98-2.55-7.21-7.1-7.76-10.16-.12-.68-.29-1.35.68-1.15,2.53,2.68,12.51,10.13,12.51,10.13,4.83,2.37,8.21,7.11,12.25,10.61-5.58,2.39-10.09,3.7-16.28,3.32-13.53-.81-23.67-7.29-32.29-17.22-3.11-3.58-5.1-7.31-7.53-11.33,6.17-1.58,11.63-3.04,18.02-1.99,1.76.29,9.64,2.21,8.85,4.81-.5,1.64-17.7,2.43-17.43,3.3Z" />
+        <path d="M321.95,343.33c.46,11.34-.86,24.38-9.89,32.3-3.42,3-13.97,9.01-18.29,10.93-1.66.74-2.48,1.21-4.34.61.54-2.62,1.85-5.03,2.53-7.61,3.25-12.34,1.72-23.17,14.6-30.18,1.47-.8,14.82-6.64,15.4-6.05ZM315.35,350.87c-3.93,1.98-9.78,3.91-12.72,7.32-3.5,4.05-4.39,11.18-5.66,16.25.3.38,7.33-5.93,8.01-5.18.04,1.12-2.3,6.59-.71,6.12,1.22-.36,7.14-5.84,7.99-7.1.68-.99,2.8-5.76,2.15-6.57l-1.41.47c-.15-3.94,2.4-7.4,2.35-11.31Z" />
+        <path d="M284.7,326.35c.06.07-.04,1.22.27,1.85,2.96,6.02,6.81,11.41,8.81,18.07,4.01,13.3-1.45,18.29-5.17,29.96-.28.89-3.48,14.79-4.84,13.77-2.31-6.58-3.75-13.48-6.12-20.05-1.63-4.52-3.8-6.92-4.25-12.25-1-12,4.02-18.95,9.5-28.67.21-.37.96-3.74,1.8-2.68ZM284.7,338.14c-1.22-.22-.73.17-.98.67-.85,1.67-4.04,9.9-4.18,11.41-.26,2.81,2.67,3.63,1.86,6.78l-3.77-2.82c-1.07,8.64,3.81,16.03,5.66,24.04,1.3.19.72-.15.94-.7,2.97-7.39,5.75-15,8.02-22.65-.31-3.29-4.3,3.6-5.2,2.6-.08-2.24,1.45-3.78,1.76-6.01.69-5.05-2.08-9.01-4.12-13.31Z" />
+        <path d="M246.99,342.85c5.65,3.41,13.28,5.55,18.39,9.66,7.75,6.22,8.11,16.47,10.6,25.23.64,2.27,2.67,6.19,2.98,7.89.9,4.93-6.69-1.09-8.09-1.84-9.38-5.05-17-7.11-21.07-18.06-2.71-7.31-3.05-15.15-2.82-22.87ZM271.03,375.38c-.95-7.76-2.77-16.58-9.94-20.94-.65-.4-7.22-3.88-7.5-3.57.61,1.75,8.52,9.17-.48,8.95-.65,7.55,5,13.34,11.55,16.04,0-1.7-1.04-3.27-1.18-4.96-.05-.56-.31-2.06.7-1.65.81.52,6.2,6.83,6.84,6.12Z" />
+        <path d="M343.64,372.56c-9.46,21.37-33.65,36.64-56.57,25.45,7.55-7.38,15.69-14.28,24.76-19.79.16,5.15-5.63,8.46-8.25,12.49l9.43-1.18-3.3,4.71c.19.15,3.16-.54,3.78-.7,4.64-1.18,11.59-3.4,15.06-6.63.81-.75,6.4-7.58,5.68-8.22-2.58-.26-5.06.36-7.54.94l.94-3.3c-4.04-.48-7.8.71-11.78.94-.18-3.55,20.62-5.59,27.81-4.71Z" />
+      </g>
     </svg>
   );
 }
+
+// Alias to ensure semantic clarity across the codebase
+export const AilysFlower = BotanicalEmblem;

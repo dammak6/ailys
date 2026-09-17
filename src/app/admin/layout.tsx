@@ -65,10 +65,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/admin" className="flex items-center space-x-3 group">
             <div className="w-8 h-8 relative shrink-0">
               <Image
-                src="/brand/ailys-emblem-gold-transparent.png"
+                src="/logo.svg"
                 alt="AÏLYS"
                 fill
-                className="object-contain"
+                className="object-contain brightness-0 invert"
               />
             </div>
             <div>
@@ -142,10 +142,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <Link href="/admin" className="flex items-center space-x-2.5">
           <div className="w-6 h-6 relative">
             <Image
-              src="/brand/ailys-emblem-gold-transparent.png"
+              src="/logo.svg"
               alt="AÏLYS"
               fill
-              className="object-contain"
+              className="object-contain brightness-0 invert"
             />
           </div>
           <span className="font-serif text-lg tracking-wider text-[#F5F3EC]">

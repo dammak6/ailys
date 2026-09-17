@@ -134,6 +134,15 @@ export default function ShopPage() {
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
+        ) : PRODUCTS.length === 0 ? (
+          <div className="py-24 text-center space-y-4 border border-dashed border-ailys-bone-border">
+            <p className="font-editorial-heading text-2xl text-ailys-black">
+              Catalogue en cours d&apos;actualisation
+            </p>
+            <p className="text-xs text-ailys-muted font-sans max-w-md mx-auto">
+              Nos nouvelles pièces et silhouettes de saison seront mises en ligne très prochainement.
+            </p>
+          </div>
         ) : (
           <div className="py-24 text-center space-y-4 border border-dashed border-ailys-bone-border">
             <p className="font-editorial-heading text-2xl text-ailys-black">
@@ -147,7 +156,7 @@ export default function ShopPage() {
                 setSelectedCategory("all");
                 setSelectedSize("all");
               }}
-              className="px-6 py-2.5 bg-ailys-black text-ailys-bone text-xs uppercase tracking-widest hover:bg-ailys-black/90 transition-colors"
+              className="px-6 py-2.5 bg-ailys-black text-ailys-bone text-xs uppercase tracking-widest hover:bg-ailys-black/90 transition-colors cursor-pointer"
             >
               Voir tout le catalogue
             </button>
