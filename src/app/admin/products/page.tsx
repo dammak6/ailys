@@ -32,8 +32,8 @@ export default function AdminProductsPage() {
     subCategory: "Tailleurs & Ensembles",
     price: 450,
     salePrice: "",
-    collection: "Lumière d'Été",
-    primaryImage: "/images/products/ensemble-tailleur.jpg",
+    collection: "Nouvelle Collection",
+    primaryImage: "/images/editorial/03_the_silhouette.png",
     materials: "100% Lin Normand Lavé",
     care: "Nettoyage à sec délicat",
     fit: "Coupe cintrée contemporaine",
@@ -74,8 +74,8 @@ export default function AdminProductsPage() {
       subCategory: "Tailleurs & Ensembles",
       price: 450,
       salePrice: "",
-      collection: "Lumière d'Été",
-      primaryImage: "/images/products/ensemble-tailleur.jpg",
+      collection: "Nouvelle Collection",
+      primaryImage: "/images/editorial/03_the_silhouette.png",
       materials: "100% Lin Normand Lavé",
       care: "Nettoyage à sec délicat",
       fit: "Coupe cintrée contemporaine",
@@ -231,7 +231,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-16 relative bg-[#EFECE4] rounded-sm overflow-hidden shrink-0">
                           <Image
-                            src={p.primaryImage || "/images/products/ensemble-tailleur.jpg"}
+                            src={p.primaryImage || "/images/editorial/03_the_silhouette.png"}
                             alt={p.name}
                             fill
                             className="object-cover"

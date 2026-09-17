@@ -18,7 +18,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "FEMME",
       href: "/shop/femme",
-      image: "/images/campaign/hero-portrait-woman.jpg",
+      image: "/images/editorial/02_ailys_portrait.png",
       featuredText: "L'allure sport-chic au féminin",
       sublinks: [
         { label: "Voir tout Femme", href: "/shop/femme" },
@@ -31,7 +31,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "HOMME",
       href: "/shop/homme",
-      image: "/images/campaign/man-sport-chic.jpg",
+      image: "/images/editorial/05_movement.png",
       featuredText: "Coupes épurées & matières nobles",
       sublinks: [
         { label: "Voir tout Homme", href: "/shop/homme" },
@@ -44,7 +44,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "ENFANT",
       href: "/shop/enfant",
-      image: "/images/campaign/girl-sport-chic.jpg",
+      image: "/images/editorial/08_mediterranean_street.png",
       featuredText: "L'élégance familiale partagée",
       sublinks: [
         { label: "Voir tout Enfant", href: "/shop/enfant" },

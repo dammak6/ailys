@@ -38,7 +38,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Desktop Image Composition */}
       <div className="hidden sm:block absolute inset-0 z-0">
         <Image
-          src={section.desktopImage || "/images/campaign/hero-editorial-woman.jpg"}
+          src={section.desktopImage || "/images/editorial/01_ailys_hero.png"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -61,7 +61,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Mobile Dedicated Composition */}
       <div className="block sm:hidden absolute inset-0 z-0">
         <Image
-          src={section.mobileImage || "/images/campaign/hero-portrait-woman.jpg"}
+          src={section.mobileImage || "/images/editorial/02_ailys_portrait.png"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -185,7 +185,7 @@ function EditorialImageBreak() {
   return (
     <section className="relative w-full h-[60vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
       <Image
-        src="/images/campaign/editorial-portrait-tunisian-light.jpg"
+        src="/images/editorial/05_movement.png"
         alt="L'Allure AÏLYS dans la lumière tunisienne"
         fill
         sizes="100vw"
@@ -341,7 +341,7 @@ function DynamicAboutSection({ section }: { section: any }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-ailys-bone border border-ailys-hairline shadow-sm">
             <Image
-              src={section.desktopImage || "/images/campaign/hero-portrait-woman.jpg"}
+              src={section.desktopImage || "/images/editorial/07_minimal_studio.png"}
               alt="Aïcha & la Fleur de Lys — Origine de la marque AÏLYS"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"

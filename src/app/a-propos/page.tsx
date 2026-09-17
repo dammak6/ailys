@@ -13,7 +13,7 @@ export default function AboutPage() {
       <section className="relative w-full min-h-[50vh] sm:min-h-[60vh] flex items-end bg-ailys-black text-ailys-bone pb-16 pt-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/campaign/hero-editorial-woman.jpg"
+            src="/images/editorial/11_ailys_atmosphere.png"
             alt="Campagne AÏLYS"
             fill
             priority
@@ -70,7 +70,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-ailys-bone-dark border border-ailys-bone-border">
               <Image
-                src="/images/campaign/editorial-portrait-tunisian-light.jpg"
+                src="/images/editorial/10_the_close_up.png"
                 alt="Portrait AÏLYS"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

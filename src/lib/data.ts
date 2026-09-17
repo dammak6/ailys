@@ -55,7 +55,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "L'allure sport-chic au féminin",
     description:
       "Des tailleurs déstructurés en lin lavé aux robes fluides coupées pour la liberté de mouvement. Une élégance sobre pensée pour le jour et le crépuscule.",
-    heroImage: "/images/campaign/hero-editorial-woman.jpg",
+    heroImage: "/images/editorial/03_the_silhouette.png",
     subcategories: ["Tailleurs & Ensembles", "Robes & Combinaisons", "Vestes & Manteaux", "Pantalons & Jupes", "Tops & Chemises"],
   },
   homme: {
@@ -64,7 +64,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "Coupes épurées & matières nobles",
     description:
       "L'équilibre précis entre confection tailleur et aisance sportive. Des polos en piqué de coton doux, vestes structurées légères et pantalons décontractés.",
-    heroImage: "/images/campaign/man-sport-chic.jpg",
+    heroImage: "/images/editorial/05_movement.png",
     subcategories: ["Vestes Sport-Chic", "Polos & Mailles", "Pantalons & Chinos", "Chemises Légères"],
   },
   enfant: {
@@ -73,7 +73,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "L'élégance familiale partagée",
     description:
       "Conçus avec les mêmes étoffes nobles et finitions artisanales que les pièces adultes, pour un vestiaire familial harmonieux et durable.",
-    heroImage: "/images/campaign/girl-sport-chic.jpg",
+    heroImage: "/images/editorial/08_mediterranean_street.png",
     subcategories: ["Ensembles Fille", "Ensembles Garçon", "Robes d'Été", "Capsules Famille"],
   },
 };

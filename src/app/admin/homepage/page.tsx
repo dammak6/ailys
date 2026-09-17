@@ -1054,7 +1054,7 @@ export default function AdminHomepageCMSPage() {
                               <div key={p.id} className="bg-white p-2 rounded border border-[#E8E6DF]">
                                 <div className="aspect-3/4 relative bg-[#EFECE4] rounded overflow-hidden">
                                   <Image
-                                    src={p.primaryImage || "/images/products/ensemble-tailleur.jpg"}
+                                    src={p.primaryImage || "/images/editorial/03_the_silhouette.png"}
                                     alt={p.name}
                                     fill
                                     className="object-cover"
@@ -1108,7 +1108,7 @@ export default function AdminHomepageCMSPage() {
                           <div className="p-8 bg-[#EFECE4] flex flex-col sm:flex-row items-center gap-6">
                             <div className="w-full sm:w-48 aspect-3/4 relative rounded overflow-hidden shrink-0">
                               <Image
-                                src={sec.desktopImage || "/images/campaign/hero-portrait-woman.jpg"}
+                                src={sec.desktopImage || "/images/editorial/07_minimal_studio.png"}
                                 alt="About"
                                 fill
                                 style={
@@ -1171,8 +1171,8 @@ export default function AdminHomepageCMSPage() {
           onClose={() => setImageEditorOpen(false)}
           imageUrl={
             imageEditorField === "desktop"
-              ? editingSection.desktopImage || "/images/campaign/hero-editorial-woman.jpg"
-              : editingSection.mobileImage || "/images/campaign/hero-portrait-woman.jpg"
+              ? editingSection.desktopImage || "/images/editorial/01_ailys_hero.png"
+              : editingSection.mobileImage || "/images/editorial/02_ailys_portrait.png"
           }
           imageName={`${editingSection.title} — Visuel ${
             imageEditorField === "desktop" ? "Desktop" : "Mobile"
