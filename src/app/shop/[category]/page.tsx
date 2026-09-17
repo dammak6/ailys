@@ -1,0 +1,172 @@
+"use client";
+
+import React, { useState, useMemo, use } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { ArrowLeft, SlidersHorizontal, X } from "lucide-react";
+import { Container } from "@/components/layout/Container";
+import { ProductCard } from "@/components/common/ProductCard";
+import { PRODUCTS, CATEGORIES } from "@/lib/data";
+
+interface CategoryPageProps {
+  params: Promise<{ category: string }>;
+}
+
+export default function CategoryPage({ params }: CategoryPageProps) {
+  const resolvedParams = use(params);
+  const categoryKey = resolvedParams.category.toLowerCase();
+  const category = CATEGORIES[categoryKey];
+
+  if (!category) {
+    notFound();
+  }
+
+  const [selectedSub, setSelectedSub] = useState<string>("all");
+  const [selectedSize, setSelectedSize] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
+
+  const categoryProducts = useMemo(() => {
+    let list = PRODUCTS.filter((p) => p.category === categoryKey);
+
+    if (selectedSub !== "all") {
+      list = list.filter((p) => p.subCategory === selectedSub);
+    }
+
+    if (selectedSize !== "all") {
+      list = list.filter((p) => p.sizes.includes(selectedSize));
+    }
+
+    if (sortBy === "newest") {
+      list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    } else if (sortBy === "price-asc") {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price-desc") {
+      list.sort((a, b) => b.price - a.price);
+    }
+
+    return list;
+  }, [categoryKey, selectedSub, selectedSize, sortBy]);
+
+  return (
+    <div className="w-full bg-ailys-bone">
+      {/* Category Hero Banner */}
+      <section className="relative w-full min-h-[45vh] sm:min-h-[55vh] flex items-end bg-ailys-black text-ailys-bone pb-12 sm:pb-16 pt-24 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={category.heroImage}
+            alt={category.name}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-top opacity-55 brightness-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ailys-black via-black/40 to-transparent" />
+        </div>
+
+        <Container size="xl" className="relative z-10 text-left">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-ailys-gold hover:underline mb-4"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Toute la boutique
+          </Link>
+
+          <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold block mb-2">
+            Collection {category.name}
+          </span>
+          <h1 className="font-editorial-heading text-4xl sm:text-6xl text-ailys-bone leading-tight">
+            {category.tagline}
+          </h1>
+          <p className="text-sm sm:text-base font-sans text-ailys-bone/80 max-w-xl mt-3 leading-relaxed">
+            {category.description}
+          </p>
+        </Container>
+      </section>
+
+      {/* Subcategory Pills & Filter Bar */}
+      <section className="py-8 sm:py-10 border-b border-ailys-bone-border bg-ailys-bone-light/60">
+        <Container size="xl">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            {/* Subcategory Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setSelectedSub("all")}
+                className={`px-3.5 py-1.5 text-xs uppercase tracking-wider font-sans transition-all ${
+                  selectedSub === "all"
+                    ? "bg-ailys-black text-ailys-bone font-medium"
+                    : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
+                }`}
+              >
+                Tout ({PRODUCTS.filter((p) => p.category === categoryKey).length})
+              </button>
+              {category.subcategories.map((sub) => (
+                <button
+                  key={sub}
+                  onClick={() => setSelectedSub(sub)}
+                  className={`px-3.5 py-1.5 text-xs uppercase tracking-wider font-sans transition-all ${
+                    selectedSub === sub
+                      ? "bg-ailys-black text-ailys-bone font-medium"
+                      : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+
+            {/* Sorting & Filters */}
+            <div className="flex items-center gap-4 text-xs uppercase tracking-wider">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-ailys-bone border border-ailys-bone-border px-3 py-1.5 text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
+              >
+                <option value="newest">Nouveautés d&apos;abord</option>
+                <option value="price-asc">Prix croissant</option>
+                <option value="price-desc">Prix décroissant</option>
+              </select>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Products Grid */}
+      <section className="py-14 sm:py-20">
+        <Container size="xl">
+          <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-8">
+            <span>{categoryProducts.length} pièces</span>
+            {selectedSub !== "all" && (
+              <button
+                onClick={() => setSelectedSub("all")}
+                className="text-ailys-gold-dark hover:underline flex items-center gap-1"
+              >
+                <X className="w-3 h-3" /> Voir tous les rayons
+              </button>
+            )}
+          </div>
+
+          {categoryProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
+              {categoryProducts.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center space-y-4 border border-dashed border-ailys-bone-border">
+              <p className="font-editorial-heading text-xl text-ailys-black">
+                Aucune pièce dans ce rayon pour l&apos;instant
+              </p>
+              <button
+                onClick={() => setSelectedSub("all")}
+                className="px-6 py-2 bg-ailys-black text-ailys-bone text-xs uppercase tracking-widest hover:bg-ailys-black/90 transition-colors"
+              >
+                Voir tout {category.name}
+              </button>
+            </div>
+          )}
+        </Container>
+      </section>
+    </div>
+  );
+}
