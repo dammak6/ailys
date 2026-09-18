@@ -125,9 +125,9 @@ export default function CheckoutPage() {
   // If order was just placed, show confirmation screen
   if (confirmedOrder) {
     return (
-      <div className="w-full bg-ailys-bone py-20 sm:py-28">
+      <div className="w-full bg-ailys-bone py-10 sm:py-28">
         <Container size="md">
-          <div className="bg-white border border-ailys-bone-border p-8 sm:p-12 text-center space-y-8 shadow-editorial animate-in zoom-in-95">
+          <div className="bg-white border border-ailys-bone-border p-5 sm:p-12 text-center space-y-6 sm:space-y-8 shadow-editorial animate-in zoom-in-95">
             <div className="flex justify-center">
               <AilysLogo size="lg" />
             </div>
@@ -136,16 +136,16 @@ export default function CheckoutPage() {
               <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold">
                 Commande Confirmée avec Succès
               </span>
-              <h1 className="font-editorial-heading text-3xl sm:text-4xl text-ailys-black">
+              <h1 className="font-editorial-heading text-2xl sm:text-4xl text-ailys-black">
                 Merci pour votre confiance
               </h1>
               <p className="text-xs sm:text-sm font-sans text-ailys-muted">
-                Votre commande est transmise directement à notre atelier de confection.
+                Votre commande est transmise directement à notre atelier de confection à Sfax.
               </p>
             </div>
 
             {/* Order Code Card */}
-            <div className="p-6 bg-ailys-bone-light border border-ailys-bone-border space-y-3 text-left">
+            <div className="p-4 sm:p-6 bg-ailys-bone-light border border-ailys-bone-border space-y-3 text-left">
               <div className="flex items-center justify-between pb-3 border-b border-ailys-bone-border">
                 <span className="text-xs uppercase tracking-wider text-ailys-muted font-sans">
                   Code de Commande
@@ -183,8 +183,8 @@ export default function CheckoutPage() {
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/shop">
-                <Button variant="gold" size="lg">
+              <Link href="/shop" className="w-full sm:w-auto">
+                <Button variant="gold" size="lg" className="w-full sm:w-auto min-h-[48px]">
                   Continuer la visite
                 </Button>
               </Link>
@@ -192,8 +192,9 @@ export default function CheckoutPage() {
                 href={`/retours-echanges?orderCode=${encodeURIComponent(
                   confirmedOrder.code
                 )}&phone=${encodeURIComponent(confirmedOrder.phone)}`}
+                className="w-full sm:w-auto"
               >
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto min-h-[48px]">
                   Portail Retours & Échanges
                 </Button>
               </Link>
@@ -206,23 +207,23 @@ export default function CheckoutPage() {
 
   // Normal Checkout Form
   return (
-    <div className="w-full bg-ailys-bone py-12 sm:py-20">
+    <div className="w-full bg-ailys-bone py-8 sm:py-20">
       <Container size="xl">
         {/* Checkout Header */}
-        <div className="text-left space-y-2 mb-10 pb-6 border-b border-ailys-bone-border">
+        <div className="text-left space-y-2 mb-6 sm:mb-10 pb-4 sm:pb-6 border-b border-ailys-bone-border">
           <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold">
             Commande Invité Express
           </span>
-          <h1 className="font-editorial-heading text-3xl sm:text-4xl text-ailys-black">
+          <h1 className="font-editorial-heading text-2xl sm:text-4xl text-ailys-black">
             Validation de votre commande
           </h1>
           <p className="text-xs sm:text-sm font-sans text-ailys-muted">
-            Aucun compte requis. Règlement sécurisé en espèces lors de la livraison en Tunisie.
+            Aucun compte requis. Expédié depuis notre atelier de Sfax. Règlement en espèces à la livraison.
           </p>
         </div>
 
         {items.length === 0 ? (
-          <div className="p-16 text-center space-y-4 bg-white border border-ailys-bone-border">
+          <div className="p-10 sm:p-16 text-center space-y-4 bg-white border border-ailys-bone-border">
             <p className="font-editorial-heading text-2xl text-ailys-black">
               Votre panier est actuellement vide
             </p>
@@ -236,10 +237,10 @@ export default function CheckoutPage() {
             </Link>
           </div>
         ) : (
-          <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start font-sans">
+          <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start font-sans">
             {/* Left Column: Guest Delivery Info (Col 1-7) */}
-            <div className="lg:col-span-7 space-y-8 text-left">
-              <div className="p-8 bg-white border border-ailys-bone-border space-y-6">
+            <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
+              <div className="p-5 sm:p-8 bg-white border border-ailys-bone-border space-y-5 sm:space-y-6">
                 <div className="flex items-center gap-2 pb-3 border-b border-ailys-bone-border">
                   <MapPin className="w-4 h-4 text-ailys-gold" />
                   <h2 className="font-editorial-heading text-xl text-ailys-black">
@@ -311,7 +312,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Method Details */}
-              <div className="p-8 bg-white border border-ailys-bone-border space-y-4">
+              <div className="p-5 sm:p-8 bg-white border border-ailys-bone-border space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-ailys-bone-border">
                   <ShieldCheck className="w-4 h-4 text-ailys-gold" />
                   <h2 className="font-editorial-heading text-xl text-ailys-black">
@@ -326,10 +327,10 @@ export default function CheckoutPage() {
                     </strong>
                     <p className="text-xs text-ailys-black/70 leading-relaxed">
                       Réglez en espèces au livreur lors de la réception de votre colis.
-                      Aucune carte bancaire requise en ligne.
+                      Expédié depuis notre atelier de Sfax sous 24h à 48h. Aucune carte requise.
                     </p>
                   </div>
-                  <span className="w-4 h-4 rounded-full bg-ailys-black flex items-center justify-center text-ailys-bone text-[10px]">
+                  <span className="w-4 h-4 rounded-full bg-ailys-black flex items-center justify-center text-ailys-bone text-[10px] shrink-0 mt-0.5 ml-2">
                     ✓
                   </span>
                 </div>
@@ -338,7 +339,7 @@ export default function CheckoutPage() {
 
             {/* Right Column: Order Summary (Col 8-12) */}
             <div className="lg:col-span-5 space-y-6 text-left">
-              <div className="p-8 bg-white border border-ailys-bone-border space-y-6">
+              <div className="p-5 sm:p-8 bg-white border border-ailys-bone-border space-y-5 sm:space-y-6">
                 <h3 className="font-editorial-heading text-xl text-ailys-black pb-3 border-b border-ailys-bone-border">
                   Récapitulatif de la commande ({items.length})
                 </h3>
@@ -352,6 +353,7 @@ export default function CheckoutPage() {
                           src={item.image}
                           alt={item.name}
                           fill
+                          sizes="60px"
                           className="object-cover"
                         />
                       </div>
@@ -402,14 +404,23 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                <Button variant="gold" size="lg" type="submit" isLoading={isSubmitting} className="w-full">
+                <Button
+                  variant="gold"
+                  size="lg"
+                  type="submit"
+                  isLoading={isSubmitting}
+                  className="w-full min-h-[48px] text-xs sm:text-sm uppercase tracking-widest font-sans font-medium"
+                >
                   <span>Confirmer la commande</span>
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
 
-                <div className="pt-2 text-center text-[10px] uppercase tracking-wider text-ailys-muted">
-                  <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-ailys-gold" />
-                  Garantie échange sous 7 jours partout en Tunisie
+                <div className="pt-2 text-center text-[10px] uppercase tracking-wider text-ailys-muted space-y-1">
+                  <p>
+                    <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-ailys-gold" />
+                    Garantie échange sous 7 jours partout en Tunisie
+                  </p>
+                  <p className="text-ailys-muted/70">Expédié depuis Sfax • Livraison 24h-48h</p>
                 </div>
               </div>
             </div>

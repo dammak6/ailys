@@ -56,14 +56,14 @@ export function Header({
             : "bg-ailys-bone border-b border-ailys-bone-border py-4 sm:py-5"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between">
-          {/* Mobile menu button */}
-          <div className="flex items-center lg:hidden w-12">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-12 flex items-center justify-between">
+          {/* Mobile menu button (min 44x44 touch area) */}
+          <div className="flex items-center lg:hidden w-20">
             <button
               type="button"
               onClick={() => setIsMobileNavOpen(true)}
-              className="p-1.5 text-ailys-black hover:text-ailys-gold transition-colors focus:outline-none"
-              aria-label="Ouvrir le menu"
+              className="w-11 h-11 flex items-center justify-center -ml-1.5 text-ailys-black hover:text-ailys-gold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ailys-gold cursor-pointer"
+              aria-label="Ouvrir le menu de navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -110,22 +110,22 @@ export function Header({
           </nav>
 
           {/* Center: Authoritative AÏLYS Official Logo */}
-          <div className="flex-1 lg:w-1/3 flex justify-center items-center px-4">
+          <div className="flex-1 lg:w-1/3 flex justify-center items-center">
             <AilysLogo
               size={isScrolled ? "sm" : "md"}
               className={cn(
-                "transition-all duration-500",
-                isScrolled ? "scale-95" : "scale-100"
+                "transition-all duration-300",
+                isScrolled ? "scale-90 sm:scale-95" : "scale-100"
               )}
             />
           </div>
 
-          {/* Right: Search & Cart (No Accounts per instructions) */}
-          <div className="flex items-center justify-end gap-4 sm:gap-6 text-ailys-black lg:w-1/3">
+          {/* Right: Search & Cart (min 44x44 touch targets on mobile) */}
+          <div className="flex items-center justify-end gap-1 sm:gap-6 text-ailys-black w-20 lg:w-1/3">
             <button
               type="button"
               onClick={handleOpenSearch}
-              className="p-1.5 hover:text-ailys-gold transition-colors"
+              className="w-11 h-11 flex items-center justify-center hover:text-ailys-gold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ailys-gold cursor-pointer"
               aria-label="Rechercher"
             >
               <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
@@ -134,12 +134,12 @@ export function Header({
             <button
               type="button"
               onClick={handleOpenCart}
-              className="relative p-1.5 hover:text-ailys-gold transition-colors"
+              className="relative w-11 h-11 flex items-center justify-center -mr-1.5 hover:text-ailys-gold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ailys-gold cursor-pointer"
               aria-label="Panier d'achats"
             >
               <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               {activeCartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-ailys-black text-ailys-bone text-[9px] font-sans flex items-center justify-center font-medium border border-ailys-bone">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-ailys-black text-ailys-bone text-[9px] font-sans flex items-center justify-center font-medium border border-ailys-bone">
                   {activeCartCount}
                 </span>
               )}

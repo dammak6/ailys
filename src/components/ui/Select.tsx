@@ -29,7 +29,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             id={selectId}
             ref={ref}
             className={cn(
-              "w-full h-11 pl-4 pr-10 bg-ailys-bone-light/80 text-ailys-black text-sm appearance-none",
+              "w-full h-11 pl-4 pr-10 bg-ailys-bone-light/80 text-ailys-black text-base sm:text-sm appearance-none",
               "border border-ailys-bone-border transition-colors duration-200 cursor-pointer",
               "focus:bg-white focus:border-ailys-gold focus:outline-none",
               error && "border-red-600 focus:border-red-600",

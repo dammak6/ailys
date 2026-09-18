@@ -55,9 +55,9 @@ export default function ShopPage() {
         </div>
 
         {/* Filters & Sorting Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 mb-10 border-b border-ailys-bone-border text-xs uppercase tracking-wider font-sans">
-          {/* Category Tabs */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 sm:pb-6 mb-6 sm:mb-10 border-b border-ailys-bone-border text-xs uppercase tracking-wider font-sans">
+          {/* Category Tabs: smooth horizontal scroll on mobile */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none w-full sm:w-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {[
               { id: "all", label: "Tout voir" },
               { id: "femme", label: "Femme" },
@@ -67,10 +67,10 @@ export default function ShopPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 transition-all duration-200 ${
+                className={`px-3.5 py-1.5 transition-all duration-200 shrink-0 text-xs tracking-wider cursor-pointer ${
                   selectedCategory === cat.id
-                    ? "bg-ailys-black text-ailys-bone font-medium shadow-sm"
-                    : "bg-transparent text-ailys-black/70 hover:text-ailys-black hover:bg-black/5"
+                    ? "bg-ailys-black text-ailys-bone font-medium shadow-xs"
+                    : "bg-white/80 text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
                 }`}
               >
                 {cat.label}
@@ -79,15 +79,15 @@ export default function ShopPage() {
           </div>
 
           {/* Controls: Size Filter & Sorting */}
-          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end pt-1 sm:pt-0">
             {/* Size Dropdown */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial">
               <select
                 value={selectedSize}
                 onChange={(e) => setSelectedSize(e.target.value)}
-                className="bg-transparent border border-ailys-bone-border pl-3 pr-8 py-1.5 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
+                className="w-full sm:w-auto bg-white border border-ailys-bone-border pl-3 pr-7 py-2 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
               >
-                <option value="all">Toutes les tailles</option>
+                <option value="all">Toutes tailles</option>
                 {allSizes.map((s) => (
                   <option key={s} value={s}>
                     Taille {s}
@@ -97,13 +97,13 @@ export default function ShopPage() {
             </div>
 
             {/* Sort Dropdown */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-transparent border border-ailys-bone-border pl-3 pr-8 py-1.5 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
+                className="w-full sm:w-auto bg-white border border-ailys-bone-border pl-3 pr-7 py-2 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
               >
-                <option value="newest">Nouveautés d&apos;abord</option>
+                <option value="newest">Nouveautés</option>
                 <option value="price-asc">Prix croissant</option>
                 <option value="price-desc">Prix décroissant</option>
               </select>
@@ -112,7 +112,7 @@ export default function ShopPage() {
         </div>
 
         {/* Products Count */}
-        <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-8">
+        <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-6 sm:mb-8">
           <span>{filteredProducts.length} pièces trouvées</span>
           {(selectedCategory !== "all" || selectedSize !== "all") && (
             <button
@@ -120,23 +120,23 @@ export default function ShopPage() {
                 setSelectedCategory("all");
                 setSelectedSize("all");
               }}
-              className="text-ailys-gold-dark hover:underline flex items-center gap-1"
+              className="text-ailys-gold-dark hover:underline flex items-center gap-1 cursor-pointer"
             >
-              <X className="w-3 h-3" /> Réinitialiser les filtres
+              <X className="w-3 h-3" /> Réinitialiser
             </button>
           )}
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid: 2 columns on mobile */}
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 lg:gap-10">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
         ) : PRODUCTS.length === 0 ? (
-          <div className="py-24 text-center space-y-4 border border-dashed border-ailys-bone-border">
-            <p className="font-editorial-heading text-2xl text-ailys-black">
+          <div className="py-20 sm:py-24 text-center space-y-3 sm:space-y-4 border border-dashed border-ailys-bone-border px-4">
+            <p className="font-editorial-heading text-xl sm:text-2xl text-ailys-black">
               Catalogue en cours d&apos;actualisation
             </p>
             <p className="text-xs text-ailys-muted font-sans max-w-md mx-auto">

@@ -34,7 +34,7 @@ function DynamicHeroSection({ section }: { section: any }) {
   const mt = section.mobileImageTransform?.mobile || section.mobileImageTransform || dt;
 
   return (
-    <section className="relative w-full min-h-[94vh] sm:min-h-[90vh] flex items-end justify-start bg-ailys-black text-ailys-bone overflow-hidden pb-16 sm:pb-24 pt-32">
+    <section className="relative w-full min-h-[86svh] sm:min-h-[90vh] flex items-end justify-start bg-ailys-black text-ailys-bone overflow-hidden pb-10 sm:pb-24 pt-24 sm:pt-32">
       {/* Desktop Image Composition */}
       <div className="hidden sm:block absolute inset-0 z-0">
         <Image
@@ -69,39 +69,39 @@ function DynamicHeroSection({ section }: { section: any }) {
           style={
             mt
               ? {
-                  objectPosition: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 30}%`,
+                  objectPosition: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 25}%`,
                   transform: `scale(${mt.zoom ?? 1}) rotate(${mt.rotate ?? 0}deg)`,
-                  transformOrigin: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 30}%`,
+                  transformOrigin: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 25}%`,
                 }
               : undefined
           }
-          className="object-cover object-top opacity-80 brightness-85"
+          className="object-cover object-top opacity-85 brightness-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
       </div>
 
-      <Container size="xl" className="relative z-10 text-left">
-        <div className="max-w-2xl space-y-6">
-          <div className="flex items-center gap-3">
-            <BotanicalEmblem size={18} variant="gold" />
-            <span className="text-[11px] font-sans uppercase tracking-[0.28em] text-ailys-gold font-medium">
+      <Container size="xl" className="relative z-10 text-left px-4 sm:px-6">
+        <div className="max-w-2xl space-y-4 sm:space-y-6">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <BotanicalEmblem size={16} variant="gold" />
+            <span className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] sm:tracking-[0.28em] text-ailys-gold font-medium">
               {section.badge || "Nouvelle Collection"}
             </span>
           </div>
 
-          <h1 className="font-editorial-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[1.04] text-ailys-bone">
+          <h1 className="font-editorial-heading text-3xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[1.08] sm:leading-[1.04] text-ailys-bone max-w-xl">
             {section.title || "L'Élégance Contemporaine au Quotidien"}
           </h1>
 
-          <p className="font-sans text-sm sm:text-base md:text-lg text-ailys-bone/85 max-w-xl font-light leading-relaxed">
+          <p className="font-sans text-xs sm:text-base md:text-lg text-ailys-bone/85 max-w-xl font-light leading-relaxed">
             {section.subtitle || section.description}
           </p>
 
-          {/* Single, confident CTA button smoothly scrolling down */}
-          <div className="pt-4">
+          {/* Single, confident CTA button with comfortable mobile touch target */}
+          <div className="pt-2 sm:pt-4">
             <button
               onClick={scrollToNext}
-              className="group inline-flex items-center justify-center px-8 py-4 bg-ailys-gold hover:bg-ailys-gold-light text-ailys-black text-xs uppercase tracking-[0.22em] font-medium transition-all duration-300 shadow-sm cursor-pointer"
+              className="group inline-flex items-center justify-center w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 bg-ailys-gold hover:bg-ailys-gold-light text-ailys-black text-xs uppercase tracking-[0.22em] font-semibold transition-all duration-300 shadow-sm cursor-pointer min-h-[48px]"
             >
               <span>{section.ctaText || "DÉCOUVRIR AÏLYS"}</span>
               <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
@@ -132,40 +132,40 @@ function DynamicCollectionSection({
   }
 
   return (
-    <Section id="nouvelle-collection" tone="bone" spacing="xl" className="pt-20 sm:pt-28 pb-20 sm:pb-28">
+    <Section id="nouvelle-collection" tone="bone" spacing="xl" className="pt-12 sm:pt-28 pb-12 sm:pb-28">
       <Container size="xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 sm:mb-18 gap-6 border-b border-ailys-hairline pb-8">
-          <div className="space-y-3 max-w-2xl">
-            <span className="text-[11px] uppercase tracking-[0.3em] text-ailys-gold font-medium block">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-18 gap-4 sm:gap-6 border-b border-ailys-hairline pb-6 sm:pb-8">
+          <div className="space-y-2 sm:space-y-3 max-w-2xl text-left">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-ailys-gold font-medium block">
               {section.badge || "Nouvelle Collection"}
             </span>
-            <h2 className="font-editorial-heading text-3xl sm:text-4xl md:text-5xl text-ailys-black">
+            <h2 className="font-editorial-heading text-2xl sm:text-4xl md:text-5xl text-ailys-black">
               {section.title || "Nouvelle Collection"}
             </h2>
-            <p className="font-sans text-sm sm:text-base text-ailys-black/70 font-light leading-relaxed">
+            <p className="font-sans text-xs sm:text-base text-ailys-black/70 font-light leading-relaxed">
               {section.subtitle || "Matières douces, coupes nettes et confort contemporain"}
             </p>
           </div>
 
           <Link
             href="/collections/nouvelle-collection"
-            className="inline-flex items-center space-x-2 text-xs uppercase tracking-widest text-ailys-black hover:text-ailys-gold font-medium transition-colors group self-start md:self-end"
+            className="inline-flex items-center space-x-2 text-xs uppercase tracking-widest text-ailys-black hover:text-ailys-gold font-medium transition-colors group self-start md:self-end pt-1 sm:pt-0"
           >
             <span>{section.ctaText || "Voir la collection"}</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
-        {/* 3-Product Editorial Showcase */}
+        {/* 3-Product Editorial Showcase with 2-column mobile layout */}
         {displayProducts.length > 0 ? (
-          <Grid cols={3} gap="lg" className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
             {displayProducts.slice(0, 3).map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
-          </Grid>
+          </div>
         ) : (
-          <div className="py-16 text-center space-y-2 border border-dashed border-ailys-bone-border">
-            <p className="font-editorial-heading text-xl text-ailys-black">
+          <div className="py-12 sm:py-16 text-center space-y-2 border border-dashed border-ailys-bone-border">
+            <p className="font-editorial-heading text-lg sm:text-xl text-ailys-black">
               Nouvelles créations en cours de préparation
             </p>
             <p className="text-xs text-ailys-black/60 font-sans">
@@ -183,7 +183,7 @@ function DynamicCollectionSection({
 // -----------------------------------------------------------------------------
 function EditorialImageBreak() {
   return (
-    <section className="relative w-full h-[60vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
+    <section className="relative w-full h-[46vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
       <Image
         src="/images/editorial/05_movement.webp"
         alt="L'Allure AÏLYS dans la lumière tunisienne"
@@ -191,13 +191,13 @@ function EditorialImageBreak() {
         sizes="100vw"
         className="object-cover object-center opacity-70 brightness-95"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60" />
-      <Container size="md" className="relative z-10 text-center text-ailys-bone space-y-4 px-6">
-        <BotanicalEmblem size={24} variant="gold" className="mx-auto" />
-        <p className="font-serif italic text-xl sm:text-3xl text-ailys-bone/95 font-light max-w-xl mx-auto leading-relaxed">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/60" />
+      <Container size="md" className="relative z-10 text-center text-ailys-bone space-y-3 sm:space-y-4 px-4 sm:px-6">
+        <BotanicalEmblem size={20} variant="gold" className="mx-auto" />
+        <p className="font-serif italic text-base sm:text-3xl text-ailys-bone/95 font-light max-w-xl mx-auto leading-relaxed">
           « Une silhouette fluide sculptée par la clarté méditerranéenne. »
         </p>
-        <span className="text-[11px] uppercase tracking-[0.25em] text-ailys-gold font-sans block">
+        <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-ailys-gold font-sans block">
           Sfax • Saison 2026
         </span>
       </Container>
@@ -210,31 +210,31 @@ function EditorialImageBreak() {
 // -----------------------------------------------------------------------------
 function DynamicPhilosophySection({ section }: { section: any }) {
   return (
-    <Section tone="dark" spacing="xl" className="relative overflow-hidden py-24 sm:py-32">
-      <Container size="lg">
-        <div className="flex flex-col items-center text-center space-y-8 max-w-3xl mx-auto">
-          <BotanicalEmblem size={28} variant="gold" />
+    <Section tone="dark" spacing="xl" className="relative overflow-hidden py-14 sm:py-32">
+      <Container size="lg" className="px-4 sm:px-6">
+        <div className="flex flex-col items-center text-center space-y-5 sm:space-y-8 max-w-3xl mx-auto">
+          <BotanicalEmblem size={24} variant="gold" />
 
-          <span className="text-[11px] uppercase tracking-[0.35em] text-ailys-gold font-medium">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.35em] text-ailys-gold font-medium">
             {section.badge || "La Philosophie"}
           </span>
 
-          <h2 className="font-editorial-heading text-3xl sm:text-5xl md:text-6xl text-ailys-bone leading-tight">
+          <h2 className="font-editorial-heading text-2xl sm:text-5xl md:text-6xl text-ailys-bone leading-tight">
             {section.title || "L'Allure AÏLYS"}
           </h2>
 
-          <HairlineRule tone="gold" variant="with-emblem" className="max-w-xs mx-auto" />
+          <HairlineRule tone="gold" variant="with-emblem" className="max-w-[180px] sm:max-w-xs mx-auto" />
 
-          <blockquote className="font-serif italic text-lg sm:text-2xl text-ailys-bone/95 font-light leading-relaxed">
+          <blockquote className="font-serif italic text-base sm:text-2xl text-ailys-bone/95 font-light leading-relaxed">
             {section.subtitle || "« Quiet confidence, shaped by Tunisian light. »"}
           </blockquote>
 
-          <p className="font-sans text-sm sm:text-base text-ailys-bone/70 font-light leading-relaxed max-w-xl">
+          <p className="font-sans text-xs sm:text-base text-ailys-bone/70 font-light leading-relaxed max-w-xl">
             {section.description ||
               "Une élégance sans artifice. Des volumes équilibrés et des matières agréables à porter pour traverser les journées actives avec aisance."}
           </p>
 
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <Link href={section.ctaLink || "/a-propos"}>
               <Button variant="outline-light" size="md">
                 {section.ctaText || "L'Esprit AÏLYS"}
@@ -275,22 +275,22 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
   ];
 
   return (
-    <Section tone="bone" spacing="xl" className="py-20 sm:py-28">
-      <Container size="xl">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <span className="text-[11px] uppercase tracking-[0.3em] text-ailys-gold font-medium block">
+    <Section tone="bone" spacing="xl" className="py-12 sm:py-28">
+      <Container size="xl" className="px-4 sm:px-6">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16 space-y-2 sm:space-y-3">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-ailys-gold font-medium block">
             {section.badge || "Confection & Matières"}
           </span>
-          <h2 className="font-editorial-heading text-3xl sm:text-4xl md:text-5xl text-ailys-black">
+          <h2 className="font-editorial-heading text-2xl sm:text-4xl md:text-5xl text-ailys-black">
             {section.title || "Confection & Matières"}
           </h2>
-          <p className="font-sans text-sm sm:text-base text-ailys-black/70 font-light leading-relaxed">
+          <p className="font-sans text-xs sm:text-base text-ailys-black/70 font-light leading-relaxed">
             {section.subtitle || "Matières sélectionnées, coupes précises et finitions soignées"}
           </p>
         </div>
 
-        {/* 4 Authentic Photographic Cards */}
-        <Grid cols={4} gap="md" className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* 4 Authentic Photographic Cards in 2-column mobile layout */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {detailCards.map((card, idx) => (
             <div
               key={idx}
@@ -301,23 +301,23 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
                   src={card.image}
                   alt={card.title}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
               </div>
-              <div className="p-6 flex flex-col flex-1 text-left space-y-2">
-                <h3 className="font-serif text-base sm:text-lg font-medium text-ailys-black group-hover:text-ailys-gold transition-colors">
+              <div className="p-3.5 sm:p-6 flex flex-col flex-1 text-left space-y-1 sm:space-y-2">
+                <h3 className="font-serif text-xs sm:text-lg font-medium text-ailys-black group-hover:text-ailys-gold transition-colors line-clamp-2 sm:line-clamp-none">
                   {card.title}
                 </h3>
-                <p className="font-sans text-xs text-ailys-black/70 leading-relaxed font-light flex-1">
+                <p className="font-sans text-[11px] sm:text-xs text-ailys-black/70 leading-relaxed font-light flex-1 line-clamp-3 sm:line-clamp-none">
                   {card.desc}
                 </p>
               </div>
             </div>
           ))}
-        </Grid>
+        </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-8 sm:mt-12">
           <Link href={section.ctaLink || "/a-propos"}>
             <Button variant="primary" size="md">
               {section.ctaText || "En savoir plus sur nos ateliers"}
@@ -336,10 +336,10 @@ function DynamicAboutSection({ section }: { section: any }) {
   const at = section.desktopImageTransform?.desktop || section.desktopImageTransform;
 
   return (
-    <Section tone="bone-light" spacing="xl" className="py-20 sm:py-28">
-      <Container size="xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-ailys-bone border border-ailys-hairline shadow-sm">
+    <Section tone="bone-light" spacing="xl" className="py-12 sm:py-28">
+      <Container size="xl" className="px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 lg:gap-20 items-center">
+          <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-ailys-bone border border-ailys-hairline shadow-sm max-w-lg mx-auto w-full">
             <Image
               src={section.desktopImage || "/images/editorial/07_minimal_studio.webp"}
               alt="Aïcha & la Fleur de Lys — Origine de la marque AÏLYS"
@@ -358,30 +358,30 @@ function DynamicAboutSection({ section }: { section: any }) {
             />
           </div>
 
-          <div className="space-y-6 text-left">
+          <div className="space-y-4 sm:space-y-6 text-left">
             <div className="flex items-center space-x-2">
-              <BotanicalEmblem size={18} variant="gold" />
-              <span className="text-[11px] uppercase tracking-[0.3em] text-ailys-gold font-medium">
+              <BotanicalEmblem size={16} variant="gold" />
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-ailys-gold font-medium">
                 {section.badge || "Origine du Nom"}
               </span>
             </div>
 
-            <h2 className="font-editorial-heading text-3xl sm:text-4xl md:text-5xl text-ailys-black leading-tight">
+            <h2 className="font-editorial-heading text-2xl sm:text-4xl md:text-5xl text-ailys-black leading-tight">
               {section.title || "Aïcha & la Fleur de Lys"}
             </h2>
 
-            <HairlineRule tone="gold" variant="simple" className="max-w-[120px]" />
+            <HairlineRule tone="gold" variant="simple" className="max-w-[100px] sm:max-w-[120px]" />
 
-            <p className="font-serif italic text-lg sm:text-xl text-ailys-black/90 font-light leading-relaxed">
+            <p className="font-serif italic text-base sm:text-xl text-ailys-black/90 font-light leading-relaxed">
               {section.subtitle || "L'union du prénom et de la fleur favorite"}
             </p>
 
-            <p className="font-sans text-sm sm:text-base text-ailys-black/70 font-light leading-relaxed">
+            <p className="font-sans text-xs sm:text-base text-ailys-black/70 font-light leading-relaxed">
               {section.description ||
                 "Le nom AÏLYS est né de la rencontre intime entre Aïcha, la fille de la fondatrice, et la fleur de lys, symbole d'élégance et de pureté. Fondée sur une transmission mère-fille, la maison imagine des silhouettes sport-chic modernes confectionnées en Tunisie."}
             </p>
 
-            <div className="pt-4">
+            <div className="pt-2 sm:pt-4">
               <Link href={section.ctaLink || "/a-propos"}>
                 <Button variant="primary" size="md">
                   {section.ctaText || "Découvrir notre histoire"}
@@ -400,27 +400,27 @@ function DynamicAboutSection({ section }: { section: any }) {
 // -----------------------------------------------------------------------------
 function DynamicFinalCTASection({ section }: { section: any }) {
   return (
-    <Section tone="dark" spacing="xl" className="text-center relative overflow-hidden py-24 sm:py-32">
+    <Section tone="dark" spacing="xl" className="text-center relative overflow-hidden py-16 sm:py-32">
       <div className="absolute inset-0 bg-radial-gradient opacity-10 pointer-events-none" />
-      <Container size="md" className="relative z-10 space-y-6">
-        <BotanicalEmblem size={32} variant="gold" />
-        <span className="text-[11px] uppercase tracking-[0.3em] text-ailys-gold font-medium block">
+      <Container size="md" className="relative z-10 space-y-4 sm:space-y-6 px-4 sm:px-6">
+        <BotanicalEmblem size={28} variant="gold" className="mx-auto" />
+        <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-ailys-gold font-medium block">
           {section.badge || "Maison AÏLYS"}
         </span>
-        <h2 className="font-editorial-heading text-3xl sm:text-5xl text-ailys-bone leading-tight">
+        <h2 className="font-editorial-heading text-2xl sm:text-5xl text-ailys-bone leading-tight">
           {section.title || "Découvrir la Collection"}
         </h2>
-        <p className="font-sans text-sm sm:text-base text-ailys-bone/70 max-w-lg mx-auto font-light leading-relaxed">
+        <p className="font-sans text-xs sm:text-base text-ailys-bone/70 max-w-lg mx-auto font-light leading-relaxed">
           {section.subtitle || "Une allure contemporaine pensée pour le quotidien"}
         </p>
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href={section.ctaLink || "/shop"}>
-            <Button variant="gold" size="lg">
+        <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-none mx-auto">
+          <Link href={section.ctaLink || "/shop"} className="w-full sm:w-auto">
+            <Button variant="gold" size="lg" className="w-full sm:w-auto">
               {section.ctaText || "Explorer la Boutique"}
             </Button>
           </Link>
-          <Link href="/collections/nouvelle-collection">
-            <Button variant="outline-light" size="lg">
+          <Link href="/collections/nouvelle-collection" className="w-full sm:w-auto">
+            <Button variant="outline-light" size="lg" className="w-full sm:w-auto">
               Voir la Collection
             </Button>
           </Link>

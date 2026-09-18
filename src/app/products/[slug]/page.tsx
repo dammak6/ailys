@@ -43,6 +43,11 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>("description");
+
+  const toggleAccordion = (id: string) => {
+    setOpenAccordion((prev) => (prev === id ? null : id));
+  };
 
   // Related products
   const relatedProducts = PRODUCTS.filter(
@@ -92,16 +97,17 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
         </div>
 
         {/* Main Product Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           {/* Left Column: Image Gallery (Col 1-7) */}
-          <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
+          <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-3 sm:gap-4">
             {/* Thumbnails */}
-            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto shrink-0 pb-2 md:pb-0">
+            <div className="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-y-auto shrink-0 pb-1 md:pb-0 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
               {product.gallery.map((imgUrl, i) => (
                 <button
                   key={imgUrl}
                   onClick={() => setSelectedImageIndex(i)}
-                  className={`relative w-16 sm:w-20 aspect-[3/4] overflow-hidden border transition-all ${
+                  aria-label={`Vue ${i + 1} de ${product.name}`}
+                  className={`relative w-14 sm:w-20 aspect-[3/4] shrink-0 overflow-hidden border transition-all ${
                     selectedImageIndex === i
                       ? "border-ailys-black ring-1 ring-ailys-black"
                       : "border-ailys-bone-border hover:border-ailys-gold/60 opacity-80 hover:opacity-100"
@@ -111,6 +117,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     src={imgUrl}
                     alt={`${product.name} vue ${i + 1}`}
                     fill
+                    sizes="80px"
                     className="object-cover"
                   />
                 </button>
@@ -118,7 +125,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             {/* Main Stage Image */}
-            <div className="relative flex-1 aspect-[3/4] overflow-hidden bg-ailys-bone-dark border border-ailys-bone-border">
+            <div className="relative flex-1 aspect-[3/4] max-h-[62vh] sm:max-h-none overflow-hidden bg-ailys-bone-dark border border-ailys-bone-border">
               <Image
                 src={product.gallery[selectedImageIndex] || product.primaryImage}
                 alt={product.name}
@@ -128,8 +135,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 className="object-cover transition-all duration-500 ease-editorial"
               />
 
+              {/* Mobile photo count badge */}
+              <div className="md:hidden absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-ailys-bone text-[10px] tracking-widest px-2.5 py-1 rounded-full uppercase font-sans">
+                {selectedImageIndex + 1} / {product.gallery.length}
+              </div>
+
               {/* Status Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-3 sm:top-4 left-3 sm:left-4 flex flex-col gap-2">
                 {product.isSoldOut ? (
                   <Badge variant="soldOut" size="sm">
                     Épuisé
@@ -148,9 +160,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           {/* Right Column: Product Purchasing Details (Col 8-12) */}
-          <div className="lg:col-span-5 space-y-6 text-left">
+          <div className="lg:col-span-5 space-y-5 sm:space-y-6 text-left">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold-dark font-semibold block mb-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold-dark font-semibold block mb-1.5 sm:mb-2">
                 {product.subCategory}
               </span>
               <h1 className="font-editorial-heading text-2xl sm:text-3xl lg:text-4xl text-ailys-black leading-snug">
@@ -162,7 +174,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             {/* Price in TND */}
-            <div className="pb-4 border-b border-ailys-bone-border">
+            <div className="pb-3.5 sm:pb-4 border-b border-ailys-bone-border">
               <span className="text-xl sm:text-2xl font-sans font-medium text-ailys-black">
                 {formatPrice(product.price)}
               </span>
@@ -185,7 +197,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                       key={c.hex}
                       onClick={() => setSelectedColor(c.name)}
                       aria-label={`Sélectionner couleur ${c.name}`}
-                      className={`w-7 h-7 rounded-full border p-0.5 transition-all ${
+                      className={`w-8 h-8 rounded-full border p-0.5 transition-all ${
                         selectedColor === c.name
                           ? "ring-2 ring-ailys-black ring-offset-2 scale-110"
                           : "border-black/20 hover:scale-105"
@@ -201,7 +213,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             )}
 
-            {/* Sizes Selection */}
+            {/* Sizes Selection with >=44px touch targets */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="uppercase tracking-wider text-ailys-black/80 font-medium">
@@ -210,7 +222,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 <button
                   type="button"
                   onClick={() => setIsSizeGuideOpen(true)}
-                  className="flex items-center gap-1.5 text-ailys-gold-dark hover:underline uppercase tracking-wider text-[11px]"
+                  className="flex items-center gap-1.5 text-ailys-gold-dark hover:underline uppercase tracking-wider text-[11px] min-h-[36px]"
                 >
                   <Ruler className="w-3.5 h-3.5" /> Guide des tailles
                 </button>
@@ -222,10 +234,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     key={s}
                     type="button"
                     onClick={() => setSelectedSize(s)}
-                    className={`py-2.5 text-xs uppercase tracking-wider font-sans border transition-all ${
+                    className={`min-h-[44px] flex items-center justify-center text-xs uppercase tracking-wider font-sans border transition-all ${
                       selectedSize === s
-                        ? "bg-ailys-black text-ailys-bone border-ailys-black font-medium"
-                        : "bg-white text-ailys-black border-ailys-bone-border hover:border-ailys-black/50"
+                        ? "bg-ailys-black text-ailys-bone border-ailys-black font-medium shadow-sm"
+                        : "bg-white text-ailys-black border-ailys-bone-border hover:border-ailys-black/50 active:bg-ailys-bone-dark"
                     }`}
                   >
                     {s}
@@ -238,24 +250,24 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             <div className="flex items-center gap-2 text-xs text-ailys-black/80 pt-1">
               {!product.isSoldOut ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-green-600" />
+                  <span className="w-2 h-2 rounded-full bg-green-600 shrink-0" />
                   <span>En stock à l&apos;atelier de Sfax • Expédié sous 24h à 48h</span>
                 </>
               ) : (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-red-600" />
+                  <span className="w-2 h-2 rounded-full bg-red-600 shrink-0" />
                   <span className="text-red-700 font-medium">Actuellement épuisé en atelier</span>
                 </>
               )}
             </div>
 
             {/* Add to Cart / Notify Button */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 pt-2">
               {!product.isSoldOut ? (
                 <Button
                   variant="gold"
                   size="lg"
-                  className="w-full text-sm"
+                  className="w-full min-h-[48px] text-xs sm:text-sm uppercase tracking-widest font-sans font-medium"
                   onClick={handleAddToCart}
                 >
                   {isAdded ? "Ajouté au panier ✓" : "Ajouter au Panier"}
@@ -264,7 +276,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full text-sm flex items-center justify-center gap-2"
+                  className="w-full min-h-[48px] text-xs sm:text-sm flex items-center justify-center gap-2 uppercase tracking-widest"
                   onClick={() => setIsNotifyModalOpen(true)}
                 >
                   <Bell className="w-4 h-4 text-ailys-gold" />
@@ -273,58 +285,106 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               )}
 
               <p className="text-[11px] text-center text-ailys-muted uppercase tracking-wider">
-                Livraison gratuite dès 200 TND • Retours sous 7 jours
+                Livraison offerte dès 200 TND • Retours sous 7 jours
               </p>
             </div>
 
-            {/* Accordion Specs: Description, Materials, Care, Fit */}
-            <div className="pt-6 border-t border-ailys-bone-border space-y-4 text-xs font-sans">
-              <div className="space-y-1.5">
-                <h4 className="uppercase tracking-[0.2em] font-semibold text-ailys-black">
-                  Description
-                </h4>
-                <p className="text-ailys-black/75 leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-ailys-bone-border/60">
-                <h4 className="uppercase tracking-[0.2em] font-semibold text-ailys-black">
-                  Matière & Origine
-                </h4>
-                <p className="text-ailys-black/75 leading-relaxed">
-                  {product.materials}
-                </p>
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-ailys-bone-border/60">
-                <h4 className="uppercase tracking-[0.2em] font-semibold text-ailys-black">
-                  Conseils de Coupe
-                </h4>
-                <p className="text-ailys-black/75 leading-relaxed">
-                  {product.fit}
-                </p>
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-ailys-bone-border/60">
-                <h4 className="uppercase tracking-[0.2em] font-semibold text-ailys-black">
-                  Entretien
-                </h4>
-                <p className="text-ailys-black/75 leading-relaxed">
-                  {product.care}
-                </p>
-              </div>
-            </div>
-
             {/* Reassurance Badges */}
-            <div className="p-4 bg-ailys-bone-light border border-ailys-bone-border grid grid-cols-2 gap-3 text-[11px] text-ailys-black/80">
+            <div className="p-3.5 sm:p-4 bg-ailys-bone-light border border-ailys-bone-border grid grid-cols-2 gap-3 text-[11px] text-ailys-black/80">
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-ailys-gold shrink-0" />
-                <span>Paiement à la livraison</span>
+                <span>Expédié de Sfax (24-48h)</span>
               </div>
               <div className="flex items-center gap-2">
                 <RefreshCw className="w-4 h-4 text-ailys-gold shrink-0" />
-                <span>Échanges simples</span>
+                <span>Paiement à la livraison</span>
+              </div>
+            </div>
+
+            {/* Accordion Specs: Description, Materials, Care, Fit */}
+            <div className="pt-4 border-t border-ailys-bone-border divide-y divide-ailys-bone-border text-xs font-sans">
+              {/* Description */}
+              <div className="py-3">
+                <button
+                  type="button"
+                  onClick={() => toggleAccordion("description")}
+                  className="w-full flex items-center justify-between text-left font-semibold uppercase tracking-[0.18em] text-ailys-black py-1"
+                >
+                  <span>Description</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ailys-gold-dark transition-transform duration-200 ${
+                      openAccordion === "description" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openAccordion === "description" && (
+                  <p className="text-ailys-black/75 leading-relaxed pt-2 pb-1 animate-in fade-in">
+                    {product.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Matière & Origine */}
+              <div className="py-3">
+                <button
+                  type="button"
+                  onClick={() => toggleAccordion("materials")}
+                  className="w-full flex items-center justify-between text-left font-semibold uppercase tracking-[0.18em] text-ailys-black py-1"
+                >
+                  <span>Matière & Origine</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ailys-gold-dark transition-transform duration-200 ${
+                      openAccordion === "materials" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openAccordion === "materials" && (
+                  <p className="text-ailys-black/75 leading-relaxed pt-2 pb-1 animate-in fade-in">
+                    {product.materials}
+                  </p>
+                )}
+              </div>
+
+              {/* Conseils de Coupe */}
+              <div className="py-3">
+                <button
+                  type="button"
+                  onClick={() => toggleAccordion("fit")}
+                  className="w-full flex items-center justify-between text-left font-semibold uppercase tracking-[0.18em] text-ailys-black py-1"
+                >
+                  <span>Conseils de Coupe</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ailys-gold-dark transition-transform duration-200 ${
+                      openAccordion === "fit" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openAccordion === "fit" && (
+                  <p className="text-ailys-black/75 leading-relaxed pt-2 pb-1 animate-in fade-in">
+                    {product.fit}
+                  </p>
+                )}
+              </div>
+
+              {/* Entretien */}
+              <div className="py-3">
+                <button
+                  type="button"
+                  onClick={() => toggleAccordion("care")}
+                  className="w-full flex items-center justify-between text-left font-semibold uppercase tracking-[0.18em] text-ailys-black py-1"
+                >
+                  <span>Entretien</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ailys-gold-dark transition-transform duration-200 ${
+                      openAccordion === "care" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openAccordion === "care" && (
+                  <p className="text-ailys-black/75 leading-relaxed pt-2 pb-1 animate-in fade-in">
+                    {product.care}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -332,8 +392,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
         {/* Related / Matching Outfits Section */}
         {relatedProducts.length > 0 && (
-          <div className="mt-24 pt-16 border-t border-ailys-bone-border">
-            <div className="text-left space-y-2 mb-10">
+          <div className="mt-16 sm:mt-24 pt-10 sm:pt-16 border-t border-ailys-bone-border">
+            <div className="text-left space-y-2 mb-6 sm:mb-10">
               <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold">
                 Harmonie du Vestiaire
               </span>
@@ -342,7 +402,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} {...p} />
               ))}

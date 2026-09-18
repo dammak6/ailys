@@ -28,7 +28,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             ref={ref}
             rows={rows}
             className={cn(
-              "w-full p-4 bg-ailys-bone-light/80 text-ailys-black placeholder:text-ailys-muted/60 text-sm",
+              "w-full p-4 bg-ailys-bone-light/80 text-ailys-black placeholder:text-ailys-muted/60 text-base sm:text-sm",
               "border border-ailys-bone-border transition-colors duration-200 resize-y",
               "focus:bg-white focus:border-ailys-gold focus:outline-none",
               error && "border-red-600 focus:border-red-600",

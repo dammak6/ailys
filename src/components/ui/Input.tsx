@@ -28,7 +28,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             ref={ref}
             className={cn(
-              "w-full h-11 px-4 bg-ailys-bone-light/80 text-ailys-black placeholder:text-ailys-muted/60 text-sm",
+              "w-full h-11 px-4 bg-ailys-bone-light/80 text-ailys-black placeholder:text-ailys-muted/60 text-base sm:text-sm",
               "border border-ailys-bone-border transition-colors duration-200",
               "focus:bg-white focus:border-ailys-gold focus:outline-none",
               error && "border-red-600 focus:border-red-600",

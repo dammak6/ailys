@@ -18,29 +18,29 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full bg-ailys-bone py-16 sm:py-24">
+    <div className="w-full bg-ailys-bone py-10 sm:py-24">
       <Container size="xl">
         {/* Page Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-16 sm:mb-20">
+        <div className="text-center max-w-2xl mx-auto space-y-3 mb-10 sm:mb-20">
           <BotanicalEmblem size={24} variant="gold" className="mx-auto" />
           <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold-dark font-semibold">
             Conciergerie & Relation Client
           </span>
-          <h1 className="font-editorial-heading text-4xl sm:text-5xl text-ailys-black">
+          <h1 className="font-editorial-heading text-3xl sm:text-5xl text-ailys-black">
             Contactez la Maison AÏLYS
           </h1>
-          <p className="text-sm font-sans text-ailys-black/70 leading-relaxed">
+          <p className="text-xs sm:text-sm font-sans text-ailys-black/70 leading-relaxed px-2">
             Notre équipe se tient à votre écoute pour vous conseiller sur les coupes,
             suivre une expédition ou répondre à vos questions.
           </p>
         </div>
 
         {/* Contact Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
           {/* Left Column: Direct Contact Info (Col 1-5) */}
-          <div className="lg:col-span-5 space-y-8 text-left">
-            <div className="p-8 bg-white border border-ailys-bone-border space-y-6">
-              <h3 className="font-editorial-heading text-2xl text-ailys-black pb-3 border-b border-ailys-bone-border">
+          <div className="lg:col-span-5 space-y-6 sm:space-y-8 text-left">
+            <div className="p-5 sm:p-8 bg-white border border-ailys-bone-border space-y-5 sm:space-y-6">
+              <h3 className="font-editorial-heading text-xl sm:text-2xl text-ailys-black pb-3 border-b border-ailys-bone-border">
                 Service Clientèle
               </h3>
 
@@ -123,8 +123,8 @@ export default function ContactPage() {
 
           {/* Right Column: Contact Form (Col 6-12) */}
           <div className="lg:col-span-7">
-            <div className="p-8 sm:p-10 bg-white border border-ailys-bone-border text-left space-y-6">
-              <h3 className="font-editorial-heading text-2xl text-ailys-black pb-2">
+            <div className="p-5 sm:p-10 bg-white border border-ailys-bone-border text-left space-y-5 sm:space-y-6">
+              <h3 className="font-editorial-heading text-xl sm:text-2xl text-ailys-black pb-2">
                 Écrivez-nous
               </h3>
 
@@ -177,7 +177,7 @@ export default function ContactPage() {
                   />
 
                   <div className="pt-2">
-                    <Button variant="gold" size="lg" type="submit" className="w-full sm:w-auto">
+                    <Button variant="gold" size="lg" type="submit" className="w-full sm:w-auto min-h-[48px]">
                       <span>Transmettre mon message</span>
                     </Button>
                   </div>

@@ -51,7 +51,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   return (
     <div className="w-full bg-ailys-bone">
       {/* Category Hero Banner */}
-      <section className="relative w-full min-h-[45vh] sm:min-h-[55vh] flex items-end bg-ailys-black text-ailys-bone pb-12 sm:pb-16 pt-24 overflow-hidden">
+      <section className="relative w-full min-h-[38vh] sm:min-h-[55vh] flex items-end bg-ailys-black text-ailys-bone pb-8 sm:pb-16 pt-20 sm:pt-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src={category.heroImage}
@@ -67,32 +67,32 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         <Container size="xl" className="relative z-10 text-left">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-ailys-gold hover:underline mb-4"
+            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-ailys-gold hover:underline mb-3"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Toute la boutique
           </Link>
 
-          <span className="text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold block mb-2">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-ailys-gold font-semibold block mb-1.5 sm:mb-2">
             Collection {category.name}
           </span>
-          <h1 className="font-editorial-heading text-4xl sm:text-6xl text-ailys-bone leading-tight">
+          <h1 className="font-editorial-heading text-3xl sm:text-6xl text-ailys-bone leading-tight">
             {category.tagline}
           </h1>
-          <p className="text-sm sm:text-base font-sans text-ailys-bone/80 max-w-xl mt-3 leading-relaxed">
+          <p className="text-xs sm:text-base font-sans text-ailys-bone/80 max-w-xl mt-2.5 sm:mt-3 leading-relaxed">
             {category.description}
           </p>
         </Container>
       </section>
 
       {/* Subcategory Pills & Filter Bar */}
-      <section className="py-8 sm:py-10 border-b border-ailys-bone-border bg-ailys-bone-light/60">
+      <section className="py-4 sm:py-10 border-b border-ailys-bone-border bg-ailys-bone-light/60">
         <Container size="xl">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            {/* Subcategory Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+            {/* Subcategory Pills - Mobile horizontal scroll */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none w-full sm:w-auto -mx-4 px-4 sm:mx-0 pb-1 sm:pb-0 flex-nowrap sm:flex-wrap">
               <button
                 onClick={() => setSelectedSub("all")}
-                className={`px-3.5 py-1.5 text-xs uppercase tracking-wider font-sans transition-all ${
+                className={`px-3.5 py-2 sm:py-1.5 text-xs uppercase tracking-wider font-sans whitespace-nowrap shrink-0 transition-all ${
                   selectedSub === "all"
                     ? "bg-ailys-black text-ailys-bone font-medium"
                     : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
@@ -104,7 +104,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 <button
                   key={sub}
                   onClick={() => setSelectedSub(sub)}
-                  className={`px-3.5 py-1.5 text-xs uppercase tracking-wider font-sans transition-all ${
+                  className={`px-3.5 py-2 sm:py-1.5 text-xs uppercase tracking-wider font-sans whitespace-nowrap shrink-0 transition-all ${
                     selectedSub === sub
                       ? "bg-ailys-black text-ailys-bone font-medium"
                       : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
@@ -116,11 +116,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             </div>
 
             {/* Sorting & Filters */}
-            <div className="flex items-center gap-4 text-xs uppercase tracking-wider">
+            <div className="flex items-center justify-between w-full sm:w-auto gap-4 text-xs uppercase tracking-wider">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-ailys-bone border border-ailys-bone-border px-3 py-1.5 text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
+                aria-label="Trier par"
+                className="bg-ailys-bone border border-ailys-bone-border px-3 py-2 sm:py-1.5 text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer w-full sm:w-auto min-h-[40px] sm:min-h-0 text-xs"
               >
                 <option value="newest">Nouveautés d&apos;abord</option>
                 <option value="price-asc">Prix croissant</option>
@@ -132,14 +133,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       </section>
 
       {/* Products Grid */}
-      <section className="py-14 sm:py-20">
+      <section className="py-8 sm:py-20">
         <Container size="xl">
-          <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-8">
+          <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-5 sm:mb-8">
             <span>{categoryProducts.length} pièces</span>
             {selectedSub !== "all" && (
               <button
                 onClick={() => setSelectedSub("all")}
-                className="text-ailys-gold-dark hover:underline flex items-center gap-1"
+                className="text-ailys-gold-dark hover:underline flex items-center gap-1 text-xs"
               >
                 <X className="w-3 h-3" /> Voir tous les rayons
               </button>
@@ -147,7 +148,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </div>
 
           {categoryProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
               {categoryProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}

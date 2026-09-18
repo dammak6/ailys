@@ -54,14 +54,14 @@ export function ProductCard({
       {/* Image Container with secondary hover swap */}
       <Link
         href={`/products/${slug}`}
-        className="relative block w-full aspect-[3/4] overflow-hidden bg-ailys-bone-dark/40 mb-4"
+        className="relative block w-full aspect-[3/4] overflow-hidden bg-ailys-bone-dark/40 mb-2.5 sm:mb-4"
       >
         {/* Primary Image */}
         <Image
           src={primaryImage}
           alt={name}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
           className={cn(
             "object-cover transition-opacity duration-700 ease-editorial",
             isHovered && secondaryImage ? "opacity-0" : "opacity-100"
@@ -74,7 +74,7 @@ export function ProductCard({
             src={secondaryImage}
             alt={`${name} - détail`}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
               "object-cover transition-opacity duration-700 ease-editorial",
               isHovered ? "opacity-100" : "opacity-0"
@@ -83,17 +83,17 @@ export function ProductCard({
         )}
 
         {/* Status Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1 z-10">
           {isSoldOut ? (
-            <Badge variant="soldOut" size="sm">
+            <Badge variant="soldOut" size="sm" className="text-[9px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">
               Épuisé
             </Badge>
           ) : isCapsule ? (
-            <Badge variant="capsule" size="sm">
+            <Badge variant="capsule" size="sm" className="text-[9px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">
               Capsule
             </Badge>
           ) : isNew ? (
-            <Badge variant="gold" size="sm">
+            <Badge variant="gold" size="sm" className="text-[9px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">
               Nouveauté
             </Badge>
           ) : null}
@@ -101,7 +101,7 @@ export function ProductCard({
 
         {/* Sold out overlay button */}
         {isSoldOut && (
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center p-2 sm:p-4">
             <button
               type="button"
               onClick={(e) => {
@@ -109,7 +109,7 @@ export function ProductCard({
                 e.stopPropagation();
                 onNotifyMe?.();
               }}
-              className="px-4 py-2.5 bg-ailys-bone text-ailys-black text-[11px] font-sans uppercase tracking-[0.2em] font-medium border border-ailys-bone shadow-md hover:bg-white transition-all"
+              className="px-3 py-1.5 sm:px-4 sm:py-2.5 bg-ailys-bone text-ailys-black text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.18em] font-medium border border-ailys-bone shadow-md hover:bg-white transition-all cursor-pointer"
             >
               M&apos;avertir
             </button>
@@ -118,9 +118,9 @@ export function ProductCard({
       </Link>
 
       {/* Product Meta */}
-      <div className="flex flex-col gap-1.5 px-0.5">
+      <div className="flex flex-col gap-1 sm:gap-1.5 px-0.5">
         {categoryName && (
-          <span className="text-[10px] uppercase tracking-[0.2em] text-ailys-muted">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-ailys-muted">
             {categoryName}
           </span>
         )}
@@ -129,7 +129,7 @@ export function ProductCard({
           href={`/products/${slug}`}
           className="group-hover:text-ailys-gold transition-colors duration-300"
         >
-          <h3 className="font-editorial-heading text-base sm:text-lg tracking-tight font-normal text-ailys-black">
+          <h3 className="font-editorial-heading text-sm sm:text-lg tracking-tight font-normal text-ailys-black line-clamp-1 sm:line-clamp-none">
             {name}
           </h3>
         </Link>
@@ -138,15 +138,15 @@ export function ProductCard({
         <div className="flex items-center gap-2 mt-0.5">
           {salePrice ? (
             <>
-              <span className="text-xs sm:text-sm font-sans font-medium text-ailys-black">
+              <span className="font-sans font-medium text-xs sm:text-sm text-ailys-black">
                 {formatPrice(salePrice)}
               </span>
-              <span className="text-xs sm:text-sm font-sans text-ailys-muted line-through">
+              <span className="font-sans text-[11px] sm:text-xs text-ailys-muted line-through">
                 {formatPrice(price)}
               </span>
             </>
           ) : (
-            <span className="text-xs sm:text-sm font-sans font-medium text-ailys-black">
+            <span className="font-sans font-medium text-xs sm:text-sm text-ailys-black">
               {formatPrice(price)}
             </span>
           )}
