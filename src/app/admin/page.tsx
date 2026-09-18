@@ -25,9 +25,9 @@ export default function AdminDashboardPage() {
     async function loadData() {
       try {
         const [ordRes, retRes, prodRes] = await Promise.all([
-          fetch("/api/admin/orders"),
-          fetch("/api/admin/returns"),
-          fetch("/api/admin/products"),
+          fetch("/api/admin/orders", { cache: "no-store" }),
+          fetch("/api/admin/returns", { cache: "no-store" }),
+          fetch("/api/admin/products", { cache: "no-store" }),
         ]);
 
         if (ordRes.ok) setOrders(await ordRes.json());

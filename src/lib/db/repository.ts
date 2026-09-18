@@ -291,6 +291,7 @@ export const AilysRepository = {
       })),
     };
 
+    loadStateFromDisk();
     ADMIN_ORDERS.unshift(newAdminOrder);
 
     SAMPLE_ORDERS[orderCode] = {
@@ -310,6 +311,8 @@ export const AilysRepository = {
         image: it.imageUrl,
       })),
     };
+
+    saveStateToDisk();
 
     return {
       success: true,
@@ -368,6 +371,7 @@ export const AilysRepository = {
     }
 
     // Check ADMIN_ORDERS
+    loadStateFromDisk();
     const adminOrder = ADMIN_ORDERS.find((o) => o.orderCode?.toUpperCase() === cleanCode);
     if (adminOrder) {
       const orderPhoneClean = (adminOrder.customerPhone || "").replace(/\s+/g, "").replace(/\+216/g, "");
@@ -473,7 +477,9 @@ export const AilysRepository = {
         requestedExchangeSize: it.requestedExchangeSize,
       })),
     };
+    loadStateFromDisk();
     ADMIN_RETURNS.unshift(newReturn);
+    saveStateToDisk();
 
     return {
       success: true,
@@ -485,6 +491,7 @@ export const AilysRepository = {
   // ADMIN: PRODUCTS CRUD
   // ---------------------------------------------------------------------------
   async getAllAdminProducts() {
+    loadStateFromDisk();
     return ADMIN_PRODUCTS;
   },
 
@@ -664,10 +671,12 @@ export const AilysRepository = {
   // ADMIN: ORDERS MANAGEMENT
   // ---------------------------------------------------------------------------
   async getAllAdminOrders() {
+    loadStateFromDisk();
     return ADMIN_ORDERS;
   },
 
   async updateOrderStatus(orderId: string, status: string) {
+    loadStateFromDisk();
     const order = ADMIN_ORDERS.find((o) => o.id === orderId || o.orderCode === orderId);
     if (!order) throw new Error("Commande non trouvée");
     order.status = status;
@@ -682,6 +691,7 @@ export const AilysRepository = {
   // ADMIN: RETURNS & EXCHANGES MANAGEMENT
   // ---------------------------------------------------------------------------
   async getAllAdminReturns() {
+    loadStateFromDisk();
     return ADMIN_RETURNS;
   },
 

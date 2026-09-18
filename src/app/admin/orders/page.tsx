@@ -25,7 +25,7 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/admin/orders");
+      const res = await fetch("/api/admin/orders", { cache: "no-store" });
       if (res.ok) setOrders(await res.json());
     } catch (err) {
       console.error("Orders error:", err);

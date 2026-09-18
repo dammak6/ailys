@@ -4,7 +4,11 @@ import { AilysRepository } from "@/lib/db/repository";
 export async function GET() {
   try {
     const products = await AilysRepository.getAllAdminProducts();
-    return NextResponse.json(products);
+    return NextResponse.json(products, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -1,5 +1,5 @@
 {
-  "lastSavedAt": "2026-09-18T00:50:25.864Z",
+  "lastSavedAt": "2026-09-18T00:56:15.023Z",
   "version": "1.0",
   "settings": {
     "brandName": "AÏLYS",
@@ -474,7 +474,7 @@
   "homepageMeta": {
     "lastPublishedAt": "2026-09-18T00:50:04.906Z",
     "hasUnpublishedChanges": false,
-    "lastSavedAt": "2026-09-18T00:50:25.864Z"
+    "lastSavedAt": "2026-09-18T00:56:15.023Z"
   },
   "products": [
     {
@@ -760,7 +760,38 @@
     }
   ],
   "promotions": [],
-  "orders": [],
+  "orders": [
+    {
+      "id": "ord-1789692975022",
+      "orderCode": "AILYS-2609-5783",
+      "customerName": "Amira Ben Salem",
+      "customerEmail": "amira.bensalem@test.tn",
+      "customerPhone": "98123456",
+      "altPhone": "21987654",
+      "governorate": "Sfax",
+      "city": "Sfax Ville",
+      "address": "Route de Téniour Km 2, Résidence El Hana",
+      "notes": "Appeler avant la livraison svp",
+      "subtotal": 280,
+      "shippingFee": 0,
+      "total": 280,
+      "paymentMethod": "COD",
+      "status": "nouveau",
+      "createdAt": "2026-09-18T00:56:15.022Z",
+      "items": [
+        {
+          "id": "it-1789692975022-0",
+          "productName": "Veste Boxy Denim Indigo Brut",
+          "size": "38",
+          "color": "Indigo Brut",
+          "quantity": 1,
+          "unitPrice": 280,
+          "totalPrice": 280,
+          "imageUrl": "/images/products/07460319401-A7M.webp"
+        }
+      ]
+    }
+  ],
   "returns": [],
   "media": [
     {

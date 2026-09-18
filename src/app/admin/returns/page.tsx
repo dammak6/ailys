@@ -26,7 +26,7 @@ export default function AdminReturnsPage() {
 
   const fetchReturns = async () => {
     try {
-      const res = await fetch("/api/admin/returns");
+      const res = await fetch("/api/admin/returns", { cache: "no-store" });
       if (res.ok) setReturns(await res.json());
     } catch (err) {
       console.error("Returns error:", err);
