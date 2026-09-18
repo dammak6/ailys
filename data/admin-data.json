@@ -1,5 +1,5 @@
 {
-  "lastSavedAt": "2026-09-18T00:56:15.023Z",
+  "lastSavedAt": "2026-09-18T01:02:16.703Z",
   "version": "1.0",
   "settings": {
     "brandName": "AÏLYS",
@@ -474,7 +474,7 @@
   "homepageMeta": {
     "lastPublishedAt": "2026-09-18T00:50:04.906Z",
     "hasUnpublishedChanges": false,
-    "lastSavedAt": "2026-09-18T00:56:15.023Z"
+    "lastSavedAt": "2026-09-18T01:02:16.703Z"
   },
   "products": [
     {
@@ -512,7 +512,8 @@
       "care": "Lavage à froid sur l'envers. Séchage à plat.",
       "fit": "Coupe boxy contemporaine légèrement cropped.",
       "isNew": true,
-      "isFeatured": true
+      "isFeatured": true,
+      "isPublished": false
     },
     {
       "id": "prod-blouson-nappa-02",
@@ -761,6 +762,36 @@
   ],
   "promotions": [],
   "orders": [
+    {
+      "id": "ord-1789693206662",
+      "orderCode": "AILYS-2609-6208",
+      "customerName": "Mahmoud Dammak",
+      "customerEmail": "",
+      "customerPhone": "+21622291666",
+      "altPhone": "",
+      "governorate": "Tunis",
+      "city": "Sfax",
+      "address": "Rte lafrane klm 6",
+      "notes": "",
+      "subtotal": 265,
+      "shippingFee": 0,
+      "total": 265,
+      "paymentMethod": "COD",
+      "status": "livre",
+      "createdAt": "2026-09-18T01:00:06.662Z",
+      "items": [
+        {
+          "id": "it-1789693206662-0",
+          "productName": "Veste Boxy Sergé Kaki Ombre",
+          "size": "36",
+          "color": "Kaki Ombre",
+          "quantity": 1,
+          "unitPrice": 265,
+          "totalPrice": 265,
+          "imageUrl": "/images/products/07460319700-A7M.webp"
+        }
+      ]
+    },
     {
       "id": "ord-1789692975022",
       "orderCode": "AILYS-2609-5783",
