@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Package,
 } from "lucide-react";
+import { AdminSaveButton } from "@/components/admin/AdminSaveButton";
 
 export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -59,7 +60,8 @@ export default function AdminDashboardPage() {
             Supervision des ventes, logistique Cash on Delivery et gestion des pièces de collection.
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <AdminSaveButton variant="banner" />
           <Link
             href="/admin/products"
             className="inline-flex items-center space-x-1.5 px-4 py-2 bg-[#0B0B0B] hover:bg-[#1E1E1E] text-[#F5F3EC] text-xs font-medium uppercase tracking-wider rounded-sm transition-colors"

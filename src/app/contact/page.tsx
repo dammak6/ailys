@@ -113,8 +113,8 @@ export default function ContactPage() {
                     Atelier Central
                   </h4>
                   <p className="text-xs font-sans text-ailys-black/75 leading-relaxed mt-0.5">
-                    Maison AÏLYS, Les Berges du Lac II<br />
-                    1053 Tunis, Tunisie
+                    Atelier AÏLYS<br />
+                    Sfax, Tunisie
                   </p>
                 </div>
               </div>

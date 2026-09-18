@@ -14,7 +14,7 @@ interface AdminAuthContextType {
   user: AdminUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (passwordOrEmail: string, optionalPassword?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -51,7 +51,15 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [pathname]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (passwordOrEmail: string, optionalPassword?: string) => {
+    let password = passwordOrEmail;
+    let email = "direction@ailys.tn";
+
+    if (optionalPassword !== undefined) {
+      email = passwordOrEmail;
+      password = optionalPassword;
+    }
+
     try {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
@@ -61,7 +69,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        return { success: false, error: data.error || "Identifiants invalides." };
+        return { success: false, error: data.error || "Mot de passe invalide." };
       }
 
       setUser(data.user);

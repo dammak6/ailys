@@ -239,7 +239,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               {!product.isSoldOut ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-green-600" />
-                  <span>En stock à l&apos;atelier de Tunis • Expédié sous 24h à 48h</span>
+                  <span>En stock à l&apos;atelier de Sfax • Expédié sous 24h à 48h</span>
                 </>
               ) : (
                 <>

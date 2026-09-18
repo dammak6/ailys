@@ -17,10 +17,10 @@ export function Footer() {
             <Truck className="w-5 h-5 text-ailys-gold shrink-0 mt-0.5" />
             <div>
               <h4 className="text-xs uppercase tracking-[0.18em] font-medium text-ailys-bone">
-                Livraison en Tunisie
+                Livraison en 24h - 48h
               </h4>
               <p className="text-xs text-ailys-bone/60 mt-1 font-sans">
-                Expédition soignée sur tout le territoire
+                Expédié depuis notre atelier de Sfax
               </p>
             </div>
           </div>

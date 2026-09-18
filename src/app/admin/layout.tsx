@@ -8,6 +8,8 @@ import {
   AdminAuthProvider,
   useAdminAuth,
 } from "@/lib/admin-auth-context";
+import { AdminSaveProvider } from "@/lib/admin-save-context";
+import { AdminSaveButton } from "@/components/admin/AdminSaveButton";
 import {
   LayoutDashboard,
   Shirt,
@@ -138,7 +140,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       {/* ------------------------------------------------------------------- */}
       {/* MOBILE TOPBAR */}
       {/* ------------------------------------------------------------------- */}
-      <header className="md:hidden bg-[#0B0B0B] text-[#F5F3EC] px-4 py-3.5 flex items-center justify-between border-b border-[#1E1E1E] sticky top-0 z-40">
+      <header className="md:hidden bg-[#0B0B0B] text-[#F5F3EC] px-4 py-3 flex items-center justify-between border-b border-[#1E1E1E] sticky top-0 z-40">
         <Link href="/admin" className="flex items-center space-x-2.5">
           <div className="w-6 h-6 relative">
             <Image
@@ -152,12 +154,15 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             AÏLYS
           </span>
         </Link>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 text-[#F5F3EC] hover:text-[#B79A5B]"
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center space-x-2.5">
+          <AdminSaveButton variant="mobile" />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1.5 text-[#F5F3EC] hover:text-[#B79A5B]"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile Menu Drawer */}
@@ -205,7 +210,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       {/* ------------------------------------------------------------------- */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Operational Header */}
-        <header className="hidden md:flex bg-white border-b border-[#E8E6DF] px-8 py-4 items-center justify-between sticky top-0 z-20 shadow-xs">
+        <header className="hidden md:flex bg-white border-b border-[#E8E6DF] px-8 py-3.5 items-center justify-between sticky top-0 z-20 shadow-xs">
           <div className="flex items-center space-x-3">
             <h1 className="font-serif text-xl font-light text-[#0B0B0B]">
               {currentNav.label}
@@ -215,7 +220,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3.5">
+            {/* Global Save Button */}
+            <AdminSaveButton variant="header" />
+
+            <div className="h-4 w-[1px] bg-[#E8E6DF]" />
+
             <div className="flex items-center space-x-1.5 text-xs text-[#6B6860] bg-[#F5F3EC] px-3 py-1.5 rounded-full border border-[#E8E6DF]">
               <Shield className="w-3.5 h-3.5 text-[#B79A5B]" />
               <span>Session Chiffrée</span>
@@ -249,7 +259,9 @@ export default function AdminLayout({
 }) {
   return (
     <AdminAuthProvider>
-      <AdminShell>{children}</AdminShell>
+      <AdminSaveProvider>
+        <AdminShell>{children}</AdminShell>
+      </AdminSaveProvider>
     </AdminAuthProvider>
   );
 }

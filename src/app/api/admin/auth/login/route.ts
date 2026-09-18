@@ -4,68 +4,23 @@ import { createAdminToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+    const password = body.password?.trim();
+    const email = body.email?.trim() || "direction@ailys.tn";
 
-    if (!email || !password) {
+    if (!password) {
       return NextResponse.json(
-        { error: "Email et mot de passe requis." },
+        { error: "Veuillez saisir le mot de passe d'administration." },
         { status: 400 }
       );
     }
 
-    // Attempt Supabase Auth login if configured
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (url && !url.includes("placeholder-project")) {
-      try {
-        const supabase = createAdminSupabaseClient();
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          return NextResponse.json(
-            { error: "Identifiants d'administration invalides." },
-            { status: 401 }
-          );
-        }
-
-        // Verify role in admin_users table
-        const { data: adminRecord, error: roleError }: { data: any; error: any } = await supabase
-          .from("admin_users")
-          .select("*")
-          .eq("email", email)
-          .eq("is_active", true)
-          .single();
-
-        if (roleError || !adminRecord) {
-          return NextResponse.json(
-            { error: "Accès refusé. Privilèges administrateur requis." },
-            { status: 403 }
-          );
-        }
-
-        return NextResponse.json({
-          success: true,
-          user: {
-            id: adminRecord.id,
-            email: adminRecord.email,
-            fullName: adminRecord.full_name,
-            role: adminRecord.role,
-          },
-          session: data.session,
-        });
-      } catch (authErr) {
-        console.warn("Supabase auth failed:", authErr);
-      }
-    }
-
-    // Default admin development authentication fallback
-    if (email === "admin@ailys.tn" && password === "AilysAdmin2026!") {
+    // Direct password verification: "aichalys2026"
+    if (password === "aichalys2026") {
       const user = {
-        id: "admin-dev-01",
-        email: "admin@ailys.tn",
-        fullName: "Directeur Atelier AÏLYS",
+        id: "admin-ailys",
+        email: "direction@ailys.tn",
+        fullName: "Direction AÏLYS",
         role: "super_admin",
       };
 
@@ -87,8 +42,54 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
+    // Attempt Supabase Auth login if configured and email is provided
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (url && !url.includes("placeholder-project") && body.email) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: body.email,
+          password,
+        });
+
+        if (!error && data?.session) {
+          const { data: adminRecord } = await (supabase
+            .from("admin_users") as any)
+            .select("*")
+            .eq("email", body.email)
+            .eq("is_active", true)
+            .single();
+
+          if (adminRecord) {
+            const user = {
+              id: adminRecord.id,
+              email: adminRecord.email,
+              fullName: adminRecord.full_name,
+              role: adminRecord.role,
+            };
+            const token = createAdminToken(user);
+            const response = NextResponse.json({
+              success: true,
+              user,
+              token,
+            });
+            response.cookies.set("ailys_admin_token", token, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              path: "/",
+              maxAge: 7 * 24 * 60 * 60,
+            });
+            return response;
+          }
+        }
+      } catch (authErr) {
+        console.warn("Supabase auth check skipped:", authErr);
+      }
+    }
+
     return NextResponse.json(
-      { error: "Identifiants d'administration invalides." },
+      { error: "Mot de passe incorrect. Veuillez réessayer." },
       { status: 401 }
     );
   } catch (error: any) {

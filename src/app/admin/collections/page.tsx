@@ -26,8 +26,8 @@ export default function AdminCollectionsPage() {
     slug: "",
     subtitle: "",
     description: "",
-    heroDesktopImage: "/images/editorial/08_mediterranean_street.png",
-    heroMobileImage: "/images/editorial/03_the_silhouette.png",
+    heroDesktopImage: "/images/editorial/08_mediterranean_street.webp",
+    heroMobileImage: "/images/editorial/03_the_silhouette.webp",
     isCapsule: false,
     isPublished: true,
   });
@@ -60,8 +60,8 @@ export default function AdminCollectionsPage() {
       slug: "",
       subtitle: "",
       description: "",
-      heroDesktopImage: "/images/editorial/08_mediterranean_street.png",
-      heroMobileImage: "/images/editorial/03_the_silhouette.png",
+      heroDesktopImage: "/images/editorial/08_mediterranean_street.webp",
+      heroMobileImage: "/images/editorial/03_the_silhouette.webp",
       isCapsule: false,
       isPublished: true,
     });
@@ -155,7 +155,7 @@ export default function AdminCollectionsPage() {
                 {/* Cover Image */}
                 <div className="relative h-48 w-full bg-[#EAE8E1]">
                   <Image
-                    src={col.heroDesktopImage || "/images/editorial/08_mediterranean_street.png"}
+                    src={col.heroDesktopImage || "/images/editorial/08_mediterranean_street.webp"}
                     alt={col.title}
                     fill
                     className="object-cover"

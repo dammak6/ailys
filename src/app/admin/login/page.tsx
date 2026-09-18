@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAdminAuth } from "@/lib/admin-auth-context";
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { Lock, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
 import { AilysLogo } from "@/components/brand/AilysLogo";
 
 function LoginForm() {
@@ -13,7 +13,6 @@ function LoginForm() {
   const returnTo = searchParams.get("returnTo") || "/admin";
   const { login } = useAdminAuth();
 
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,19 +22,13 @@ function LoginForm() {
     setError(null);
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(password);
     if (result.success) {
       router.push(returnTo);
     } else {
-      setError(result.error || "Identifiants d'accès invalides.");
+      setError(result.error || "Mot de passe incorrect.");
       setLoading(false);
     }
-  };
-
-  const handleFillDemo = () => {
-    setEmail("admin@ailys.tn");
-    setPassword("AilysAdmin2026!");
-    setError(null);
   };
 
   return (
@@ -72,37 +65,17 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
-                htmlFor="email"
-                className="block text-xs uppercase tracking-wider text-[#A6A29A] mb-2 font-medium"
-              >
-                Courriel Administrateur
-              </label>
-              <div className="relative">
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="direction@ailys.tn"
-                  className="w-full bg-[#0D0D0D] border border-[#2E2E2E] focus:border-[#B79A5B] text-sm text-[#F5F3EC] pl-10 pr-4 py-3 rounded-sm transition-colors outline-none placeholder:text-[#525252]"
-                />
-                <Mail className="w-4 h-4 text-[#6E6B65] absolute left-3.5 top-3.5" />
-              </div>
-            </div>
-
-            <div>
-              <label
                 htmlFor="password"
                 className="block text-xs uppercase tracking-wider text-[#A6A29A] mb-2 font-medium"
               >
-                Mot de Passe
+                Mot de Passe d'Accès
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type="password"
                   required
+                  autoFocus
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
@@ -121,23 +94,12 @@ function LoginForm() {
                 <span>Vérification en cours...</span>
               ) : (
                 <>
-                  <span>Authentification Sécurisée</span>
+                  <span>Accéder à l'Administration</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
-
-          {/* Quick Demo Pre-fill Button */}
-          <div className="mt-6 pt-6 border-t border-[#222222] text-center">
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="text-xs text-[#8E8B82] hover:text-[#B79A5B] transition-colors underline underline-offset-4 cursor-pointer"
-            >
-              Remplir avec identifiants de démonstration (admin@ailys.tn)
-            </button>
-          </div>
         </div>
 
         {/* Footer Guarantee */}

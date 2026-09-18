@@ -1,0 +1,639 @@
+{
+  "lastSavedAt": "2026-09-18T00:03:47.118Z",
+  "version": "1.0",
+  "settings": {
+    "brandName": "AÏLYS",
+    "brandTagline": "Maison de Confection Contemporaine Tunisienne",
+    "contactPhone": "+216 70 000 000",
+    "contactWhatsApp": "+216 98 000 000",
+    "contactEmail": "concierge@ailys.tn",
+    "atelierAddress": "Sfax, Tunisie",
+    "freeShippingThreshold": 200,
+    "standardShippingFee": 7,
+    "deliveryDelayTunis": "24h - 48h",
+    "deliveryDelayRegions": "24h - 48h",
+    "announcementBarMessage": "Livraison 24h - 48h partout en Tunisie • Expédié depuis Sfax • Paiement à la livraison",
+    "announcementBarActive": true
+  },
+  "homepageDraft": [
+    {
+      "id": "sec-hero",
+      "key": "hero",
+      "badge": "Nouvelle Collection",
+      "title": "L'Élégance Contemporaine au Quotidien",
+      "subtitle": "Silhouettes sport-chic façonnées par la lumière tunisienne",
+      "description": "Des coupes épurées et confortables pensées pour accompagner le rythme de la femme moderne avec assurance et simplicité.",
+      "ctaText": "DÉCOUVRIR AÏLYS",
+      "ctaLink": "#nouvelle-collection",
+      "secondaryCtaText": "",
+      "secondaryCtaLink": "",
+      "desktopImage": "/images/editorial/01_ailys_hero.webp",
+      "mobileImage": "/images/editorial/02_ailys_portrait.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 40
+        },
+        "objectPosition": "50% 40%",
+        "aspectRatio": "16:9"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "order": 1,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-collection",
+      "key": "new_collection",
+      "badge": "Nouvelle Collection",
+      "title": "Nouvelle Collection",
+      "subtitle": "Matières douces, coupes nettes et confort contemporain",
+      "description": "Des pièces faciles à vivre au tombé impeccable, où la pureté des lignes rencontre le confort des matières naturelles.",
+      "ctaText": "Découvrir les collections",
+      "ctaLink": "/collections",
+      "desktopImage": "/images/editorial/03_the_silhouette.webp",
+      "mobileImage": "/images/editorial/03_the_silhouette.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "selectedProductSlugs": [],
+      "order": 2,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-philosophy",
+      "key": "philosophy",
+      "badge": "La Philosophie",
+      "title": "L'Allure AÏLYS",
+      "subtitle": "« Quiet confidence, shaped by Tunisian light. »",
+      "description": "Une élégance sans artifice. Des volumes équilibrés et des matières agréables à porter pour traverser les journées actives avec aisance.",
+      "ctaText": "L'Esprit AÏLYS",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/06_tunisian_architecture.webp",
+      "mobileImage": "/images/editorial/06_tunisian_architecture.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "original"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "original"
+      },
+      "order": 3,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-craftsmanship",
+      "key": "craftsmanship",
+      "badge": "Confection & Matières",
+      "title": "Confection & Matières",
+      "subtitle": "Matières sélectionnées, coupes précises et finitions soignées",
+      "description": "Chaque silhouette AÏLYS est confectionnée en Tunisie avec un souci constant du détail, de la qualité des coutures et du confort d'usage.",
+      "ctaText": "En savoir plus",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/04_craftsmanship_detail.webp",
+      "mobileImage": "/images/editorial/04_craftsmanship_detail.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "1:1"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "1:1"
+      },
+      "order": 4,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-about",
+      "key": "about",
+      "badge": "Origine du Nom",
+      "title": "Aïcha & la Fleur de Lys",
+      "subtitle": "L'union du prénom et de la fleur",
+      "description": "Le nom AÏLYS réunit Aïcha, la fille de la fondatrice, et la fleur de lys, sa fleur de prédilection. Une histoire de transmission et d'élégance naturelle.",
+      "ctaText": "Découvrir l'histoire",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/07_minimal_studio.webp",
+      "mobileImage": "/images/editorial/07_minimal_studio.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "order": 5,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-cta",
+      "key": "final_cta",
+      "badge": "L'Univers AÏLYS",
+      "title": "Découvrir la Collection",
+      "subtitle": "Une allure contemporaine pensée pour le quotidien",
+      "description": "Explorez notre sélection de pièces pour Femme, Homme et Enfant, alliant confort et élégance sobre.",
+      "ctaText": "Découvrir la boutique",
+      "ctaLink": "/shop",
+      "desktopImage": "/images/editorial/12_the_finale_cta.webp",
+      "mobileImage": "/images/editorial/12_the_finale_cta.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "16:9"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "3:4"
+      },
+      "order": 6,
+      "isEnabled": true
+    }
+  ],
+  "homepagePublished": [
+    {
+      "id": "sec-hero",
+      "key": "hero",
+      "badge": "Nouvelle Collection",
+      "title": "L'Élégance Contemporaine au Quotidien",
+      "subtitle": "Silhouettes sport-chic façonnées par la lumière tunisienne",
+      "description": "Des coupes épurées et confortables pensées pour accompagner le rythme de la femme moderne avec assurance et simplicité.",
+      "ctaText": "DÉCOUVRIR AÏLYS",
+      "ctaLink": "#nouvelle-collection",
+      "secondaryCtaText": "",
+      "secondaryCtaLink": "",
+      "desktopImage": "/images/editorial/01_ailys_hero.webp",
+      "mobileImage": "/images/editorial/02_ailys_portrait.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 40
+        },
+        "objectPosition": "50% 40%",
+        "aspectRatio": "16:9"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "order": 1,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-collection",
+      "key": "new_collection",
+      "badge": "Nouvelle Collection",
+      "title": "Nouvelle Collection",
+      "subtitle": "Matières douces, coupes nettes et confort contemporain",
+      "description": "Des pièces faciles à vivre au tombé impeccable, où la pureté des lignes rencontre le confort des matières naturelles.",
+      "ctaText": "Découvrir les collections",
+      "ctaLink": "/collections",
+      "desktopImage": "/images/editorial/03_the_silhouette.webp",
+      "mobileImage": "/images/editorial/03_the_silhouette.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "selectedProductSlugs": [],
+      "order": 2,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-philosophy",
+      "key": "philosophy",
+      "badge": "La Philosophie",
+      "title": "L'Allure AÏLYS",
+      "subtitle": "« Quiet confidence, shaped by Tunisian light. »",
+      "description": "Une élégance sans artifice. Des volumes équilibrés et des matières agréables à porter pour traverser les journées actives avec aisance.",
+      "ctaText": "L'Esprit AÏLYS",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/06_tunisian_architecture.webp",
+      "mobileImage": "/images/editorial/06_tunisian_architecture.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "original"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "original"
+      },
+      "order": 3,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-craftsmanship",
+      "key": "craftsmanship",
+      "badge": "Confection & Matières",
+      "title": "Confection & Matières",
+      "subtitle": "Matières sélectionnées, coupes précises et finitions soignées",
+      "description": "Chaque silhouette AÏLYS est confectionnée en Tunisie avec un souci constant du détail, de la qualité des coutures et du confort d'usage.",
+      "ctaText": "En savoir plus",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/04_craftsmanship_detail.webp",
+      "mobileImage": "/images/editorial/04_craftsmanship_detail.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "1:1"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "1:1"
+      },
+      "order": 4,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-about",
+      "key": "about",
+      "badge": "Origine du Nom",
+      "title": "Aïcha & la Fleur de Lys",
+      "subtitle": "L'union du prénom et de la fleur",
+      "description": "Le nom AÏLYS réunit Aïcha, la fille de la fondatrice, et la fleur de lys, sa fleur de prédilection. Une histoire de transmission et d'élégance naturelle.",
+      "ctaText": "Découvrir l'histoire",
+      "ctaLink": "/a-propos",
+      "desktopImage": "/images/editorial/07_minimal_studio.webp",
+      "mobileImage": "/images/editorial/07_minimal_studio.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4"
+      },
+      "order": 5,
+      "isEnabled": true
+    },
+    {
+      "id": "sec-cta",
+      "key": "final_cta",
+      "badge": "L'Univers AÏLYS",
+      "title": "Découvrir la Collection",
+      "subtitle": "Une allure contemporaine pensée pour le quotidien",
+      "description": "Explorez notre sélection de pièces pour Femme, Homme et Enfant, alliant confort et élégance sobre.",
+      "ctaText": "Découvrir la boutique",
+      "ctaLink": "/shop",
+      "desktopImage": "/images/editorial/12_the_finale_cta.webp",
+      "mobileImage": "/images/editorial/12_the_finale_cta.webp",
+      "desktopImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "16:9"
+      },
+      "mobileImageTransform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "3:4"
+      },
+      "order": 6,
+      "isEnabled": true
+    }
+  ],
+  "homepageMeta": {
+    "lastPublishedAt": "2026-09-17T12:00:00Z",
+    "hasUnpublishedChanges": false,
+    "lastSavedAt": "2026-09-18T00:03:47.118Z"
+  },
+  "products": [],
+  "collections": [],
+  "promotions": [],
+  "orders": [],
+  "returns": [],
+  "media": [
+    {
+      "id": "med-01",
+      "name": "01_ailys_hero.webp",
+      "url": "/images/editorial/01_ailys_hero.webp",
+      "dimensions": "2560 x 1440",
+      "size": "124 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 40
+        },
+        "objectPosition": "50% 40%",
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 40
+          },
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1.1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 35
+          },
+          "aspectRatio": "3:4"
+        }
+      }
+    },
+    {
+      "id": "med-02",
+      "name": "02_ailys_portrait.webp",
+      "url": "/images/editorial/02_ailys_portrait.webp",
+      "dimensions": "1664 x 2080",
+      "size": "168 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 35
+        },
+        "objectPosition": "50% 35%",
+        "aspectRatio": "3:4",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 35
+          },
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 35
+          },
+          "aspectRatio": "3:4"
+        }
+      }
+    },
+    {
+      "id": "med-03",
+      "name": "03_the_silhouette.webp",
+      "url": "/images/editorial/03_the_silhouette.webp",
+      "dimensions": "1664 x 2080",
+      "size": "286 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-04",
+      "name": "04_craftsmanship_detail.webp",
+      "url": "/images/editorial/04_craftsmanship_detail.webp",
+      "dimensions": "1920 x 1920",
+      "size": "513 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-05",
+      "name": "05_movement.webp",
+      "url": "/images/editorial/05_movement.webp",
+      "dimensions": "2560 x 1440",
+      "size": "273 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-06",
+      "name": "06_tunisian_architecture.webp",
+      "url": "/images/editorial/06_tunisian_architecture.webp",
+      "dimensions": "1664 x 2080",
+      "size": "281 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-07",
+      "name": "07_minimal_studio.webp",
+      "url": "/images/editorial/07_minimal_studio.webp",
+      "dimensions": "1664 x 2080",
+      "size": "188 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-08",
+      "name": "08_mediterranean_street.webp",
+      "url": "/images/editorial/08_mediterranean_street.webp",
+      "dimensions": "2560 x 1440",
+      "size": "197 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-09",
+      "name": "09_ailys_still_life.webp",
+      "url": "/images/editorial/09_ailys_still_life.webp",
+      "dimensions": "1920 x 1920",
+      "size": "395 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-10",
+      "name": "10_the_close_up.webp",
+      "url": "/images/editorial/10_the_close_up.webp",
+      "dimensions": "1664 x 2080",
+      "size": "188 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-11",
+      "name": "11_ailys_atmosphere.webp",
+      "url": "/images/editorial/11_ailys_atmosphere.webp",
+      "dimensions": "2560 x 1440",
+      "size": "292 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-12",
+      "name": "12_the_finale_cta.webp",
+      "url": "/images/editorial/12_the_finale_cta.webp",
+      "dimensions": "2560 x 1440",
+      "size": "254 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-man",
+      "name": "man-collection.webp",
+      "url": "/images/editorial/man-collection.webp",
+      "dimensions": "819 x 1024",
+      "size": "87 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-children",
+      "name": "children-collection.webp",
+      "url": "/images/editorial/children-collection.webp",
+      "dimensions": "819 x 1024",
+      "size": "72 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-logo",
+      "name": "logo.svg",
+      "url": "/logo.svg",
+      "dimensions": "567 x 567",
+      "size": "5 KB",
+      "mimeType": "image/svg+xml",
+      "createdAt": "2026-09-17"
+    }
+  ]
+}

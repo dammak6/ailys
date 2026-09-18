@@ -38,7 +38,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Desktop Image Composition */}
       <div className="hidden sm:block absolute inset-0 z-0">
         <Image
-          src={section.desktopImage || "/images/editorial/01_ailys_hero.png"}
+          src={section.desktopImage || "/images/editorial/01_ailys_hero.webp"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -61,7 +61,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Mobile Dedicated Composition */}
       <div className="block sm:hidden absolute inset-0 z-0">
         <Image
-          src={section.mobileImage || "/images/editorial/02_ailys_portrait.png"}
+          src={section.mobileImage || "/images/editorial/02_ailys_portrait.webp"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -185,7 +185,7 @@ function EditorialImageBreak() {
   return (
     <section className="relative w-full h-[60vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
       <Image
-        src="/images/editorial/05_movement.png"
+        src="/images/editorial/05_movement.webp"
         alt="L'Allure AÏLYS dans la lumière tunisienne"
         fill
         sizes="100vw"
@@ -198,7 +198,7 @@ function EditorialImageBreak() {
           « Une silhouette fluide sculptée par la clarté méditerranéenne. »
         </p>
         <span className="text-[11px] uppercase tracking-[0.25em] text-ailys-gold font-sans block">
-          Tunis • Saison 2026
+          Sfax • Saison 2026
         </span>
       </Container>
     </section>
@@ -253,22 +253,22 @@ function DynamicPhilosophySection({ section }: { section: any }) {
 function DynamicCraftsmanshipSection({ section }: { section: any }) {
   const detailCards = [
     {
-      image: "/images/craftsmanship/gold-zipper-detail.jpg",
+      image: "/images/craftsmanship/gold-zipper-detail.webp",
       title: "Finitions & Zips Métalliques",
       desc: "Zips métalliques dorés et coutures renforcées pour un usage durable et fluide au quotidien.",
     },
     {
-      image: "/images/craftsmanship/woven-label.jpg",
+      image: "/images/craftsmanship/woven-label.webp",
       title: "Griffe Tissée AÏLYS",
       desc: "Chaque silhouette porte notre étiquette tissée avec discrétion et sobriété.",
     },
     {
-      image: "/images/craftsmanship/care-label.jpg",
+      image: "/images/craftsmanship/care-label.webp",
       title: "Transparence & Entretien",
       desc: "Instructions claires et précises pour préserver la tenue et la douceur de vos vêtements.",
     },
     {
-      image: "/images/packaging/luxury-packaging.jpg",
+      image: "/images/packaging/luxury-packaging.webp",
       title: "Écrin & Présentation Soignée",
       desc: "Chaque pièce est soigneusement pliée et livrée dans une boîte protectrice épurée.",
     },
@@ -341,7 +341,7 @@ function DynamicAboutSection({ section }: { section: any }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-ailys-bone border border-ailys-hairline shadow-sm">
             <Image
-              src={section.desktopImage || "/images/editorial/07_minimal_studio.png"}
+              src={section.desktopImage || "/images/editorial/07_minimal_studio.webp"}
               alt="Aïcha & la Fleur de Lys — Origine de la marque AÏLYS"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"

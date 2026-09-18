@@ -1,6 +1,12 @@
+import fs from "fs";
+import path from "path";
 import { createServerSupabaseClient } from "../supabase/server";
 import { createAdminSupabaseClient } from "../supabase/admin";
 import { PRODUCTS, COLLECTIONS, CATEGORIES, SAMPLE_ORDERS, Product, Collection, ImageTransformMetadata, DEFAULT_IMAGE_TRANSFORM } from "../data";
+
+const DATA_DIR = path.join(process.cwd(), "data");
+const STORAGE_FILE = path.join(DATA_DIR, "admin-data.json");
+
 
 export interface CreateOrderParams {
   customerName: string;
@@ -97,8 +103,8 @@ export const AilysRepository = {
             salePrice: row.sale_price ? Number(row.sale_price) : undefined,
             collection: "Nouvelle Collection",
             collectionSlug: "nouvelle-collection",
-            primaryImage: row.product_images?.find((img: any) => img.is_primary)?.image_url || "/images/editorial/03_the_silhouette.png",
-            secondaryImage: row.product_images?.find((img: any) => !img.is_primary)?.image_url || "/images/editorial/10_the_close_up.png",
+            primaryImage: row.product_images?.find((img: any) => img.is_primary)?.image_url || "/images/editorial/03_the_silhouette.webp",
+            secondaryImage: row.product_images?.find((img: any) => !img.is_primary)?.image_url || "/images/editorial/10_the_close_up.webp",
             gallery: row.product_images?.map((img: any) => img.image_url) || [],
             colors: [{ name: "Blanc Os", hex: "#F5F3EC" }],
             sizes: ["36", "38", "40", "42"],
@@ -275,7 +281,7 @@ export const AilysRepository = {
         quantity: it.quantity,
         unitPrice: it.unitPrice,
         totalPrice: it.totalPrice,
-        imageUrl: it.imageUrl || "/images/editorial/03_the_silhouette.png",
+        imageUrl: it.imageUrl || "/images/editorial/03_the_silhouette.webp",
       })),
     };
 
@@ -345,7 +351,7 @@ export const AilysRepository = {
                 color: it.color,
                 price: Number(it.unit_price),
                 quantity: it.quantity,
-                image: it.image_url || "/images/editorial/03_the_silhouette.png",
+                image: it.image_url || "/images/editorial/03_the_silhouette.webp",
               })),
             };
           }
@@ -374,7 +380,7 @@ export const AilysRepository = {
             color: it.color,
             price: Number(it.unitPrice),
             quantity: it.quantity,
-            image: it.imageUrl || "/images/editorial/03_the_silhouette.png",
+            image: it.imageUrl || "/images/editorial/03_the_silhouette.webp",
           })),
         };
       }
@@ -488,9 +494,9 @@ export const AilysRepository = {
       salePrice: data.salePrice ? Number(data.salePrice) : undefined,
       collection: data.collection || "Lumière d'Été",
       collectionSlug: data.collectionSlug || "lumiere-d-ete",
-      primaryImage: data.primaryImage || "/images/editorial/03_the_silhouette.png",
-      secondaryImage: data.secondaryImage || "/images/editorial/10_the_close_up.png",
-      gallery: data.gallery || [data.primaryImage || "/images/editorial/03_the_silhouette.png"],
+      primaryImage: data.primaryImage || "/images/editorial/03_the_silhouette.webp",
+      secondaryImage: data.secondaryImage || "/images/editorial/10_the_close_up.webp",
+      gallery: data.gallery || [data.primaryImage || "/images/editorial/03_the_silhouette.webp"],
       colors: data.colors || [{ name: "Noir Mât", hex: "#0B0B0B" }],
       sizes: data.sizes || ["36", "38", "40", "42"],
       description: data.description || "",
@@ -506,6 +512,7 @@ export const AilysRepository = {
     };
     ADMIN_PRODUCTS.unshift(newProduct);
     PRODUCTS.unshift(newProduct);
+    saveStateToDisk();
     return newProduct;
   },
 
@@ -515,6 +522,7 @@ export const AilysRepository = {
     ADMIN_PRODUCTS[idx] = { ...ADMIN_PRODUCTS[idx], ...updates };
     const pIdx = PRODUCTS.findIndex((p) => p.id === id);
     if (pIdx !== -1) PRODUCTS[pIdx] = { ...PRODUCTS[pIdx], ...updates };
+    saveStateToDisk();
     return ADMIN_PRODUCTS[idx];
   },
 
@@ -524,6 +532,7 @@ export const AilysRepository = {
     product.isPublished = !product.isPublished;
     const pIdx = PRODUCTS.findIndex((p) => p.id === id);
     if (pIdx !== -1) (PRODUCTS[pIdx] as any).isPublished = product.isPublished;
+    saveStateToDisk();
     return product;
   },
 
@@ -533,6 +542,7 @@ export const AilysRepository = {
     const [deleted] = ADMIN_PRODUCTS.splice(idx, 1);
     const pIdx = PRODUCTS.findIndex((p) => p.id === id);
     if (pIdx !== -1) PRODUCTS.splice(pIdx, 1);
+    saveStateToDisk();
     return deleted;
   },
 
@@ -551,8 +561,8 @@ export const AilysRepository = {
       subtitle: data.subtitle || "",
       description: data.description || "",
       story: data.story || data.description || "",
-      heroDesktopImage: data.heroDesktopImage || "/images/editorial/08_mediterranean_street.png",
-      heroMobileImage: data.heroMobileImage || "/images/editorial/03_the_silhouette.png",
+      heroDesktopImage: data.heroDesktopImage || "/images/editorial/08_mediterranean_street.webp",
+      heroMobileImage: data.heroMobileImage || "/images/editorial/03_the_silhouette.webp",
       isCapsule: data.isCapsule ?? false,
       isPublished: data.isPublished ?? true,
       productCount: data.productCount || 0,
@@ -561,6 +571,7 @@ export const AilysRepository = {
     };
     ADMIN_COLLECTIONS.unshift(newCol);
     COLLECTIONS.unshift(newCol);
+    saveStateToDisk();
     return newCol;
   },
 
@@ -570,6 +581,7 @@ export const AilysRepository = {
     ADMIN_COLLECTIONS[idx] = { ...ADMIN_COLLECTIONS[idx], ...updates };
     const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
     if (cIdx !== -1) COLLECTIONS[cIdx] = { ...COLLECTIONS[cIdx], ...updates };
+    saveStateToDisk();
     return ADMIN_COLLECTIONS[idx];
   },
 
@@ -579,6 +591,7 @@ export const AilysRepository = {
     col.isPublished = !col.isPublished;
     const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
     if (cIdx !== -1) COLLECTIONS[cIdx].isPublished = col.isPublished;
+    saveStateToDisk();
     return col;
   },
 
@@ -588,6 +601,7 @@ export const AilysRepository = {
     const [deleted] = ADMIN_COLLECTIONS.splice(idx, 1);
     const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
     if (cIdx !== -1) COLLECTIONS.splice(cIdx, 1);
+    saveStateToDisk();
     return deleted;
   },
 
@@ -612,6 +626,7 @@ export const AilysRepository = {
       usageCount: 0,
     };
     ADMIN_PROMOTIONS.unshift(newPromo);
+    saveStateToDisk();
     return newPromo;
   },
 
@@ -619,6 +634,7 @@ export const AilysRepository = {
     const idx = ADMIN_PROMOTIONS.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error("Code promo non trouvé");
     ADMIN_PROMOTIONS[idx] = { ...ADMIN_PROMOTIONS[idx], ...updates };
+    saveStateToDisk();
     return ADMIN_PROMOTIONS[idx];
   },
 
@@ -626,6 +642,7 @@ export const AilysRepository = {
     const promo = ADMIN_PROMOTIONS.find((p) => p.id === id);
     if (!promo) throw new Error("Code promo non trouvé");
     promo.isActive = !promo.isActive;
+    saveStateToDisk();
     return promo;
   },
 
@@ -633,6 +650,7 @@ export const AilysRepository = {
     const idx = ADMIN_PROMOTIONS.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error("Code promo non trouvé");
     const [deleted] = ADMIN_PROMOTIONS.splice(idx, 1);
+    saveStateToDisk();
     return deleted;
   },
 
@@ -650,6 +668,7 @@ export const AilysRepository = {
     if (SAMPLE_ORDERS[order.orderCode]) {
       SAMPLE_ORDERS[order.orderCode].status = status;
     }
+    saveStateToDisk();
     return order;
   },
 
@@ -665,6 +684,7 @@ export const AilysRepository = {
     if (!ret) throw new Error("Demande de retour non trouvée");
     ret.status = status;
     if (adminNotes !== undefined) ret.adminNotes = adminNotes;
+    saveStateToDisk();
     return ret;
   },
 
@@ -690,6 +710,7 @@ export const AilysRepository = {
       order: idx + 1,
     }));
     HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    saveStateToDisk();
     return {
       success: true,
       sections: HOMEPAGE_DRAFT_SECTIONS,
@@ -702,6 +723,7 @@ export const AilysRepository = {
     if (!section) throw new Error("Section non trouvée");
     Object.assign(section, updates);
     HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    saveStateToDisk();
     return section;
   },
 
@@ -711,6 +733,7 @@ export const AilysRepository = {
       if (sec) sec.order = index + 1;
     });
     HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    saveStateToDisk();
     return HOMEPAGE_DRAFT_SECTIONS.sort((a, b) => a.order - b.order);
   },
 
@@ -719,6 +742,7 @@ export const AilysRepository = {
     HOMEPAGE_PUBLISHED_SECTIONS = JSON.parse(JSON.stringify(HOMEPAGE_DRAFT_SECTIONS));
     HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
     HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
+    saveStateToDisk();
 
     return {
       success: true,
@@ -731,6 +755,7 @@ export const AilysRepository = {
     // Reset draft back to published
     HOMEPAGE_DRAFT_SECTIONS = JSON.parse(JSON.stringify(HOMEPAGE_PUBLISHED_SECTIONS));
     HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
+    saveStateToDisk();
 
     return {
       success: true,
@@ -749,7 +774,7 @@ export const AilysRepository = {
   async uploadMedia(asset: any) {
     const newMedia = {
       id: `media-${Date.now()}`,
-      name: asset.name || `image-${Date.now()}.jpg`,
+      name: asset.name || `image-${Date.now()}.webp`,
       url: asset.url,
       dimensions: asset.dimensions || "1200 x 1600",
       size: asset.size || "450 KB",
@@ -757,6 +782,7 @@ export const AilysRepository = {
       createdAt: new Date().toISOString().split("T")[0],
     };
     ADMIN_MEDIA.unshift(newMedia);
+    saveStateToDisk();
     return newMedia;
   },
 
@@ -764,6 +790,7 @@ export const AilysRepository = {
     const asset = ADMIN_MEDIA.find((m) => m.id === mediaId || m.url === mediaId);
     if (!asset) throw new Error("Média non trouvé");
     asset.transform = transform;
+    saveStateToDisk();
     return asset;
   },
 
@@ -771,6 +798,7 @@ export const AilysRepository = {
     const idx = ADMIN_MEDIA.findIndex((m) => m.id === mediaId);
     if (idx === -1) throw new Error("Média non trouvé");
     const [deleted] = ADMIN_MEDIA.splice(idx, 1);
+    saveStateToDisk();
     return deleted;
   },
 
@@ -783,7 +811,36 @@ export const AilysRepository = {
 
   async updateSiteSettings(updates: any) {
     Object.assign(ADMIN_SETTINGS, updates);
+    saveStateToDisk();
     return ADMIN_SETTINGS;
+  },
+
+  // ---------------------------------------------------------------------------
+  // GLOBAL SAVE & PERSISTENCE
+  // ---------------------------------------------------------------------------
+  async saveAll(activeData?: {
+    settings?: any;
+    homepageSections?: any[];
+    publishHomepage?: boolean;
+  }) {
+    if (activeData?.settings) {
+      Object.assign(ADMIN_SETTINGS, activeData.settings);
+    }
+    if (Array.isArray(activeData?.homepageSections)) {
+      HOMEPAGE_DRAFT_SECTIONS.length = 0;
+      HOMEPAGE_DRAFT_SECTIONS.push(...activeData.homepageSections);
+      if (activeData.publishHomepage) {
+        HOMEPAGE_PUBLISHED_SECTIONS.length = 0;
+        HOMEPAGE_PUBLISHED_SECTIONS.push(...JSON.parse(JSON.stringify(activeData.homepageSections)));
+        HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
+        HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
+      }
+    }
+    return saveStateToDisk();
+  },
+
+  async getLastSavedInfo() {
+    return getLastSavedInfo();
   },
 };
 
@@ -813,8 +870,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     ctaLink: "#nouvelle-collection",
     secondaryCtaText: "",
     secondaryCtaLink: "",
-    desktopImage: "/images/editorial/01_ailys_hero.png",
-    mobileImage: "/images/editorial/02_ailys_portrait.png",
+    desktopImage: "/images/editorial/01_ailys_hero.webp",
+    mobileImage: "/images/editorial/02_ailys_portrait.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -841,8 +898,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     description: "Des pièces faciles à vivre au tombé impeccable, où la pureté des lignes rencontre le confort des matières naturelles.",
     ctaText: "Découvrir les collections",
     ctaLink: "/collections",
-    desktopImage: "/images/editorial/03_the_silhouette.png",
-    mobileImage: "/images/editorial/03_the_silhouette.png",
+    desktopImage: "/images/editorial/03_the_silhouette.webp",
+    mobileImage: "/images/editorial/03_the_silhouette.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -870,8 +927,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     description: "Une élégance sans artifice. Des volumes équilibrés et des matières agréables à porter pour traverser les journées actives avec aisance.",
     ctaText: "L'Esprit AÏLYS",
     ctaLink: "/a-propos",
-    desktopImage: "/images/editorial/06_tunisian_architecture.png",
-    mobileImage: "/images/editorial/06_tunisian_architecture.png",
+    desktopImage: "/images/editorial/06_tunisian_architecture.webp",
+    mobileImage: "/images/editorial/06_tunisian_architecture.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -898,8 +955,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     description: "Chaque silhouette AÏLYS est confectionnée en Tunisie avec un souci constant du détail, de la qualité des coutures et du confort d'usage.",
     ctaText: "En savoir plus",
     ctaLink: "/a-propos",
-    desktopImage: "/images/editorial/04_craftsmanship_detail.png",
-    mobileImage: "/images/editorial/04_craftsmanship_detail.png",
+    desktopImage: "/images/editorial/04_craftsmanship_detail.webp",
+    mobileImage: "/images/editorial/04_craftsmanship_detail.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -926,8 +983,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     description: "Le nom AÏLYS réunit Aïcha, la fille de la fondatrice, et la fleur de lys, sa fleur de prédilection. Une histoire de transmission et d'élégance naturelle.",
     ctaText: "Découvrir l'histoire",
     ctaLink: "/a-propos",
-    desktopImage: "/images/editorial/07_minimal_studio.png",
-    mobileImage: "/images/editorial/07_minimal_studio.png",
+    desktopImage: "/images/editorial/07_minimal_studio.webp",
+    mobileImage: "/images/editorial/07_minimal_studio.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -954,8 +1011,8 @@ export const DEFAULT_HOMEPAGE_SECTIONS: any[] = [
     description: "Explorez notre sélection de pièces pour Femme, Homme et Enfant, alliant confort et élégance sobre.",
     ctaText: "Découvrir la boutique",
     ctaLink: "/shop",
-    desktopImage: "/images/editorial/12_the_finale_cta.png",
-    mobileImage: "/images/editorial/12_the_finale_cta.png",
+    desktopImage: "/images/editorial/12_the_finale_cta.webp",
+    mobileImage: "/images/editorial/12_the_finale_cta.webp",
     desktopImageTransform: {
       zoom: 1,
       rotate: 0,
@@ -991,11 +1048,11 @@ export let HOMEPAGE_CMS_META = {
 export const ADMIN_MEDIA: any[] = [
   {
     id: "med-01",
-    name: "01_ailys_hero.png",
-    url: "/images/editorial/01_ailys_hero.png",
+    name: "01_ailys_hero.webp",
+    url: "/images/editorial/01_ailys_hero.webp",
     dimensions: "2560 x 1440",
-    size: "4.9 MB",
-    mimeType: "image/png",
+    size: "124 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
     transform: {
       zoom: 1,
@@ -1009,11 +1066,11 @@ export const ADMIN_MEDIA: any[] = [
   },
   {
     id: "med-02",
-    name: "02_ailys_portrait.png",
-    url: "/images/editorial/02_ailys_portrait.png",
+    name: "02_ailys_portrait.webp",
+    url: "/images/editorial/02_ailys_portrait.webp",
     dimensions: "1664 x 2080",
-    size: "5.0 MB",
-    mimeType: "image/png",
+    size: "168 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
     transform: {
       zoom: 1,
@@ -1027,92 +1084,110 @@ export const ADMIN_MEDIA: any[] = [
   },
   {
     id: "med-03",
-    name: "03_the_silhouette.png",
-    url: "/images/editorial/03_the_silhouette.png",
+    name: "03_the_silhouette.webp",
+    url: "/images/editorial/03_the_silhouette.webp",
     dimensions: "1664 x 2080",
-    size: "5.3 MB",
-    mimeType: "image/png",
+    size: "286 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-04",
-    name: "04_craftsmanship_detail.png",
-    url: "/images/editorial/04_craftsmanship_detail.png",
+    name: "04_craftsmanship_detail.webp",
+    url: "/images/editorial/04_craftsmanship_detail.webp",
     dimensions: "1920 x 1920",
-    size: "6.6 MB",
-    mimeType: "image/png",
+    size: "513 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-05",
-    name: "05_movement.png",
-    url: "/images/editorial/05_movement.png",
+    name: "05_movement.webp",
+    url: "/images/editorial/05_movement.webp",
     dimensions: "2560 x 1440",
-    size: "5.4 MB",
-    mimeType: "image/png",
+    size: "273 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-06",
-    name: "06_tunisian_architecture.png",
-    url: "/images/editorial/06_tunisian_architecture.png",
+    name: "06_tunisian_architecture.webp",
+    url: "/images/editorial/06_tunisian_architecture.webp",
     dimensions: "1664 x 2080",
-    size: "5.7 MB",
-    mimeType: "image/png",
+    size: "281 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-07",
-    name: "07_minimal_studio.png",
-    url: "/images/editorial/07_minimal_studio.png",
+    name: "07_minimal_studio.webp",
+    url: "/images/editorial/07_minimal_studio.webp",
     dimensions: "1664 x 2080",
-    size: "5.1 MB",
-    mimeType: "image/png",
+    size: "188 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-08",
-    name: "08_mediterranean_street.png",
-    url: "/images/editorial/08_mediterranean_street.png",
+    name: "08_mediterranean_street.webp",
+    url: "/images/editorial/08_mediterranean_street.webp",
     dimensions: "2560 x 1440",
-    size: "5.5 MB",
-    mimeType: "image/png",
+    size: "197 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-09",
-    name: "09_ailys_still_life.png",
-    url: "/images/editorial/09_ailys_still_life.png",
+    name: "09_ailys_still_life.webp",
+    url: "/images/editorial/09_ailys_still_life.webp",
     dimensions: "1920 x 1920",
-    size: "5.9 MB",
-    mimeType: "image/png",
+    size: "395 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-10",
-    name: "10_the_close_up.png",
-    url: "/images/editorial/10_the_close_up.png",
+    name: "10_the_close_up.webp",
+    url: "/images/editorial/10_the_close_up.webp",
     dimensions: "1664 x 2080",
-    size: "5.1 MB",
-    mimeType: "image/png",
+    size: "188 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-11",
-    name: "11_ailys_atmosphere.png",
-    url: "/images/editorial/11_ailys_atmosphere.png",
+    name: "11_ailys_atmosphere.webp",
+    url: "/images/editorial/11_ailys_atmosphere.webp",
     dimensions: "2560 x 1440",
-    size: "5.8 MB",
-    mimeType: "image/png",
+    size: "292 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
     id: "med-12",
-    name: "12_the_finale_cta.png",
-    url: "/images/editorial/12_the_finale_cta.png",
+    name: "12_the_finale_cta.webp",
+    url: "/images/editorial/12_the_finale_cta.webp",
     dimensions: "2560 x 1440",
-    size: "5.3 MB",
-    mimeType: "image/png",
+    size: "254 KB",
+    mimeType: "image/webp",
+    createdAt: "2026-09-18",
+  },
+  {
+    id: "med-man",
+    name: "man-collection.webp",
+    url: "/images/editorial/man-collection.webp",
+    dimensions: "819 x 1024",
+    size: "87 KB",
+    mimeType: "image/webp",
+    createdAt: "2026-09-18",
+  },
+  {
+    id: "med-children",
+    name: "children-collection.webp",
+    url: "/images/editorial/children-collection.webp",
+    dimensions: "819 x 1024",
+    size: "72 KB",
+    mimeType: "image/webp",
     createdAt: "2026-09-18",
   },
   {
@@ -1132,11 +1207,140 @@ export const ADMIN_SETTINGS = {
   contactPhone: "+216 70 000 000",
   contactWhatsApp: "+216 98 000 000",
   contactEmail: "concierge@ailys.tn",
-  atelierAddress: "Les Berges du Lac II, 1053 Tunis, Tunisie",
+  atelierAddress: "Sfax, Tunisie",
   freeShippingThreshold: 200,
   standardShippingFee: 7,
   deliveryDelayTunis: "24h - 48h",
-  deliveryDelayRegions: "48h - 72h",
-  announcementBarMessage: "Livraison offerte partout en Tunisie dès 200 TND • Paiement à la livraison",
+  deliveryDelayRegions: "24h - 48h",
+  announcementBarMessage: "Livraison 24h - 48h partout en Tunisie • Expédié depuis Sfax • Paiement à la livraison",
   announcementBarActive: true,
 };
+
+// =============================================================================
+// DISK PERSISTENCE ENGINE (data/admin-data.json)
+// =============================================================================
+
+export let LAST_SAVED_AT: string | null = null;
+
+export function saveStateToDisk() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const timestamp = new Date().toISOString();
+    LAST_SAVED_AT = timestamp;
+    const payload = {
+      lastSavedAt: timestamp,
+      version: "1.0",
+      settings: ADMIN_SETTINGS,
+      homepageDraft: HOMEPAGE_DRAFT_SECTIONS,
+      homepagePublished: HOMEPAGE_PUBLISHED_SECTIONS,
+      homepageMeta: { ...HOMEPAGE_CMS_META, lastSavedAt: timestamp },
+      products: ADMIN_PRODUCTS,
+      collections: ADMIN_COLLECTIONS,
+      promotions: ADMIN_PROMOTIONS,
+      orders: ADMIN_ORDERS,
+      returns: ADMIN_RETURNS,
+      media: ADMIN_MEDIA,
+    };
+    fs.writeFileSync(STORAGE_FILE, JSON.stringify(payload, null, 2), "utf-8");
+    return {
+      success: true,
+      lastSavedAt: timestamp,
+      stats: {
+        products: ADMIN_PRODUCTS.length,
+        collections: ADMIN_COLLECTIONS.length,
+        promotions: ADMIN_PROMOTIONS.length,
+        orders: ADMIN_ORDERS.length,
+        returns: ADMIN_RETURNS.length,
+        media: ADMIN_MEDIA.length,
+      },
+    };
+  } catch (err) {
+    console.error("Error saving admin state to disk:", err);
+    throw err;
+  }
+}
+
+export function getLastSavedInfo() {
+  let savedTime = LAST_SAVED_AT;
+  if (!savedTime && fs.existsSync(STORAGE_FILE)) {
+    try {
+      const stat = fs.statSync(STORAGE_FILE);
+      savedTime = stat.mtime.toISOString();
+    } catch {
+      // ignore
+    }
+  }
+  return {
+    lastSavedAt: savedTime,
+    stats: {
+      products: ADMIN_PRODUCTS.length,
+      collections: ADMIN_COLLECTIONS.length,
+      promotions: ADMIN_PROMOTIONS.length,
+      orders: ADMIN_ORDERS.length,
+      returns: ADMIN_RETURNS.length,
+      media: ADMIN_MEDIA.length,
+    },
+  };
+}
+
+export function loadStateFromDisk() {
+  try {
+    if (fs.existsSync(STORAGE_FILE)) {
+      const raw = fs.readFileSync(STORAGE_FILE, "utf-8");
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.products)) {
+        ADMIN_PRODUCTS.length = 0;
+        ADMIN_PRODUCTS.push(...data.products);
+        PRODUCTS.length = 0;
+        PRODUCTS.push(...data.products);
+      }
+      if (Array.isArray(data.collections)) {
+        ADMIN_COLLECTIONS.length = 0;
+        ADMIN_COLLECTIONS.push(...data.collections);
+        COLLECTIONS.length = 0;
+        COLLECTIONS.push(...data.collections);
+      }
+      if (Array.isArray(data.promotions)) {
+        ADMIN_PROMOTIONS.length = 0;
+        ADMIN_PROMOTIONS.push(...data.promotions);
+      }
+      if (Array.isArray(data.orders)) {
+        ADMIN_ORDERS.length = 0;
+        ADMIN_ORDERS.push(...data.orders);
+      }
+      if (Array.isArray(data.returns)) {
+        ADMIN_RETURNS.length = 0;
+        ADMIN_RETURNS.push(...data.returns);
+      }
+      if (Array.isArray(data.media)) {
+        ADMIN_MEDIA.length = 0;
+        ADMIN_MEDIA.push(...data.media);
+      }
+      if (data.settings && typeof data.settings === "object") {
+        Object.assign(ADMIN_SETTINGS, data.settings);
+      }
+      if (Array.isArray(data.homepageDraft)) {
+        HOMEPAGE_DRAFT_SECTIONS.length = 0;
+        HOMEPAGE_DRAFT_SECTIONS.push(...data.homepageDraft);
+      }
+      if (Array.isArray(data.homepagePublished)) {
+        HOMEPAGE_PUBLISHED_SECTIONS.length = 0;
+        HOMEPAGE_PUBLISHED_SECTIONS.push(...data.homepagePublished);
+      }
+      if (data.homepageMeta) {
+        Object.assign(HOMEPAGE_CMS_META, data.homepageMeta);
+      }
+      if (data.lastSavedAt) {
+        LAST_SAVED_AT = data.lastSavedAt;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load admin-data.json:", err);
+  }
+}
+
+// Initial hydration from disk
+loadStateFromDisk();
+

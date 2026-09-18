@@ -60,10 +60,10 @@ export default function AdminMediaPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: newAssetUrl,
-          name: newAssetName || `asset-${Date.now()}.jpg`,
+          name: newAssetName || `asset-${Date.now()}.webp`,
           dimensions: "1600 x 2000",
-          size: "540 KB",
-          mimeType: "image/jpeg",
+          size: "180 KB",
+          mimeType: "image/webp",
         }),
       });
 
@@ -329,7 +329,7 @@ export default function AdminMediaPage() {
                   required
                   value={newAssetUrl}
                   onChange={(e) => setNewAssetUrl(e.target.value)}
-                  placeholder="Ex: /images/campaign/hero-portait-woman.jpg"
+                  placeholder="Ex: /images/campaign/hero-portait-woman.webp"
                   className="w-full border border-[#D5D2C9] px-3 py-2 text-xs rounded-sm outline-none focus:border-[#B79A5B]"
                 />
               </div>
@@ -342,7 +342,7 @@ export default function AdminMediaPage() {
                   type="text"
                   value={newAssetName}
                   onChange={(e) => setNewAssetName(e.target.value)}
-                  placeholder="Ex: ensemble-tailleur-lin.jpg"
+                  placeholder="Ex: ensemble-tailleur-lin.webp"
                   className="w-full border border-[#D5D2C9] px-3 py-2 text-xs rounded-sm outline-none focus:border-[#B79A5B]"
                 />
               </div>

@@ -13,20 +13,23 @@ import {
   Megaphone,
 } from "lucide-react";
 
+import { useAdminSave } from "@/lib/admin-save-context";
+
 export default function AdminSettingsPage() {
+  const { saveAll, isSaving: globalSaving, savedSuccess: globalSavedSuccess } = useAdminSave();
   const [settings, setSettings] = useState<any>({
     brandName: "AÏLYS",
     brandTagline: "Maison de Confection Contemporaine Tunisienne",
     contactPhone: "+216 70 000 000",
     contactWhatsApp: "+216 98 000 000",
     contactEmail: "concierge@ailys.tn",
-    atelierAddress: "Les Berges du Lac II, 1053 Tunis, Tunisie",
+    atelierAddress: "Sfax, Tunisie",
     freeShippingThreshold: 200,
     standardShippingFee: 7,
     deliveryDelayTunis: "24h - 48h",
-    deliveryDelayRegions: "48h - 72h",
+    deliveryDelayRegions: "24h - 48h",
     announcementBarMessage:
-      "Livraison offerte partout en Tunisie dès 200 TND • Paiement à la livraison",
+      "Livraison 24h - 48h partout en Tunisie • Expédié depuis Sfax • Paiement à la livraison",
     announcementBarActive: true,
   });
 
@@ -48,17 +51,26 @@ export default function AdminSettingsPage() {
     loadSettings();
   }, []);
 
+  // Listen to global save request before it commits
+  useEffect(() => {
+    const handleBeforeSave = () => {
+      fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      }).catch(console.error);
+    };
+
+    window.addEventListener("ailys:admin-before-save", handleBeforeSave);
+    return () => window.removeEventListener("ailys:admin-before-save", handleBeforeSave);
+  }, [settings]);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
-      });
-
-      if (res.ok) {
+      const ok = await saveAll({ settings });
+      if (ok) {
         setSavedSuccess(true);
         setTimeout(() => setSavedSuccess(false), 3500);
       }
@@ -238,7 +250,7 @@ export default function AdminSettingsPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
-                Délai Estimé Grand Tunis
+                Délai Estimé Grand Tunis & Nord (depuis Sfax)
               </label>
               <input
                 type="text"
@@ -252,7 +264,7 @@ export default function AdminSettingsPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
-                Délai Estimé Régions & Sud
+                Délai Estimé Centre & Sud (depuis Sfax)
               </label>
               <input
                 type="text"

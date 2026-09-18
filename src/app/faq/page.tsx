@@ -52,8 +52,8 @@ export default function FAQPage() {
       title: "Livraison Partout en Tunisie",
       items: [
         {
-          q: "Quels sont les délais de livraison ?",
-          a: "Nos colis sont expédiés depuis notre atelier de Tunis. La livraison intervient sous 24 à 48 heures ouvrées pour le Grand Tunis et les grandes villes (Sousse, Sfax, Nabeul, Bizerte), et sous 48 à 72 heures pour le reste des gouvernorats tunisiens.",
+          q: "Quels sont les délais et modalités de livraison ?",
+          a: "Toutes nos commandes sont expédiées directement depuis notre atelier de Sfax. La livraison intervient sous 24 à 48 heures sur l'ensemble du territoire tunisien.",
         },
         {
           q: "Quels sont les frais de livraison ?",
