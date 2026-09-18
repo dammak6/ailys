@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn, formatPrice } from "@/lib/utils";
+import { ImageTransformMetadata } from "@/lib/data";
 import { Badge } from "../ui/Badge";
 
 export interface ProductCardProps {
@@ -19,6 +20,7 @@ export interface ProductCardProps {
   isSoldOut?: boolean;
   isNew?: boolean;
   isCapsule?: boolean;
+  primaryImageTransform?: ImageTransformMetadata;
   className?: string;
   onQuickView?: () => void;
   onNotifyMe?: () => void;
@@ -36,6 +38,7 @@ export function ProductCard({
   isSoldOut = false,
   isNew = false,
   isCapsule = false,
+  primaryImageTransform,
   className,
   onNotifyMe,
 }: ProductCardProps) {
@@ -62,6 +65,21 @@ export function ProductCard({
           alt={name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+          style={
+            primaryImageTransform
+              ? {
+                  objectPosition: primaryImageTransform.focalPoint
+                    ? `${primaryImageTransform.focalPoint.x}% ${primaryImageTransform.focalPoint.y}%`
+                    : undefined,
+                  transform: primaryImageTransform.zoom
+                    ? `scale(${primaryImageTransform.zoom})`
+                    : undefined,
+                  transformOrigin: primaryImageTransform.focalPoint
+                    ? `${primaryImageTransform.focalPoint.x}% ${primaryImageTransform.focalPoint.y}%`
+                    : undefined,
+                }
+              : undefined
+          }
           className={cn(
             "object-cover transition-opacity duration-700 ease-editorial",
             isHovered && secondaryImage ? "opacity-0" : "opacity-100"

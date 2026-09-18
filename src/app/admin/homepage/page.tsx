@@ -100,7 +100,7 @@ export default function AdminHomepageCMSPage() {
         fetch("/api/admin/homepage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "save_draft", sections }),
+          body: JSON.stringify({ action: "save_draft", autoPublish: true, sections }),
         }).catch(console.error);
       }
     };
@@ -166,12 +166,16 @@ export default function AdminHomepageCMSPage() {
       const res = await fetch("/api/admin/homepage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "save_draft", sections }),
+        body: JSON.stringify({ action: "save_draft", autoPublish: true, sections }),
       });
 
       if (res.ok) {
+        const data = await res.json();
         setSaveDraftFeedback(true);
-        setMeta((prev) => ({ ...prev, hasUnpublishedChanges: true }));
+        setMeta({
+          lastPublishedAt: data.meta?.lastPublishedAt || new Date().toISOString(),
+          hasUnpublishedChanges: false,
+        });
         setTimeout(() => setSaveDraftFeedback(false), 3000);
       }
     } catch (err) {

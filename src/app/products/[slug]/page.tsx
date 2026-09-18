@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, use } from "react";
+import React, { useState, use, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -30,20 +30,49 @@ interface ProductPageProps {
 
 export default function ProductDetailPage({ params }: ProductPageProps) {
   const resolvedParams = use(params);
-  const product = PRODUCTS.find((p) => p.slug === resolvedParams.slug);
+  const initialProduct = PRODUCTS.find((p) => p.slug === resolvedParams.slug) || null;
+  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
 
-  if (!product) {
-    notFound();
-  }
+  useEffect(() => {
+    fetch(`/api/products?slug=${resolvedParams.slug}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && !data.error && data.slug) {
+          setProduct(data);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [resolvedParams.slug]);
 
   const { addItem } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || "");
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || "");
+  const [selectedColor, setSelectedColor] = useState(initialProduct?.colors[0]?.name || "");
+  const [selectedSize, setSelectedSize] = useState(initialProduct?.sizes[0] || "");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
+
+  useEffect(() => {
+    if (product) {
+      if (!selectedColor && product.colors?.[0]?.name) setSelectedColor(product.colors[0].name);
+      if (!selectedSize && product.sizes?.[0]) setSelectedSize(product.sizes[0]);
+    }
+  }, [product]);
+
+  if (!product && !loading) {
+    notFound();
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-ailys-bone flex items-center justify-center font-serif text-ailys-black">
+        AÏLYS • Chargement...
+      </div>
+    );
+  }
 
   const toggleAccordion = (id: string) => {
     setOpenAccordion((prev) => (prev === id ? null : id));
@@ -132,6 +161,21 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 55vw"
+                style={
+                  product.primaryImageTransform && selectedImageIndex === 0
+                    ? {
+                        objectPosition: product.primaryImageTransform.focalPoint
+                          ? `${product.primaryImageTransform.focalPoint.x}% ${product.primaryImageTransform.focalPoint.y}%`
+                          : undefined,
+                        transform: product.primaryImageTransform.zoom
+                          ? `scale(${product.primaryImageTransform.zoom})`
+                          : undefined,
+                        transformOrigin: product.primaryImageTransform.focalPoint
+                          ? `${product.primaryImageTransform.focalPoint.x}% ${product.primaryImageTransform.focalPoint.y}%`
+                          : undefined,
+                      }
+                    : undefined
+                }
                 className="object-cover transition-all duration-500 ease-editorial"
               />
 

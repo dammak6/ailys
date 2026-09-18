@@ -1,5 +1,5 @@
 {
-  "lastSavedAt": "2026-09-18T00:03:47.118Z",
+  "lastSavedAt": "2026-09-18T00:50:25.864Z",
   "version": "1.0",
   "settings": {
     "brandName": "AÏLYS",
@@ -37,7 +37,21 @@
           "y": 40
         },
         "objectPosition": "50% 40%",
-        "aspectRatio": "16:9"
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "focalPoint": {
+            "x": 50,
+            "y": 40
+          }
+        },
+        "mobile": {
+          "zoom": 1.1,
+          "focalPoint": {
+            "x": 50,
+            "y": 35
+          }
+        }
       },
       "mobileImageTransform": {
         "zoom": 1,
@@ -83,7 +97,12 @@
         "objectPosition": "50% 35%",
         "aspectRatio": "3:4"
       },
-      "selectedProductSlugs": [],
+      "selectedProductSlugs": [
+        "veste-boxy-denim-indigo-brut",
+        "blouson-nappa-noir-silhouette",
+        "veste-boxy-serge-kaki-ombre",
+        "veste-zippee-scuba-noir-onyx"
+      ],
       "order": 2,
       "isEnabled": true
     },
@@ -246,7 +265,21 @@
           "y": 40
         },
         "objectPosition": "50% 40%",
-        "aspectRatio": "16:9"
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "focalPoint": {
+            "x": 50,
+            "y": 40
+          }
+        },
+        "mobile": {
+          "zoom": 1.1,
+          "focalPoint": {
+            "x": 50,
+            "y": 35
+          }
+        }
       },
       "mobileImageTransform": {
         "zoom": 1,
@@ -292,7 +325,12 @@
         "objectPosition": "50% 35%",
         "aspectRatio": "3:4"
       },
-      "selectedProductSlugs": [],
+      "selectedProductSlugs": [
+        "veste-boxy-denim-indigo-brut",
+        "blouson-nappa-noir-silhouette",
+        "veste-boxy-serge-kaki-ombre",
+        "veste-zippee-scuba-noir-onyx"
+      ],
       "order": 2,
       "isEnabled": true
     },
@@ -434,12 +472,293 @@
     }
   ],
   "homepageMeta": {
-    "lastPublishedAt": "2026-09-17T12:00:00Z",
+    "lastPublishedAt": "2026-09-18T00:50:04.906Z",
     "hasUnpublishedChanges": false,
-    "lastSavedAt": "2026-09-18T00:03:47.118Z"
+    "lastSavedAt": "2026-09-18T00:50:25.864Z"
   },
-  "products": [],
-  "collections": [],
+  "products": [
+    {
+      "id": "prod-denim-indigo-01",
+      "slug": "veste-boxy-denim-indigo-brut",
+      "name": "Veste Boxy Denim Indigo Brut",
+      "subtitle": "Coupe courte architecturale en denim selvedge d'atelier",
+      "category": "femme",
+      "subCategory": "Vestes & Manteaux",
+      "price": 280,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07460319401-A7M.webp",
+      "secondaryImage": "/images/products/07460319401-A6M.webp",
+      "gallery": [
+        "/images/products/07460319401-A7M.webp",
+        "/images/products/07460319401-A2M.webp",
+        "/images/products/07460319401-A6M.webp",
+        "/images/products/07460319401-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Indigo Brut",
+          "hex": "#1C2833"
+        }
+      ],
+      "sizes": [
+        "36",
+        "38",
+        "40",
+        "42"
+      ],
+      "description": "Veste courte à la coupe boxy affirmée, confectionnée en denim de coton brut indigo profond. Découpes structurées inspirées du vestiaire utilitaire d'atelier, boutons métalliques argentés et poches plaquées amples.",
+      "materials": "100% Coton denim brut selvedge 12.5 oz de haute tenue",
+      "care": "Lavage à froid sur l'envers. Séchage à plat.",
+      "fit": "Coupe boxy contemporaine légèrement cropped.",
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "prod-blouson-nappa-02",
+      "slug": "blouson-nappa-noir-silhouette",
+      "name": "Blouson Nappa Noir Silhouette",
+      "subtitle": "Esprit aviateur contemporain en cuir nappa ultra souple",
+      "category": "femme",
+      "subCategory": "Vestes & Manteaux",
+      "price": 395,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07670434700-M.webp",
+      "secondaryImage": "/images/products/07670434700-A6M.webp",
+      "gallery": [
+        "/images/products/07670434700-M.webp",
+        "/images/products/07670434700-A2M.webp",
+        "/images/products/07670434700-A6M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Noir Nappa",
+          "hex": "#111111"
+        }
+      ],
+      "sizes": [
+        "36",
+        "38",
+        "40",
+        "42"
+      ],
+      "description": "Blouson zippé en cuir nappa ultra souple au grain lisse velouté. Col chemise franc, poignets et ourlet bas élastiqués pour un effet blousant très chic. Pièce maîtresse de la saison.",
+      "materials": "Cuir nappa végan souple premium, doublure 100% viscose respirante",
+      "care": "Nettoyage délicat avec un chiffon doux légèrement humide. Ne pas repasser.",
+      "fit": "Coupe blousante décontractée avec taille resserrée par élastique.",
+      "isCapsule": true,
+      "isFeatured": true
+    },
+    {
+      "id": "prod-boxy-kaki-03",
+      "slug": "veste-boxy-serge-kaki-ombre",
+      "name": "Veste Boxy Sergé Kaki Ombre",
+      "subtitle": "Sergé de coton teinté en pièce, nuance terre d'ombre",
+      "category": "femme",
+      "subCategory": "Vestes & Manteaux",
+      "price": 265,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07460319700-A7M.webp",
+      "secondaryImage": "/images/products/07460319700-A6M.webp",
+      "gallery": [
+        "/images/products/07460319700-A7M.webp",
+        "/images/products/07460319700-A2M.webp",
+        "/images/products/07460319700-A6M.webp",
+        "/images/products/07460319700-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Kaki Ombre",
+          "hex": "#5C5645"
+        }
+      ],
+      "sizes": [
+        "36",
+        "38",
+        "40",
+        "42"
+      ],
+      "description": "Veste courte en toile sergée de coton lourd lavé. Teinte minérale subtile entre kaki patiné et terre d'ombre. Fermeture à boutons métalliques et coupe structurée confortable.",
+      "materials": "100% Coton sergé lourd délavé aux enzymes",
+      "care": "Lavage en machine à 30°C. Séchage sur cintre.",
+      "fit": "Coupe droite déstructurée.",
+      "isNew": true
+    },
+    {
+      "id": "prod-scuba-noir-04",
+      "slug": "veste-zippee-scuba-noir-onyx",
+      "name": "Veste Zippée Scuba Noir Onyx",
+      "subtitle": "Maille technique interlock haute densité à col montant",
+      "category": "homme",
+      "subCategory": "Vestes Sport-Chic",
+      "price": 245,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07721518800-M.webp",
+      "secondaryImage": "/images/products/07721522800-A6M.webp",
+      "gallery": [
+        "/images/products/07721518800-M.webp",
+        "/images/products/07721518800-A4M.webp",
+        "/images/products/07721522800-A6M.webp",
+        "/images/products/07721522800-A8M.webp",
+        "/images/products/07721522800-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Noir Onyx",
+          "hex": "#0E0E10"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "description": "Veste sport-chic technique en jersey scuba double face. Tombé sculptural sans pli, col montant ajusté, zip en métal argenté et poches italiennes discrètes. La parfaite veste mi-saison urbaine.",
+      "materials": "75% Coton peigné, 20% Polyester technique, 5% Élasthanne (320 g/m²)",
+      "care": "Lavage en machine à 30°C sur l'envers. Repassage doux à la vapeur si nécessaire.",
+      "fit": "Coupe régulière sportive.",
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "prod-scuba-grenat-05",
+      "slug": "veste-zippee-scuba-grenat",
+      "name": "Veste Zippée Scuba Grenat",
+      "subtitle": "Teinte bordeaux profond noble sur maille scuba double face",
+      "category": "homme",
+      "subCategory": "Vestes Sport-Chic",
+      "price": 245,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07721918700-M.webp",
+      "secondaryImage": "/images/products/07721918700-A6M.webp",
+      "gallery": [
+        "/images/products/07721918700-M.webp",
+        "/images/products/07721918700-A2M.webp",
+        "/images/products/07721918700-A6M.webp",
+        "/images/products/07721918700-A8M.webp",
+        "/images/products/07721918700-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Grenat Profond",
+          "hex": "#38171E"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "description": "Déclinaison dans un rouge grenat sombre et raffiné de notre veste zippée en scuba technique. Apporte une touche de couleur chaude et feutrée au vestiaire masculin.",
+      "materials": "75% Coton peigné, 20% Polyester technique, 5% Élasthanne",
+      "care": "Lavage délicat à 30°C.",
+      "fit": "Coupe athlétique contemporaine.",
+      "isNew": true
+    },
+    {
+      "id": "prod-scuba-gris-06",
+      "slug": "veste-zippee-scuba-gris-chine",
+      "name": "Veste Zippée Scuba Gris Chiné",
+      "subtitle": "Maille scuba chinée douce au tombé net et structuré",
+      "category": "homme",
+      "subCategory": "Vestes Sport-Chic",
+      "price": 245,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07721918803-M.webp",
+      "secondaryImage": "/images/products/07721918803-A6M.webp",
+      "gallery": [
+        "/images/products/07721918803-M.webp",
+        "/images/products/07721918803-A5M.webp",
+        "/images/products/07721918803-A6M.webp",
+        "/images/products/07721918803-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Gris Chiné",
+          "hex": "#A8A8AA"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "description": "Veste zippée polyvalente en scuba chiné gris perle. Idéale superposée sur une chemise ou un t-shirt pour une allure sport-chic décontractée.",
+      "materials": "70% Coton, 25% Polyester, 5% Élasthanne",
+      "care": "Lavage en machine à 30°C.",
+      "fit": "Coupe décontractée urbaine.",
+      "isNew": true
+    },
+    {
+      "id": "prod-tshirt-sfax-07",
+      "slug": "t-shirt-oversize-atelier-sfax",
+      "name": "T-Shirt Oversize Atelier Sfax",
+      "subtitle": "Jersey de coton lourd 260g, typographie atelier discrète",
+      "category": "homme",
+      "subCategory": "Polos & Mailles",
+      "price": 125,
+      "collection": "L'Atelier Urbain",
+      "collectionSlug": "atelier-urbain",
+      "primaryImage": "/images/products/07231523250-A7M.webp",
+      "secondaryImage": "/images/products/07231523250-A6M.webp",
+      "gallery": [
+        "/images/products/07231523250-A7M.webp",
+        "/images/products/07231523250-A2M.webp",
+        "/images/products/07231523250-A6M.webp",
+        "/images/products/07231523250-A20M.webp"
+      ],
+      "colors": [
+        {
+          "name": "Blanc Craie",
+          "hex": "#F7F6F2"
+        }
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "description": "T-shirt à la coupe ample et tombé lourd, confectionné en jersey de coton dense 260g. Col ras-du-cou robuste et micro-typographie inspirée des inscriptions de patronnage d'atelier.",
+      "materials": "100% Coton peigné cardé lourd (260 g/m²)",
+      "care": "Lavage en machine à 30°C sur l'envers. Repasser à température moyenne.",
+      "fit": "Coupe oversize contemporaine aux épaules tombantes.",
+      "isNew": true,
+      "isFeatured": true
+    }
+  ],
+  "collections": [
+    {
+      "id": "col-atelier-urbain-2026",
+      "slug": "atelier-urbain",
+      "title": "L'Atelier Urbain",
+      "subtitle": "Édition Sfax 2026 • Denim, Cuir Nappa & Mailles Techniques",
+      "description": "Une collection moderne façonnée dans notre atelier de Sfax. Volumes contemporains, denim indigo brut, cuir nappa souple et vestes en jersey scuba double face pour une élégance fonctionnelle et affirmée.",
+      "story": "Née au cœur de notre atelier de Sfax, la collection L'Atelier Urbain capture l'équilibre singulier entre l'artisanat textile tunisien et la modernité des coupes contemporaines. Du blouson bomber en cuir nappa à la veste en denim brut selvedge, en passant par les vestes techniques en maille scuba thermique, chaque pièce est construite avec une rigueur architecturale et un confort absolu au quotidien.",
+      "heroDesktopImage": "/images/editorial/03_the_silhouette.webp",
+      "heroMobileImage": "/images/editorial/02_ailys_portrait.webp",
+      "productSlugs": [
+        "veste-boxy-denim-indigo-brut",
+        "blouson-nappa-noir-silhouette",
+        "veste-boxy-serge-kaki-ombre",
+        "veste-zippee-scuba-noir-onyx",
+        "veste-zippee-scuba-grenat",
+        "veste-zippee-scuba-gris-chine",
+        "t-shirt-oversize-atelier-sfax"
+      ],
+      "isCapsule": true,
+      "isPublished": true,
+      "productCount": 7
+    }
+  ],
   "promotions": [],
   "orders": [],
   "returns": [],
@@ -463,21 +782,17 @@
         "aspectRatio": "16:9",
         "desktop": {
           "zoom": 1,
-          "rotate": 0,
           "focalPoint": {
             "x": 50,
             "y": 40
-          },
-          "aspectRatio": "16:9"
+          }
         },
         "mobile": {
           "zoom": 1.1,
-          "rotate": 0,
           "focalPoint": {
             "x": 50,
             "y": 35
-          },
-          "aspectRatio": "3:4"
+          }
         }
       }
     },
@@ -493,18 +808,19 @@
         "zoom": 1,
         "rotate": 0,
         "focalPoint": {
-          "x": 50,
-          "y": 35
+          "x": 49,
+          "y": 36
         },
-        "objectPosition": "50% 35%",
-        "aspectRatio": "3:4",
+        "objectPosition": "49% 36%",
+        "aspectRatio": "16:9",
         "desktop": {
           "zoom": 1,
           "rotate": 0,
           "focalPoint": {
-            "x": 50,
-            "y": 35
+            "x": 49,
+            "y": 36
           },
+          "objectPosition": "49% 36%",
           "aspectRatio": "16:9"
         },
         "mobile": {
@@ -514,6 +830,7 @@
             "x": 50,
             "y": 35
           },
+          "objectPosition": "50% 50%",
           "aspectRatio": "3:4"
         }
       }
@@ -588,7 +905,37 @@
       "dimensions": "1664 x 2080",
       "size": "188 KB",
       "mimeType": "image/webp",
-      "createdAt": "2026-09-18"
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 60,
+          "y": 28
+        },
+        "objectPosition": "60% 28%",
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 60,
+            "y": 28
+          },
+          "objectPosition": "60% 28%",
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "3:4"
+        }
+      }
     },
     {
       "id": "med-11",
@@ -606,7 +953,37 @@
       "dimensions": "2560 x 1440",
       "size": "254 KB",
       "mimeType": "image/webp",
-      "createdAt": "2026-09-18"
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "3:4"
+        }
+      }
     },
     {
       "id": "med-man",
@@ -615,7 +992,37 @@
       "dimensions": "819 x 1024",
       "size": "87 KB",
       "mimeType": "image/webp",
-      "createdAt": "2026-09-18"
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "objectPosition": "50% 50%",
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "3:4"
+        }
+      }
     },
     {
       "id": "med-children",
@@ -624,7 +1031,37 @@
       "dimensions": "819 x 1024",
       "size": "72 KB",
       "mimeType": "image/webp",
-      "createdAt": "2026-09-18"
+      "createdAt": "2026-09-18",
+      "transform": {
+        "zoom": 1,
+        "rotate": 0,
+        "focalPoint": {
+          "x": 50,
+          "y": 15
+        },
+        "objectPosition": "50% 15%",
+        "aspectRatio": "16:9",
+        "desktop": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 15
+          },
+          "objectPosition": "50% 15%",
+          "aspectRatio": "16:9"
+        },
+        "mobile": {
+          "zoom": 1,
+          "rotate": 0,
+          "focalPoint": {
+            "x": 50,
+            "y": 50
+          },
+          "objectPosition": "50% 50%",
+          "aspectRatio": "3:4"
+        }
+      }
     },
     {
       "id": "med-logo",
@@ -634,6 +1071,267 @@
       "size": "5 KB",
       "mimeType": "image/svg+xml",
       "createdAt": "2026-09-17"
+    },
+    {
+      "id": "med-prod-1789691769771-71iu",
+      "name": "07231523250-A20M.webp",
+      "url": "/images/products/07231523250-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "7 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769771-v4ry",
+      "name": "07231523250-A2M.webp",
+      "url": "/images/products/07231523250-A2M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "22 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769771-bl00",
+      "name": "07231523250-A6M.webp",
+      "url": "/images/products/07231523250-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "9 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769771-1k2e",
+      "name": "07231523250-A7M.webp",
+      "url": "/images/products/07231523250-A7M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "58 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-522x",
+      "name": "07460319401-A20M.webp",
+      "url": "/images/products/07460319401-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "108 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-my9l",
+      "name": "07460319401-A2M.webp",
+      "url": "/images/products/07460319401-A2M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "96 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-is31",
+      "name": "07460319401-A6M.webp",
+      "url": "/images/products/07460319401-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "118 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-azly",
+      "name": "07460319401-A7M.webp",
+      "url": "/images/products/07460319401-A7M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "111 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-79z9",
+      "name": "07460319700-A20M.webp",
+      "url": "/images/products/07460319700-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "69 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-okil",
+      "name": "07460319700-A2M.webp",
+      "url": "/images/products/07460319700-A2M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "109 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769772-b58k",
+      "name": "07460319700-A6M.webp",
+      "url": "/images/products/07460319700-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "298 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-q2xp",
+      "name": "07460319700-A7M.webp",
+      "url": "/images/products/07460319700-A7M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "155 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-x92v",
+      "name": "07670434700-A2M.webp",
+      "url": "/images/products/07670434700-A2M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "40 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-mxdu",
+      "name": "07670434700-A6M.webp",
+      "url": "/images/products/07670434700-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "13 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-htg2",
+      "name": "07670434700-M.webp",
+      "url": "/images/products/07670434700-M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "40 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-7me1",
+      "name": "07721518800-A4M.webp",
+      "url": "/images/products/07721518800-A4M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "32 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-ssug",
+      "name": "07721518800-M.webp",
+      "url": "/images/products/07721518800-M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "49 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769773-dpru",
+      "name": "07721522800-A20M.webp",
+      "url": "/images/products/07721522800-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "15 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769774-bnxu",
+      "name": "07721522800-A6M.webp",
+      "url": "/images/products/07721522800-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "63 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769774-y710",
+      "name": "07721522800-A8M.webp",
+      "url": "/images/products/07721522800-A8M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "104 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-una7",
+      "name": "07721918700-A20M.webp",
+      "url": "/images/products/07721918700-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "15 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-3yrc",
+      "name": "07721918700-A2M.webp",
+      "url": "/images/products/07721918700-A2M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "20 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-hvfa",
+      "name": "07721918700-A6M.webp",
+      "url": "/images/products/07721918700-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "19 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-7ota",
+      "name": "07721918700-A8M.webp",
+      "url": "/images/products/07721918700-A8M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "209 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-f4kg",
+      "name": "07721918700-M.webp",
+      "url": "/images/products/07721918700-M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "28 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-55of",
+      "name": "07721918803-A20M.webp",
+      "url": "/images/products/07721918803-A20M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "102 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-hg0s",
+      "name": "07721918803-A5M.webp",
+      "url": "/images/products/07721918803-A5M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "92 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-hef7",
+      "name": "07721918803-A6M.webp",
+      "url": "/images/products/07721918803-A6M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "81 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
+    },
+    {
+      "id": "med-prod-1789691769775-vazm",
+      "name": "07721918803-M.webp",
+      "url": "/images/products/07721918803-M.webp",
+      "dimensions": "1024 x 1365",
+      "size": "63 KB",
+      "mimeType": "image/webp",
+      "createdAt": "2026-09-18"
     }
   ]
 }

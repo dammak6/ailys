@@ -8,18 +8,32 @@ export async function GET(req: NextRequest) {
 
     if (isPreview) {
       const draft = await AilysRepository.getDraftHomepage();
-      return NextResponse.json({
-        isPreview: true,
-        sections: draft.sections.filter((s: any) => s.isEnabled),
-        meta: draft.meta,
-      });
+      return NextResponse.json(
+        {
+          isPreview: true,
+          sections: draft.sections.filter((s: any) => s.isEnabled),
+          meta: draft.meta,
+        },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          },
+        }
+      );
     }
 
     const sections = await AilysRepository.getPublishedHomepage();
-    return NextResponse.json({
-      isPreview: false,
-      sections,
-    });
+    return NextResponse.json(
+      {
+        isPreview: false,
+        sections,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

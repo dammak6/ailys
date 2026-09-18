@@ -1,22 +1,34 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, Check, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/common/ProductCard";
-import { PRODUCTS, CATEGORIES } from "@/lib/data";
+import { PRODUCTS, CATEGORIES, Product } from "@/lib/data";
 
 export default function ShopPage() {
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSize, setSelectedSize] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
+  useEffect(() => {
+    fetch("/api/products", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   const allSizes = ["36", "38", "40", "42", "44", "XS", "S", "M", "L", "XL", "XXL", "4 ans", "6 ans", "8 ans", "10 ans"];
 
   const filteredProducts = useMemo(() => {
-    let list = [...PRODUCTS];
+    let list = [...products];
 
     if (selectedCategory !== "all") {
       list = list.filter((p) => p.category === selectedCategory);

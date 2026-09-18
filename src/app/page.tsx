@@ -20,6 +20,22 @@ interface SectionProps {
   allProducts: Product[];
 }
 
+// Helper to convert transform metadata to CSS styles
+function resolveTransformStyle(transform?: any, defaultFocal = { x: 50, y: 50 }) {
+  if (!transform) return undefined;
+  const t = transform.desktop || transform.mobile || transform;
+  const fx = typeof t.focalPoint?.x === "number" ? t.focalPoint.x : defaultFocal.x;
+  const fy = typeof t.focalPoint?.y === "number" ? t.focalPoint.y : defaultFocal.y;
+  const zoom = typeof t.zoom === "number" ? t.zoom : 1;
+  const rotate = typeof t.rotate === "number" ? t.rotate : 0;
+
+  return {
+    objectPosition: `${fx}% ${fy}%`,
+    transform: zoom !== 1 || rotate !== 0 ? `scale(${zoom}) rotate(${rotate}deg)` : undefined,
+    transformOrigin: `${fx}% ${fy}%`,
+  };
+}
+
 // -----------------------------------------------------------------------------
 // 1. HERO SECTION (Campaign Editorial with Single CTA)
 // -----------------------------------------------------------------------------
@@ -32,6 +48,8 @@ function DynamicHeroSection({ section }: { section: any }) {
 
   const dt = section.desktopImageTransform?.desktop || section.desktopImageTransform;
   const mt = section.mobileImageTransform?.mobile || section.mobileImageTransform || dt;
+  const desktopStyle = resolveTransformStyle(dt, { x: 50, y: 40 });
+  const mobileStyle = resolveTransformStyle(mt, { x: 50, y: 25 });
 
   return (
     <section className="relative w-full min-h-[86svh] sm:min-h-[90vh] flex items-end justify-start bg-ailys-black text-ailys-bone overflow-hidden pb-10 sm:pb-24 pt-24 sm:pt-32">
@@ -43,15 +61,7 @@ function DynamicHeroSection({ section }: { section: any }) {
           fill
           priority
           sizes="100vw"
-          style={
-            dt
-              ? {
-                  objectPosition: `${dt.focalPoint?.x ?? 50}% ${dt.focalPoint?.y ?? 40}%`,
-                  transform: `scale(${dt.zoom ?? 1}) rotate(${dt.rotate ?? 0}deg)`,
-                  transformOrigin: `${dt.focalPoint?.x ?? 50}% ${dt.focalPoint?.y ?? 40}%`,
-                }
-              : undefined
-          }
+          style={desktopStyle}
           className="object-cover object-center opacity-80 brightness-90 transition-transform duration-1000 ease-out"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent" />
@@ -66,15 +76,7 @@ function DynamicHeroSection({ section }: { section: any }) {
           fill
           priority
           sizes="100vw"
-          style={
-            mt
-              ? {
-                  objectPosition: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 25}%`,
-                  transform: `scale(${mt.zoom ?? 1}) rotate(${mt.rotate ?? 0}deg)`,
-                  transformOrigin: `${mt.focalPoint?.x ?? 50}% ${mt.focalPoint?.y ?? 25}%`,
-                }
-              : undefined
-          }
+          style={mobileStyle}
           className="object-cover object-top opacity-85 brightness-90"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
@@ -181,14 +183,17 @@ function DynamicCollectionSection({
 // -----------------------------------------------------------------------------
 // 3. EDITORIAL IMAGE BREAK / VISUAL PAUSE
 // -----------------------------------------------------------------------------
-function EditorialImageBreak() {
+function EditorialImageBreak({ section }: { section?: any }) {
+  const tStyle = resolveTransformStyle(section?.desktopImageTransform, { x: 50, y: 50 });
+
   return (
     <section className="relative w-full h-[46vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
       <Image
-        src="/images/editorial/05_movement.webp"
-        alt="L'Allure AÏLYS dans la lumière tunisienne"
+        src={section?.desktopImage || "/images/editorial/05_movement.webp"}
+        alt={section?.title || "L'Allure AÏLYS dans la lumière tunisienne"}
         fill
         sizes="100vw"
+        style={tStyle}
         className="object-cover object-center opacity-70 brightness-95"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/60" />
@@ -334,6 +339,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
 // -----------------------------------------------------------------------------
 function DynamicAboutSection({ section }: { section: any }) {
   const at = section.desktopImageTransform?.desktop || section.desktopImageTransform;
+  const aboutStyle = resolveTransformStyle(at, { x: 50, y: 35 });
 
   return (
     <Section tone="bone-light" spacing="xl" className="py-12 sm:py-28">
@@ -345,15 +351,7 @@ function DynamicAboutSection({ section }: { section: any }) {
               alt="Aïcha & la Fleur de Lys — Origine de la marque AÏLYS"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
-              style={
-                at
-                  ? {
-                      objectPosition: `${at.focalPoint?.x ?? 50}% ${at.focalPoint?.y ?? 35}%`,
-                      transform: `scale(${at.zoom ?? 1}) rotate(${at.rotate ?? 0}deg)`,
-                      transformOrigin: `${at.focalPoint?.x ?? 50}% ${at.focalPoint?.y ?? 35}%`,
-                    }
-                  : undefined
-              }
+              style={aboutStyle}
               className="object-cover"
             />
           </div>
@@ -438,16 +436,27 @@ function HomePageContent() {
   const isPreview = searchParams.get("preview") === "true";
 
   const [sections, setSections] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadHomepage() {
       try {
         const url = isPreview ? "/api/homepage?preview=true" : "/api/homepage";
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
+        const [resSections, resProducts] = await Promise.all([
+          fetch(url, { cache: "no-store" }),
+          fetch("/api/products", { cache: "no-store" }),
+        ]);
+
+        if (resSections.ok) {
+          const data = await resSections.json();
           setSections(data.sections || []);
+        }
+        if (resProducts.ok) {
+          const prodData = await resProducts.json();
+          if (Array.isArray(prodData) && prodData.length > 0) {
+            setProducts(prodData);
+          }
         }
       } catch (err) {
         console.error("Homepage load error:", err);
@@ -489,9 +498,9 @@ function HomePageContent() {
               <React.Fragment key={section.id || section.key}>
                 <DynamicCollectionSection
                   section={section}
-                  allProducts={PRODUCTS}
+                  allProducts={products}
                 />
-                <EditorialImageBreak />
+                <EditorialImageBreak section={section} />
               </React.Fragment>
             );
           case "philosophy":

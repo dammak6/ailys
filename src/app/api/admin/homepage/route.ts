@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
     const { action, sections } = body;
 
     if (action === "save_draft" && Array.isArray(sections)) {
-      const result = await AilysRepository.saveHomepageDraft(sections);
+      const autoPublish = body.autoPublish !== false;
+      const result = await AilysRepository.saveHomepageDraft(sections, autoPublish);
       return NextResponse.json(result);
     }
 

@@ -25,12 +25,19 @@ export async function POST(req: NextRequest) {
 
     const result = await AilysRepository.saveAll(body);
 
-    return NextResponse.json({
-      success: true,
-      message: "Toutes les modifications ont été enregistrées avec succès.",
-      lastSavedAt: result.lastSavedAt,
-      stats: result.stats,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Toutes les modifications ont été enregistrées avec succès.",
+        lastSavedAt: result.lastSavedAt,
+        stats: result.stats,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Admin save error:", error);
     return NextResponse.json(

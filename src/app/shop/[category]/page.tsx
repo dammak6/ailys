@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useMemo, use } from "react";
+import React, { useState, useMemo, use, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, SlidersHorizontal, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/common/ProductCard";
-import { PRODUCTS, CATEGORIES } from "@/lib/data";
+import { PRODUCTS, CATEGORIES, Product } from "@/lib/data";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -22,12 +22,24 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [selectedSub, setSelectedSub] = useState<string>("all");
   const [selectedSize, setSelectedSize] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
 
+  useEffect(() => {
+    fetch(`/api/products?category=${categoryKey}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(console.error);
+  }, [categoryKey]);
+
   const categoryProducts = useMemo(() => {
-    let list = PRODUCTS.filter((p) => p.category === categoryKey);
+    let list = products.filter((p) => p.category === categoryKey);
 
     if (selectedSub !== "all") {
       list = list.filter((p) => p.subCategory === selectedSub);

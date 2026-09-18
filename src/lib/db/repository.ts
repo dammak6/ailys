@@ -138,7 +138,13 @@ export const AilysRepository = {
     } else {
       result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
     }
-    return result;
+    return result.map((p) => {
+      const asset = ADMIN_MEDIA.find((m) => m.url === p.primaryImage);
+      return {
+        ...p,
+        primaryImageTransform: p.primaryImageTransform || asset?.transform,
+      };
+    });
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
@@ -694,7 +700,19 @@ export const AilysRepository = {
   async getPublishedHomepage() {
     return HOMEPAGE_PUBLISHED_SECTIONS
       .filter((s) => s.isEnabled)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => a.order - b.order)
+      .map((s) => {
+        const sec = { ...s };
+        if (sec.desktopImage && !sec.desktopImageTransform) {
+          const media = ADMIN_MEDIA.find((m) => m.url === sec.desktopImage);
+          if (media?.transform) sec.desktopImageTransform = media.transform;
+        }
+        if (sec.mobileImage && !sec.mobileImageTransform) {
+          const media = ADMIN_MEDIA.find((m) => m.url === sec.mobileImage);
+          if (media?.transform) sec.mobileImageTransform = media.transform;
+        }
+        return sec;
+      });
   },
 
   async getDraftHomepage() {
@@ -704,16 +722,23 @@ export const AilysRepository = {
     };
   },
 
-  async saveHomepageDraft(sections: any[]) {
+  async saveHomepageDraft(sections: any[], autoPublish: boolean = true) {
     HOMEPAGE_DRAFT_SECTIONS = sections.map((s, idx) => ({
       ...s,
       order: idx + 1,
     }));
-    HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    if (autoPublish) {
+      HOMEPAGE_PUBLISHED_SECTIONS = JSON.parse(JSON.stringify(HOMEPAGE_DRAFT_SECTIONS));
+      HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
+      HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
+    } else {
+      HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    }
     saveStateToDisk();
     return {
       success: true,
       sections: HOMEPAGE_DRAFT_SECTIONS,
+      publishedSections: HOMEPAGE_PUBLISHED_SECTIONS,
       meta: HOMEPAGE_CMS_META,
     };
   },
@@ -722,7 +747,12 @@ export const AilysRepository = {
     const section = HOMEPAGE_DRAFT_SECTIONS.find((s) => s.id === sectionId);
     if (!section) throw new Error("Section non trouvée");
     Object.assign(section, updates);
-    HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
+    const pubSection = HOMEPAGE_PUBLISHED_SECTIONS.find((s) => s.id === sectionId);
+    if (pubSection) {
+      Object.assign(pubSection, updates);
+    }
+    HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
+    HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
     saveStateToDisk();
     return section;
   },
@@ -790,8 +820,43 @@ export const AilysRepository = {
     const asset = ADMIN_MEDIA.find((m) => m.id === mediaId || m.url === mediaId);
     if (!asset) throw new Error("Média non trouvé");
     asset.transform = transform;
+
+    // Propagate transform to all Homepage sections (draft and published) using this image
+    const updateSectionTransforms = (secList: any[]) => {
+      secList.forEach((s) => {
+        if (s.desktopImage === asset.url || s.image === asset.url) {
+          const dt = transform.desktop || transform;
+          s.desktopImageTransform = { ...(s.desktopImageTransform || {}), ...transform, ...dt };
+        }
+        if (s.mobileImage === asset.url) {
+          const mt = transform.mobile || transform;
+          s.mobileImageTransform = { ...(s.mobileImageTransform || {}), ...transform, ...mt };
+        }
+      });
+    };
+    updateSectionTransforms(HOMEPAGE_DRAFT_SECTIONS);
+    updateSectionTransforms(HOMEPAGE_PUBLISHED_SECTIONS);
+
+    // Propagate transform to Products
+    const updateProductTransforms = (prodList: any[]) => {
+      prodList.forEach((p) => {
+        if (p.primaryImage === asset.url) {
+          p.primaryImageTransform = { ...(p.primaryImageTransform || {}), ...transform };
+        }
+        if (p.secondaryImage === asset.url) {
+          p.secondaryImageTransform = { ...(p.secondaryImageTransform || {}), ...transform };
+        }
+      });
+    };
+    updateProductTransforms(ADMIN_PRODUCTS);
+    updateProductTransforms(PRODUCTS);
+
     saveStateToDisk();
     return asset;
+  },
+
+  getImageTransform(url: string): ImageTransformMetadata | undefined {
+    return ADMIN_MEDIA.find((m) => m.url === url)?.transform;
   },
 
   async deleteMedia(mediaId: string) {
@@ -826,15 +891,20 @@ export const AilysRepository = {
     if (activeData?.settings) {
       Object.assign(ADMIN_SETTINGS, activeData.settings);
     }
-    if (Array.isArray(activeData?.homepageSections)) {
+    if (Array.isArray(activeData?.homepageSections) && activeData.homepageSections.length > 0) {
       HOMEPAGE_DRAFT_SECTIONS.length = 0;
-      HOMEPAGE_DRAFT_SECTIONS.push(...activeData.homepageSections);
-      if (activeData.publishHomepage) {
-        HOMEPAGE_PUBLISHED_SECTIONS.length = 0;
-        HOMEPAGE_PUBLISHED_SECTIONS.push(...JSON.parse(JSON.stringify(activeData.homepageSections)));
-        HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
-        HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
-      }
+      HOMEPAGE_DRAFT_SECTIONS.push(
+        ...activeData.homepageSections.map((s, idx) => ({ ...s, order: idx + 1 }))
+      );
+    }
+    // Auto-publish to live site on every save unless explicitly disabled
+    if (activeData?.publishHomepage !== false) {
+      HOMEPAGE_PUBLISHED_SECTIONS.length = 0;
+      HOMEPAGE_PUBLISHED_SECTIONS.push(
+        ...JSON.parse(JSON.stringify(HOMEPAGE_DRAFT_SECTIONS))
+      );
+      HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
+      HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
     }
     return saveStateToDisk();
   },
@@ -848,9 +918,9 @@ export const AilysRepository = {
 // IN-MEMORY ADMIN DATA STORES
 // =============================================================================
 
-export const ADMIN_PRODUCTS: any[] = [];
+export const ADMIN_PRODUCTS: any[] = [...PRODUCTS];
 
-export const ADMIN_COLLECTIONS: any[] = [];
+export const ADMIN_COLLECTIONS: any[] = [...COLLECTIONS];
 
 export const ADMIN_PROMOTIONS: any[] = [];
 
@@ -1290,13 +1360,13 @@ export function loadStateFromDisk() {
     if (fs.existsSync(STORAGE_FILE)) {
       const raw = fs.readFileSync(STORAGE_FILE, "utf-8");
       const data = JSON.parse(raw);
-      if (Array.isArray(data.products)) {
+      if (Array.isArray(data.products) && data.products.length > 0) {
         ADMIN_PRODUCTS.length = 0;
         ADMIN_PRODUCTS.push(...data.products);
         PRODUCTS.length = 0;
         PRODUCTS.push(...data.products);
       }
-      if (Array.isArray(data.collections)) {
+      if (Array.isArray(data.collections) && data.collections.length > 0) {
         ADMIN_COLLECTIONS.length = 0;
         ADMIN_COLLECTIONS.push(...data.collections);
         COLLECTIONS.length = 0;
