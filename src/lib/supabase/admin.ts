@@ -11,7 +11,8 @@ export function createAdminSupabaseClient() {
     throw new Error("CRITICAL SECURITY VIOLATION: createAdminSupabaseClient cannot be called on the client!");
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+  const DEFAULT_SUPABASE_URL = "https://kafyatqatggifedqtctm.supabase.co";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-service-role-key";
 
   return createClient<Database>(supabaseUrl, serviceRoleKey, {
