@@ -52,6 +52,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [selectedSize, setSelectedSize] = useState(initialProduct?.sizes[0] || "");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [notifyContact, setNotifyContact] = useState("");
+  const [isSubmittingNotify, setIsSubmittingNotify] = useState(false);
+  const [notifySuccess, setNotifySuccess] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
 
@@ -565,40 +568,81 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               Laissez vos coordonnées pour être informé en priorité.
             </p>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("Votre demande a été enregistrée. Vous serez contacté dès disponibilité.");
-                setIsNotifyModalOpen(false);
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-ailys-black mb-1.5">
-                  Téléphone ou Email
-                </label>
-                <input
-                  required
-                  type="text"
-                  placeholder="+216 ... ou exemple@domaine.tn"
-                  className="w-full h-11 px-4 text-sm bg-white border border-ailys-bone-border focus:border-ailys-gold focus:outline-none"
-                />
+            {notifySuccess ? (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-sans rounded space-y-1 text-center">
+                <p className="font-semibold">Demande enregistrée ✓</p>
+                <p>Vous serez contacté par SMS ou email dès la réouverture du stock en atelier.</p>
               </div>
+            ) : (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!notifyContact.trim()) return;
+                  setIsSubmittingNotify(true);
+                  try {
+                    const res = await fetch("/api/restock", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        productSlug: product.slug,
+                        size: selectedSize,
+                        contact: notifyContact.trim(),
+                      }),
+                    });
+                    if (res.ok) {
+                      setNotifySuccess(true);
+                      setTimeout(() => {
+                        setIsNotifyModalOpen(false);
+                        setNotifySuccess(false);
+                        setNotifyContact("");
+                      }, 2500);
+                    } else {
+                      alert("Une erreur est survenue lors de l'enregistrement.");
+                    }
+                  } catch (err) {
+                    console.error("Restock submit error:", err);
+                    alert("Erreur de connexion.");
+                  } finally {
+                    setIsSubmittingNotify(false);
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-ailys-black mb-1.5">
+                    Téléphone ou Email
+                  </label>
+                  <input
+                    required
+                    type="text"
+                    value={notifyContact}
+                    onChange={(e) => setNotifyContact(e.target.value)}
+                    placeholder="+216 ... ou exemple@domaine.tn"
+                    className="w-full h-11 px-4 text-sm bg-white border border-ailys-bone-border focus:border-ailys-gold focus:outline-none"
+                  />
+                </div>
 
-              <div className="flex gap-3 pt-2">
-                <Button variant="gold" size="sm" type="submit" className="flex-1">
-                  M&apos;avertir par SMS / Email
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  type="button"
-                  onClick={() => setIsNotifyModalOpen(false)}
-                >
-                  Annuler
-                </Button>
-              </div>
-            </form>
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    type="submit"
+                    className="flex-1"
+                    disabled={isSubmittingNotify}
+                  >
+                    {isSubmittingNotify ? "Enregistrement..." : "M'avertir par SMS / Email"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => setIsNotifyModalOpen(false)}
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

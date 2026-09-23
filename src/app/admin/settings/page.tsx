@@ -11,11 +11,15 @@ import {
   Mail,
   MapPin,
   Megaphone,
+  AlertCircle,
 } from "lucide-react";
-
+import Link from "next/link";
 import { useAdminSave } from "@/lib/admin-save-context";
+import { useAdminAuth } from "@/lib/admin-auth-context";
 
 export default function AdminSettingsPage() {
+  const { user } = useAdminAuth();
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
   const { saveAll, isSaving: globalSaving, savedSuccess: globalSavedSuccess } = useAdminSave();
   const [settings, setSettings] = useState<any>({
     brandName: "AÏLYS",
@@ -80,6 +84,29 @@ export default function AdminSettingsPage() {
       setSaving(false);
     }
   };
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="bg-white border border-[#E8E6DF] rounded-sm p-8 max-w-xl mx-auto my-12 text-center animate-fadeIn">
+        <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-200">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h2 className="font-serif text-2xl text-[#0B0B0B] mb-2 font-light">
+          Accès Restreint aux Super Administrateurs
+        </h2>
+        <p className="text-xs text-[#7A7770] leading-relaxed mb-6">
+          Votre compte dispose du rôle <span className="font-semibold text-[#0B0B0B]">ADMIN</span> (Gestion opérationnelle).
+          La modification des paramètres système et politiques de la maison est strictement réservée à la Direction AÏLYS.
+        </p>
+        <Link
+          href="/admin/orders"
+          className="inline-flex items-center px-4 py-2.5 bg-[#0B0B0B] text-[#F5F3EC] text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-[#222] transition-colors"
+        >
+          Retour aux Commandes
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">

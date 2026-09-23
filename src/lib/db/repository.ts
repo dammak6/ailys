@@ -47,6 +47,12 @@ export interface CreateReturnParams {
     productName: string;
     quantity: number;
     requestedExchangeSize?: string;
+    requestedExchangeColor?: string;
+    returnedVariantId?: string;
+    replacementVariantId?: string;
+    replacementQuantity?: number;
+    exchangeSize?: string;
+    exchangeColor?: string;
   }[];
 }
 
@@ -92,31 +98,73 @@ export const AilysRepository = {
 
         const { data, error } = await query;
         if (!error && data && data.length > 0) {
-          return data.map((row: any) => ({
-            id: row.id,
-            slug: row.slug,
-            name: row.name,
-            subtitle: row.subtitle || "",
-            category: row.categories?.slug || "femme",
-            subCategory: row.sub_category || "",
-            price: Number(row.price),
-            salePrice: row.sale_price ? Number(row.sale_price) : undefined,
-            collection: "Nouvelle Collection",
-            collectionSlug: "nouvelle-collection",
-            primaryImage: row.product_images?.find((img: any) => img.is_primary)?.image_url || "/images/editorial/03_the_silhouette.webp",
-            secondaryImage: row.product_images?.find((img: any) => !img.is_primary)?.image_url || "/images/editorial/10_the_close_up.webp",
-            gallery: row.product_images?.map((img: any) => img.image_url) || [],
-            colors: [{ name: "Blanc Os", hex: "#F5F3EC" }],
-            sizes: ["36", "38", "40", "42"],
-            description: row.description || "",
-            materials: row.materials || "",
-            care: row.care || "",
-            fit: row.fit || "",
-            isNew: row.is_new,
-            isCapsule: row.is_capsule,
-            isSoldOut: row.is_sold_out,
-            isFeatured: row.is_featured,
-          }));
+          const mapped = data.map((row: any) => {
+            const rawSizes = (row.product_variants || [])
+              .map((v: any) => v.sizes?.name?.replace(/\s*\(.*?\)/, "") || v.sizes?.code?.replace(/^[FHE]-/, ""))
+              .filter(Boolean);
+            const sizes = Array.from(new Set(rawSizes)) as string[];
+            if (sizes.length === 0) sizes.push("36", "38", "40", "42");
+
+            const rawColors = (row.product_variants || [])
+              .map((v: any) => (v.colors ? { name: v.colors.name, hex: v.colors.hex } : null))
+              .filter(Boolean);
+            const colorMap = new Map();
+            rawColors.forEach((c: any) => {
+              if (c && !colorMap.has(c.name)) colorMap.set(c.name, c);
+            });
+            const colors = Array.from(colorMap.values());
+            if (colors.length === 0) colors.push({ name: "Noir Ébène", hex: "#111111" });
+
+            const images = (row.product_images || []).sort(
+              (a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)
+            );
+            const primaryImg =
+              images.find((i: any) => i.is_primary)?.image_url ||
+              images[0]?.image_url ||
+              "/images/editorial/03_the_silhouette.webp";
+            const secondaryImg =
+              images.find((i: any) => !i.is_primary)?.image_url ||
+              images[1]?.image_url ||
+              primaryImg;
+            const gallery = images.map((i: any) => i.image_url);
+
+            const isSoldOut =
+              Boolean(row.is_sold_out_manual_override) ||
+              (Array.isArray(row.product_variants) &&
+                row.product_variants.length > 0 &&
+                row.product_variants.every((v: any) => (v.stock_quantity || 0) <= 0));
+
+            return {
+              id: row.id,
+              slug: row.slug,
+              name: row.name,
+              subtitle: row.subtitle || "",
+              category: row.categories?.slug || "femme",
+              subCategory: row.sub_category || "",
+              price: Number(row.price),
+              salePrice: row.sale_price ? Number(row.sale_price) : undefined,
+              collection: "L'Atelier Urbain",
+              collectionSlug: "atelier-urbain",
+              primaryImage: primaryImg,
+              secondaryImage: secondaryImg,
+              gallery: gallery.length > 0 ? gallery : [primaryImg],
+              colors,
+              sizes,
+              description: row.description || "",
+              materials: row.materials || "",
+              care: row.care || "",
+              fit: row.fit || "",
+              isNew: Boolean(row.is_new),
+              isCapsule: Boolean(row.is_capsule),
+              isSoldOut,
+              isFeatured: Boolean(row.is_featured),
+            };
+          });
+
+          if (filters?.size && filters.size !== "all") {
+            return mapped.filter((p: any) => p.sizes.includes(filters.size!));
+          }
+          return mapped;
         }
       } catch (err) {
         console.warn("Supabase query failed, falling back to local data:", err);
@@ -198,67 +246,49 @@ export const AilysRepository = {
   // ORDERS (Guest Checkout, Cash on Delivery only)
   // ---------------------------------------------------------------------------
   async createOrder(params: CreateOrderParams) {
+    if (isLiveSupabaseConfigured()) {
+      const supabase = await createServerSupabaseClient();
+      const { data: rpcRes, error: rpcErr } = await (supabase.rpc as any)("execute_checkout", {
+        p_customer_name: params.customerName,
+        p_phone: params.customerPhone,
+        p_governorate: params.governorate,
+        p_city: params.city,
+        p_address: params.address,
+        p_items: params.items.map((it: any) => ({
+          product_id: it.productId && it.productId.length === 36 ? it.productId : undefined,
+          product_slug: it.productId && it.productId.length !== 36 ? it.productId : it.productName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          variant_id: it.variantId || it.variant_id || undefined,
+          product_name: it.productName,
+          size: it.size,
+          color: it.color,
+          quantity: it.quantity,
+          image_url: it.imageUrl,
+        })),
+        p_customer_email: params.customerEmail || undefined,
+        p_alt_phone: params.altPhone || undefined,
+        p_notes: params.notes || undefined,
+      });
+
+      if (rpcErr) {
+        throw new Error(`Supabase checkout error: ${rpcErr.message}`);
+      }
+
+      const res = rpcRes as any;
+      if (!res || !res.success) {
+        throw new Error(res?.error || "Checkout failed to complete");
+      }
+
+      return {
+        success: true,
+        orderCode: res.orderCode,
+        orderId: res.orderId,
+        total: Number(res.total),
+        status: "nouveau",
+      };
+    }
+
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderCode = `AILYS-2609-${randomSuffix}`;
-
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = createAdminSupabaseClient();
-
-        const { data: order, error: orderError }: { data: any; error: any } = await (supabase
-          .from("orders") as any)
-          .insert({
-            order_code: orderCode,
-            customer_name: params.customerName,
-            customer_email: params.customerEmail || null,
-            customer_phone: params.customerPhone,
-            alt_phone: params.altPhone || null,
-            governorate: params.governorate,
-            city: params.city,
-            address: params.address,
-            notes: params.notes || null,
-            subtotal: params.subtotal,
-            shipping_fee: params.shippingFee,
-            total: params.total,
-            payment_method: "COD",
-            status: "nouveau",
-          })
-          .select()
-          .single();
-
-        if (orderError) throw orderError;
-
-        if (params.items && params.items.length > 0) {
-          const itemsToInsert = params.items.map((item) => ({
-            order_id: order.id,
-            product_id: item.productId || null,
-            product_name: item.productName,
-            size: item.size,
-            color: item.color,
-            unit_price: item.unitPrice,
-            quantity: item.quantity,
-            total_price: item.totalPrice,
-            image_url: item.imageUrl || null,
-          }));
-
-          const { error: itemsError } = await (supabase
-            .from("order_items") as any)
-            .insert(itemsToInsert);
-
-          if (itemsError) throw itemsError;
-        }
-
-        return {
-          success: true,
-          orderCode,
-          orderId: order.id,
-          total: params.total,
-          status: "nouveau",
-        };
-      } catch (err) {
-        console.warn("Supabase order creation failed, fallback to local store:", err);
-      }
-    }
 
     // Local store & in-memory sync for instant Admin visibility
     const localId = `ord-${Date.now()}`;
@@ -333,37 +363,29 @@ export const AilysRepository = {
     if (isLiveSupabaseConfigured()) {
       try {
         const supabase = await createServerSupabaseClient();
-        const { data: order, error }: { data: any; error: any } = await (supabase
-          .from("orders") as any)
-          .select(`
-            *,
-            order_items (*)
-          `)
-          .eq("order_code", cleanCode)
-          .single();
+        const { data, error } = await (supabase.rpc as any)("track_order", {
+          p_order_code: cleanCode,
+          p_phone: cleanPhone,
+        });
 
-        if (!error && order) {
-          // Compare phone ending
-          const orderPhoneClean = order.customer_phone.replace(/\s+/g, "").replace(/\+216/g, "");
-          if (orderPhoneClean.endsWith(cleanPhone) || cleanPhone.endsWith(orderPhoneClean)) {
-            return {
-              orderCode: order.order_code,
-              orderId: order.id,
-              customerName: order.customer_name,
-              phone: order.customer_phone,
-              orderDate: new Date(order.created_at).toLocaleDateString("fr-FR"),
-              status: order.status,
-              items: order.order_items.map((it: any) => ({
-                id: it.id,
-                productName: it.product_name,
-                size: it.size,
-                color: it.color,
-                price: Number(it.unit_price),
-                quantity: it.quantity,
-                image: it.image_url || "/images/editorial/03_the_silhouette.webp",
-              })),
-            };
-          }
+        if (!error && data && data.found) {
+          return {
+            orderCode: data.orderCode,
+            orderId: data.orderId,
+            customerName: data.customerName || "",
+            phone: phone,
+            orderDate: new Date(data.createdAt).toLocaleDateString("fr-FR"),
+            status: data.status,
+            items: (data.items || []).map((it: any) => ({
+              id: it.id,
+              productName: it.productName,
+              size: it.size,
+              color: it.color,
+              price: Number(it.unitPrice),
+              quantity: it.quantity,
+              image: it.imageUrl || "/images/editorial/03_the_silhouette.webp",
+            })),
+          };
         }
       } catch (err) {
         console.warn("Supabase order lookup failed, checking local samples:", err);
@@ -412,44 +434,29 @@ export const AilysRepository = {
 
     if (isLiveSupabaseConfigured()) {
       try {
-        const supabase = createAdminSupabaseClient();
+        const supabase = await createServerSupabaseClient();
+        const { data: rpcRes, error: rpcErr } = await (supabase.rpc as any)("submit_return_request", {
+          p_order_code: params.orderCode,
+          p_phone: params.customerPhone,
+          p_type: params.type || "retour",
+          p_reason: params.reason || "Autre",
+          p_items: params.items,
+          p_comments: params.comments || null,
+          p_tags_intact: params.tagsIntactConfirmed ?? true,
+        });
 
-        const { data: ret, error: returnError }: { data: any; error: any } = await (supabase
-          .from("returns") as any)
-          .insert({
-            request_code: requestCode,
-            order_id: params.orderId || "00000000-0000-0000-0000-000000000000",
-            order_code: params.orderCode,
-            customer_name: params.customerName,
-            customer_phone: params.customerPhone,
-            customer_email: params.customerEmail || null,
-            type: params.type,
-            reason: params.reason,
-            comments: params.comments || null,
-            tags_intact_confirmed: params.tagsIntactConfirmed,
-            status: "en_attente",
-          })
-          .select()
-          .single();
-
-        if (returnError) throw returnError;
-
-        if (params.items && params.items.length > 0) {
-          const returnItemsToInsert = params.items.map((item) => ({
-            return_id: ret.id,
-            order_item_id: item.orderItemId || null,
-            product_name: item.productName,
-            quantity: item.quantity,
-            requested_exchange_size: item.requestedExchangeSize || null,
-          }));
-
-          await (supabase.from("return_items") as any).insert(returnItemsToInsert);
+        if (!rpcErr && rpcRes && rpcRes.success) {
+          return {
+            success: true,
+            requestCode: rpcRes.requestCode || rpcRes.returnCode,
+            returnCode: rpcRes.returnCode || rpcRes.requestCode,
+            returnId: rpcRes.returnId,
+          };
         }
 
-        return {
-          success: true,
-          requestCode,
-        };
+        if (rpcErr) {
+          console.warn("Supabase submit_return_request error:", rpcErr.message);
+        }
       } catch (err) {
         console.warn("Supabase return creation failed, falling back to local:", err);
       }
@@ -491,6 +498,82 @@ export const AilysRepository = {
   // ADMIN: PRODUCTS CRUD
   // ---------------------------------------------------------------------------
   async getAllAdminProducts() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data, error } = await supabase
+          .from("products")
+          .select(`
+            *,
+            categories (*),
+            product_images (*),
+            product_variants (*, sizes (*), colors (*))
+          `)
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          return data.map((row: any) => {
+            const rawSizes = (row.product_variants || [])
+              .map((v: any) => v.sizes?.name?.replace(/\s*\(.*?\)/, "") || v.sizes?.code?.replace(/^[FHE]-/, ""))
+              .filter(Boolean);
+            const sizes = Array.from(new Set(rawSizes)) as string[];
+            if (sizes.length === 0) sizes.push("36", "38", "40", "42");
+
+            const colorsMap = new Map<string, { name: string; hex: string }>();
+            (row.product_variants || []).forEach((v: any) => {
+              if (v.colors?.name) {
+                colorsMap.set(v.colors.name, {
+                  name: v.colors.name,
+                  hex: v.colors.hex || "#111111",
+                });
+              }
+            });
+            const colors = Array.from(colorsMap.values());
+            if (colors.length === 0) {
+              colors.push({ name: "Noir Atelier", hex: "#111111" });
+            }
+
+            const images = (row.product_images || []).sort((a: any, b: any) => a.display_order - b.display_order);
+            const primaryImage = images.find((i: any) => i.is_primary)?.image_url || images[0]?.image_url || "/images/editorial/03_the_silhouette.webp";
+            const secondaryImage = images[1]?.image_url || primaryImage;
+            const gallery = images.map((i: any) => i.image_url);
+
+            const isSoldOut = (row.product_variants || []).every((v: any) => Number(v.stock_quantity) <= 0);
+
+            return {
+              id: row.id,
+              slug: row.slug,
+              name: row.name,
+              subtitle: row.subtitle || "",
+              category: row.categories?.gender || "femme",
+              subCategory: row.categories?.name || "",
+              price: Number(row.price),
+              salePrice: row.sale_price ? Number(row.sale_price) : undefined,
+              collection: "L'Atelier Urbain",
+              collectionSlug: "atelier-urbain",
+              primaryImage,
+              secondaryImage,
+              gallery: gallery.length > 0 ? gallery : [primaryImage],
+              colors,
+              sizes,
+              description: row.description || "",
+              materials: row.materials || "",
+              care: row.care_instructions || "",
+              fit: row.fit || "",
+              isNew: Boolean(row.is_new),
+              isCapsule: Boolean(row.is_capsule),
+              isSoldOut,
+              isFeatured: Boolean(row.is_featured),
+              isPublished: Boolean(row.is_published),
+              createdAt: row.created_at,
+            };
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase admin products query failed, fallback to local:", err);
+      }
+    }
+
     loadStateFromDisk();
     return ADMIN_PRODUCTS;
   },
@@ -505,8 +588,8 @@ export const AilysRepository = {
       subCategory: data.subCategory || "",
       price: Number(data.price),
       salePrice: data.salePrice ? Number(data.salePrice) : undefined,
-      collection: data.collection || "Lumière d'Été",
-      collectionSlug: data.collectionSlug || "lumiere-d-ete",
+      collection: data.collection || "L'Atelier Urbain",
+      collectionSlug: data.collectionSlug || "atelier-urbain",
       primaryImage: data.primaryImage || "/images/editorial/03_the_silhouette.webp",
       secondaryImage: data.secondaryImage || "/images/editorial/10_the_close_up.webp",
       gallery: data.gallery || [data.primaryImage || "/images/editorial/03_the_silhouette.webp"],
@@ -530,21 +613,63 @@ export const AilysRepository = {
   },
 
   async updateProduct(id: string, updates: any) {
-    const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Produit non trouvé");
-    ADMIN_PRODUCTS[idx] = { ...ADMIN_PRODUCTS[idx], ...updates };
-    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
-    if (pIdx !== -1) PRODUCTS[pIdx] = { ...PRODUCTS[pIdx], ...updates };
-    saveStateToDisk();
-    return ADMIN_PRODUCTS[idx];
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const updatePayload: any = { updated_at: new Date().toISOString() };
+        if (updates.name !== undefined) updatePayload.name = updates.name;
+        if (updates.subtitle !== undefined) updatePayload.subtitle = updates.subtitle;
+        if (updates.price !== undefined) updatePayload.price = Number(updates.price);
+        if (updates.salePrice !== undefined) updatePayload.sale_price = updates.salePrice ? Number(updates.salePrice) : null;
+        if (updates.description !== undefined) updatePayload.description = updates.description;
+        if (updates.materials !== undefined) updatePayload.materials = updates.materials;
+        if (updates.care !== undefined) updatePayload.care_instructions = updates.care;
+        if (updates.fit !== undefined) updatePayload.fit = updates.fit;
+        if (updates.isNew !== undefined) updatePayload.is_new = updates.isNew;
+        if (updates.isCapsule !== undefined) updatePayload.is_capsule = updates.isCapsule;
+        if (updates.isFeatured !== undefined) updatePayload.is_featured = updates.isFeatured;
+        if (updates.isPublished !== undefined) updatePayload.is_published = updates.isPublished;
+
+        await supabase
+          .from("products")
+          .update(updatePayload)
+          .or(`id.eq.${id},slug.eq.${id}`);
+      } catch (err) {
+        console.warn("Supabase product update warning:", err);
+      }
+    }
+
+    const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
+    if (idx !== -1) {
+      ADMIN_PRODUCTS[idx] = { ...ADMIN_PRODUCTS[idx], ...updates };
+      const pIdx = PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
+      if (pIdx !== -1) PRODUCTS[pIdx] = { ...PRODUCTS[pIdx], ...updates };
+      saveStateToDisk();
+      return ADMIN_PRODUCTS[idx];
+    }
+    return updates;
   },
 
   async togglePublishProduct(id: string) {
-    const product = ADMIN_PRODUCTS.find((p) => p.id === id);
+    const product = ADMIN_PRODUCTS.find((p) => p.id === id || p.slug === id);
+    const newStatus = product ? !product.isPublished : true;
+
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        await supabase
+          .from("products")
+          .update({ is_published: newStatus, updated_at: new Date().toISOString() })
+          .or(`id.eq.${id},slug.eq.${id}`);
+      } catch (err) {
+        console.warn("Supabase toggle product publish warning:", err);
+      }
+    }
+
     if (!product) throw new Error("Produit non trouvé");
-    product.isPublished = !product.isPublished;
-    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
-    if (pIdx !== -1) (PRODUCTS[pIdx] as any).isPublished = product.isPublished;
+    product.isPublished = newStatus;
+    const pIdx = PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
+    if (pIdx !== -1) (PRODUCTS[pIdx] as any).isPublished = newStatus;
     saveStateToDisk();
     return product;
   },
@@ -622,13 +747,80 @@ export const AilysRepository = {
   // ADMIN: PROMOTIONS CRUD
   // ---------------------------------------------------------------------------
   async getAllAdminPromotions() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data, error } = await supabase
+          .from("promotions")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          return data.map((p: any) => ({
+            id: p.id,
+            code: p.code,
+            description: p.description || "",
+            discountType: p.discount_type,
+            discountValue: Number(p.discount_value),
+            minOrderAmount: Number(p.min_order_amount || 0),
+            startDate: p.start_date ? p.start_date.split("T")[0] : "",
+            endDate: p.end_date ? p.end_date.split("T")[0] : "",
+            isActive: p.is_active,
+            usageCount: 0,
+          }));
+        }
+      } catch (err) {
+        console.warn("Supabase promotions query failed, fallback to local:", err);
+      }
+    }
     return ADMIN_PROMOTIONS;
   },
 
   async createPromotion(data: any) {
+    const code = data.code.toUpperCase().trim();
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data: inserted, error } = await supabase
+          .from("promotions")
+          .insert({
+            code,
+            description: data.description || "",
+            discount_type: data.discountType || "percentage",
+            discount_value: Number(data.discountValue),
+            min_order_amount: Number(data.minOrderAmount || 0),
+            start_date: data.startDate ? new Date(data.startDate).toISOString() : new Date().toISOString(),
+            end_date: data.endDate ? new Date(data.endDate).toISOString() : "2026-12-31T23:59:59Z",
+            is_active: data.isActive ?? true,
+          })
+          .select()
+          .single();
+
+        if (!error && inserted) {
+          const newPromo = {
+            id: inserted.id,
+            code: inserted.code,
+            description: inserted.description || "",
+            discountType: inserted.discount_type,
+            discountValue: Number(inserted.discount_value),
+            minOrderAmount: Number(inserted.min_order_amount || 0),
+            startDate: inserted.start_date ? inserted.start_date.split("T")[0] : "",
+            endDate: inserted.end_date ? inserted.end_date.split("T")[0] : "",
+            isActive: inserted.is_active,
+            usageCount: 0,
+          };
+          ADMIN_PROMOTIONS.unshift(newPromo);
+          saveStateToDisk();
+          return newPromo;
+        }
+      } catch (err) {
+        console.warn("Supabase promotion create warning:", err);
+      }
+    }
+
     const newPromo = {
       id: `promo-${Date.now()}`,
-      code: data.code.toUpperCase().trim(),
+      code,
       description: data.description || "",
       discountType: data.discountType || "percentage",
       discountValue: Number(data.discountValue),
@@ -644,38 +836,210 @@ export const AilysRepository = {
   },
 
   async updatePromotion(id: string, updates: any) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const payload: any = {};
+        if (updates.code) payload.code = updates.code.toUpperCase().trim();
+        if (updates.description !== undefined) payload.description = updates.description;
+        if (updates.discountType) payload.discount_type = updates.discountType;
+        if (updates.discountValue !== undefined) payload.discount_value = Number(updates.discountValue);
+        if (updates.minOrderAmount !== undefined) payload.min_order_amount = Number(updates.minOrderAmount);
+        if (updates.isActive !== undefined) payload.is_active = updates.isActive;
+
+        await supabase
+          .from("promotions")
+          .update(payload)
+          .or(`id.eq.${id},code.eq.${id}`);
+      } catch (err) {
+        console.warn("Supabase update promotion warning:", err);
+      }
+    }
+
     const idx = ADMIN_PROMOTIONS.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Code promo non trouvé");
-    ADMIN_PROMOTIONS[idx] = { ...ADMIN_PROMOTIONS[idx], ...updates };
-    saveStateToDisk();
-    return ADMIN_PROMOTIONS[idx];
+    if (idx !== -1) {
+      ADMIN_PROMOTIONS[idx] = { ...ADMIN_PROMOTIONS[idx], ...updates };
+      saveStateToDisk();
+      return ADMIN_PROMOTIONS[idx];
+    }
+    return updates;
   },
 
   async togglePromotionActive(id: string) {
     const promo = ADMIN_PROMOTIONS.find((p) => p.id === id);
+    const newActive = promo ? !promo.isActive : true;
+
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        await supabase
+          .from("promotions")
+          .update({ is_active: newActive })
+          .or(`id.eq.${id},code.eq.${id}`);
+      } catch (err) {
+        console.warn("Supabase toggle promotion warning:", err);
+      }
+    }
+
     if (!promo) throw new Error("Code promo non trouvé");
-    promo.isActive = !promo.isActive;
+    promo.isActive = newActive;
     saveStateToDisk();
     return promo;
   },
 
   async deletePromotion(id: string) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        await supabase
+          .from("promotions")
+          .delete()
+          .or(`id.eq.${id},code.eq.${id}`);
+      } catch (err) {
+        console.warn("Supabase delete promotion warning:", err);
+      }
+    }
+
     const idx = ADMIN_PROMOTIONS.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Code promo non trouvé");
-    const [deleted] = ADMIN_PROMOTIONS.splice(idx, 1);
-    saveStateToDisk();
-    return deleted;
+    if (idx !== -1) {
+      const [deleted] = ADMIN_PROMOTIONS.splice(idx, 1);
+      saveStateToDisk();
+      return deleted;
+    }
+    return { id };
   },
 
   // ---------------------------------------------------------------------------
   // ADMIN: ORDERS MANAGEMENT
   // ---------------------------------------------------------------------------
   async getAllAdminOrders() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data, error } = await supabase
+          .from("orders")
+          .select(`
+            *,
+            order_items (*)
+          `)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          return data.map((o: any) => ({
+            id: o.id,
+            orderCode: o.order_code,
+            customerName: o.customer_name,
+            customerEmail: o.customer_email || "",
+            customerPhone: o.customer_phone,
+            altPhone: o.alt_phone || "",
+            governorate: o.governorate,
+            city: o.city,
+            address: o.address,
+            notes: o.delivery_notes || "",
+            subtotal: Number(o.subtotal),
+            shippingFee: Number(o.shipping_fee),
+            total: Number(o.total),
+            paymentMethod: o.payment_method === "cash_on_delivery" ? "COD" : o.payment_method,
+            paymentStatus: o.payment_status,
+            status: o.status,
+            createdAt: o.created_at,
+            items: (o.order_items || []).map((it: any) => ({
+              id: it.id,
+              productName: it.product_name,
+              size: it.size,
+              color: it.color,
+              quantity: it.quantity,
+              unitPrice: Number(it.unit_price),
+              totalPrice: Number(it.total_price),
+              imageUrl: it.image_url || "/images/editorial/03_the_silhouette.webp",
+            })),
+          }));
+        }
+      } catch (err) {
+        console.warn("Supabase admin orders query failed, fallback to local:", err);
+      }
+    }
+
     loadStateFromDisk();
     return ADMIN_ORDERS;
   },
 
   async updateOrderStatus(orderId: string, status: string) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data: currentOrder } = await supabase
+          .from("orders")
+          .select("id, order_code, status")
+          .or(`id.eq.${orderId},order_code.eq.${orderId}`)
+          .single();
+
+        if (currentOrder) {
+          const prevStatus = currentOrder.status;
+          const { data: updated, error } = await supabase
+            .from("orders")
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq("id", currentOrder.id)
+            .select(`*, order_items (*)`)
+            .single();
+
+          if (!error && updated) {
+            try {
+              await supabase.from("order_status_history").insert({
+                order_id: currentOrder.id,
+                previous_status: prevStatus,
+                new_status: status,
+                actor_role: "ADMIN",
+                note: `Statut mis à jour vers ${status}`,
+              });
+            } catch (histErr) {
+              console.warn("Order status history insert warning:", histErr);
+            }
+
+            // Sync with local memory/disk as fallback
+            loadStateFromDisk();
+            const localOrd = ADMIN_ORDERS.find((o) => o.id === orderId || o.orderCode === orderId);
+            if (localOrd) {
+              localOrd.status = status;
+              saveStateToDisk();
+            }
+
+            return {
+              id: updated.id,
+              orderCode: updated.order_code,
+              customerName: updated.customer_name,
+              customerEmail: updated.customer_email || "",
+              customerPhone: updated.customer_phone,
+              altPhone: updated.alt_phone || "",
+              governorate: updated.governorate,
+              city: updated.city,
+              address: updated.address,
+              notes: updated.delivery_notes || "",
+              subtotal: Number(updated.subtotal),
+              shippingFee: Number(updated.shipping_fee),
+              total: Number(updated.total),
+              paymentMethod: updated.payment_method === "cash_on_delivery" ? "COD" : updated.payment_method,
+              paymentStatus: updated.payment_status,
+              status: updated.status,
+              createdAt: updated.created_at,
+              items: (updated.order_items || []).map((it: any) => ({
+                id: it.id,
+                productName: it.product_name,
+                size: it.size,
+                color: it.color,
+                quantity: it.quantity,
+                unitPrice: Number(it.unit_price),
+                totalPrice: Number(it.total_price),
+                imageUrl: it.image_url || "/images/editorial/03_the_silhouette.webp",
+              })),
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("Supabase order status update failed, fallback to local:", err);
+      }
+    }
+
     loadStateFromDisk();
     const order = ADMIN_ORDERS.find((o) => o.id === orderId || o.orderCode === orderId);
     if (!order) throw new Error("Commande non trouvée");
@@ -691,11 +1055,137 @@ export const AilysRepository = {
   // ADMIN: RETURNS & EXCHANGES MANAGEMENT
   // ---------------------------------------------------------------------------
   async getAllAdminReturns() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data, error } = await supabase
+          .from("returns")
+          .select(`
+            *,
+            return_items (*)
+          `)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          return data.map((r: any) => ({
+            id: r.id,
+            requestCode: r.request_code,
+            orderId: r.order_id,
+            orderCode: r.order_code,
+            customerName: r.customer_name,
+            customerPhone: r.customer_phone,
+            customerEmail: r.customer_email || "",
+            type: r.type,
+            reason: r.reason,
+            comments: r.comments || "",
+            status: r.status,
+            tagsIntactConfirmed: r.tags_intact_confirmed,
+            inspectionNotes: r.inspection_notes || "",
+            adminNotes: r.admin_notes || "",
+            createdAt: r.created_at,
+            items: (r.return_items || []).map((it: any) => ({
+              id: it.id,
+              productName: it.product_name,
+              quantity: it.quantity,
+              requestedExchangeSize: it.requested_exchange_size,
+              requestedExchangeColor: it.requested_exchange_color,
+              conditionStatus: it.condition_status,
+            })),
+          }));
+        }
+      } catch (err) {
+        console.warn("Supabase admin returns query failed, fallback to local:", err);
+      }
+    }
+
     loadStateFromDisk();
     return ADMIN_RETURNS;
   },
 
   async updateReturnStatus(returnId: string, status: string, adminNotes?: string) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data: currentReturn } = await supabase
+          .from("returns")
+          .select("id, request_code, status")
+          .or(`id.eq.${returnId},request_code.eq.${returnId}`)
+          .single();
+
+        if (currentReturn) {
+          const prevStatus = currentReturn.status;
+          const updatePayload: any = { status, updated_at: new Date().toISOString() };
+          if (adminNotes !== undefined) updatePayload.admin_notes = adminNotes;
+
+          const { data: updated, error } = await supabase
+            .from("returns")
+            .update(updatePayload)
+            .eq("id", currentReturn.id)
+            .select(`*, return_items (*)`)
+            .single();
+
+          if (!error && updated) {
+            try {
+              await supabase.from("return_status_history").insert({
+                return_id: currentReturn.id,
+                previous_status: prevStatus,
+                new_status: status,
+                actor_role: "ADMIN",
+                note: adminNotes || `Statut de retour mis à jour vers ${status}`,
+              });
+            } catch (histErr) {
+              console.warn("Return status history warning:", histErr);
+            }
+
+            if (status === "recu" || status === "complete") {
+              try {
+                await supabase.rpc("process_return_restock" as any, {
+                  p_return_id: currentReturn.id,
+                });
+              } catch (restockErr) {
+                console.warn("process_return_restock RPC warning:", restockErr);
+              }
+            }
+
+            loadStateFromDisk();
+            const localRet = ADMIN_RETURNS.find((r) => r.id === returnId || r.requestCode === returnId);
+            if (localRet) {
+              localRet.status = status as any;
+              if (adminNotes !== undefined) localRet.adminNotes = adminNotes;
+              saveStateToDisk();
+            }
+
+            return {
+              id: updated.id,
+              requestCode: updated.request_code,
+              orderId: updated.order_id,
+              orderCode: updated.order_code,
+              customerName: updated.customer_name,
+              customerPhone: updated.customer_phone,
+              customerEmail: updated.customer_email || "",
+              type: updated.type,
+              reason: updated.reason,
+              comments: updated.comments || "",
+              status: updated.status,
+              tagsIntactConfirmed: updated.tags_intact_confirmed,
+              inspectionNotes: updated.inspection_notes || "",
+              adminNotes: updated.admin_notes || "",
+              createdAt: updated.created_at,
+              items: (updated.return_items || []).map((it: any) => ({
+                id: it.id,
+                productName: it.product_name,
+                quantity: it.quantity,
+                requestedExchangeSize: it.requested_exchange_size,
+                conditionStatus: it.condition_status,
+              })),
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("Supabase return status update failed, fallback to local:", err);
+      }
+    }
+
     const ret = ADMIN_RETURNS.find((r) => r.id === returnId || r.requestCode === returnId);
     if (!ret) throw new Error("Demande de retour non trouvée");
     ret.status = status;
@@ -708,6 +1198,48 @@ export const AilysRepository = {
   // HOMEPAGE CMS: DRAFT VS PUBLISHED STATE ENGINE
   // ---------------------------------------------------------------------------
   async getPublishedHomepage() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = await createServerSupabaseClient();
+        const { data, error } = await supabase
+          .from("homepage_sections")
+          .select(`
+            *,
+            homepage_content (*)
+          `)
+          .eq("is_enabled", true)
+          .order("display_order", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          return data.map((sec: any) => {
+            const content = sec.homepage_content?.[0] || {};
+            const meta = content.metadata || {};
+            return {
+              id: sec.id,
+              key: sec.section_key,
+              badge: meta.badge || sec.title || "",
+              title: sec.title || "",
+              subtitle: sec.subtitle || "",
+              description: content.content_value || "",
+              ctaText: meta.ctaText || "",
+              ctaLink: meta.ctaLink || "",
+              secondaryCtaText: meta.secondaryCtaText || "",
+              secondaryCtaLink: meta.secondaryCtaLink || "",
+              desktopImage: content.desktop_image_url || "",
+              mobileImage: content.mobile_image_url || content.desktop_image_url || "",
+              desktopImageTransform: meta.desktopImageTransform,
+              mobileImageTransform: meta.mobileImageTransform,
+              selectedProductSlugs: meta.selectedProductSlugs || [],
+              order: sec.display_order,
+              isEnabled: sec.is_enabled,
+            };
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase published homepage query failed, fallback:", err);
+      }
+    }
+
     return HOMEPAGE_PUBLISHED_SECTIONS
       .filter((s) => s.isEnabled)
       .sort((a, b) => a.order - b.order)
@@ -741,6 +1273,51 @@ export const AilysRepository = {
       HOMEPAGE_PUBLISHED_SECTIONS = JSON.parse(JSON.stringify(HOMEPAGE_DRAFT_SECTIONS));
       HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
       HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
+
+      if (isLiveSupabaseConfigured()) {
+        try {
+          const supabase = createAdminSupabaseClient();
+          for (const s of sections) {
+            const { data: upSec } = await supabase
+              .from("homepage_sections")
+              .upsert({
+                section_key: s.key,
+                title: s.title,
+                subtitle: s.subtitle,
+                display_order: s.order,
+                is_enabled: s.isEnabled ?? true,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: "section_key" })
+              .select()
+              .single();
+
+            if (upSec) {
+              await supabase
+                .from("homepage_content")
+                .upsert({
+                  section_id: upSec.id,
+                  content_key: "main_content",
+                  content_value: s.description || "",
+                  desktop_image_url: s.desktopImage || "",
+                  mobile_image_url: s.mobileImage || s.desktopImage || "",
+                  metadata: {
+                    badge: s.badge || "",
+                    ctaText: s.ctaText || "",
+                    ctaLink: s.ctaLink || "",
+                    secondaryCtaText: s.secondaryCtaText || "",
+                    secondaryCtaLink: s.secondaryCtaLink || "",
+                    desktopImageTransform: s.desktopImageTransform,
+                    mobileImageTransform: s.mobileImageTransform,
+                    selectedProductSlugs: s.selectedProductSlugs || [],
+                  },
+                  updated_at: new Date().toISOString(),
+                }, { onConflict: "section_id,content_key" });
+            }
+          }
+        } catch (err) {
+          console.warn("Supabase homepage auto-publish warning:", err);
+        }
+      }
     } else {
       HOMEPAGE_CMS_META.hasUnpublishedChanges = true;
     }
@@ -782,6 +1359,52 @@ export const AilysRepository = {
     HOMEPAGE_PUBLISHED_SECTIONS = JSON.parse(JSON.stringify(HOMEPAGE_DRAFT_SECTIONS));
     HOMEPAGE_CMS_META.hasUnpublishedChanges = false;
     HOMEPAGE_CMS_META.lastPublishedAt = new Date().toISOString();
+
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        for (const s of HOMEPAGE_PUBLISHED_SECTIONS) {
+          const { data: upSec } = await supabase
+            .from("homepage_sections")
+            .upsert({
+              section_key: s.key,
+              title: s.title,
+              subtitle: s.subtitle,
+              display_order: s.order,
+              is_enabled: s.isEnabled ?? true,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: "section_key" })
+            .select()
+            .single();
+
+          if (upSec) {
+            await supabase
+              .from("homepage_content")
+              .upsert({
+                section_id: upSec.id,
+                content_key: "main_content",
+                content_value: s.description || "",
+                desktop_image_url: s.desktopImage || "",
+                mobile_image_url: s.mobileImage || s.desktopImage || "",
+                metadata: {
+                  badge: s.badge || "",
+                  ctaText: s.ctaText || "",
+                  ctaLink: s.ctaLink || "",
+                  secondaryCtaText: s.secondaryCtaText || "",
+                  secondaryCtaLink: s.secondaryCtaLink || "",
+                  desktopImageTransform: s.desktopImageTransform,
+                  mobileImageTransform: s.mobileImageTransform,
+                  selectedProductSlugs: s.selectedProductSlugs || [],
+                },
+                updated_at: new Date().toISOString(),
+              }, { onConflict: "section_id,content_key" });
+          }
+        }
+      } catch (err) {
+        console.warn("Supabase homepage publish warning:", err);
+      }
+    }
+
     saveStateToDisk();
 
     return {
@@ -808,10 +1431,71 @@ export const AilysRepository = {
   // ADMIN: MEDIA LIBRARY
   // ---------------------------------------------------------------------------
   async getAllMedia() {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data, error } = await supabase
+          .from("media")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          return data.map((m: any) => ({
+            id: m.id,
+            name: m.original_name || m.filename,
+            url: m.public_url,
+            dimensions: m.width && m.height ? `${m.width} x ${m.height}` : "1200 x 1600",
+            size: m.size_bytes ? `${Math.round(m.size_bytes / 1024)} KB` : "450 KB",
+            mimeType: m.mime_type || "image/webp",
+            createdAt: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+            transform: m.transform_metadata || undefined,
+          }));
+        }
+      } catch (err) {
+        console.warn("Supabase media query failed, fallback to local:", err);
+      }
+    }
     return ADMIN_MEDIA;
   },
 
   async uploadMedia(asset: any) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        const { data: inserted } = await supabase
+          .from("media")
+          .insert({
+            filename: asset.name || `image-${Date.now()}.webp`,
+            original_name: asset.name || `image-${Date.now()}.webp`,
+            mime_type: asset.mimeType || "image/jpeg",
+            size_bytes: typeof asset.size === "number" ? asset.size : 102400,
+            public_url: asset.url,
+            bucket_name: "media",
+            transform_metadata: asset.transform || {},
+          })
+          .select()
+          .single();
+
+        if (inserted) {
+          const newMedia = {
+            id: inserted.id,
+            name: inserted.original_name || inserted.filename,
+            url: inserted.public_url,
+            dimensions: asset.dimensions || "1200 x 1600",
+            size: asset.size || "450 KB",
+            mimeType: inserted.mime_type,
+            createdAt: inserted.created_at ? inserted.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+            transform: inserted.transform_metadata,
+          };
+          ADMIN_MEDIA.unshift(newMedia);
+          saveStateToDisk();
+          return newMedia;
+        }
+      } catch (err) {
+        console.warn("Supabase upload media warning, fallback:", err);
+      }
+    }
+
     const newMedia = {
       id: `media-${Date.now()}`,
       name: asset.name || `image-${Date.now()}.webp`,
@@ -827,18 +1511,31 @@ export const AilysRepository = {
   },
 
   async updateMediaTransform(mediaId: string, transform: ImageTransformMetadata) {
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        await supabase
+          .from("media")
+          .update({ transform_metadata: transform as any })
+          .or(`id.eq.${mediaId},public_url.eq.${mediaId}`);
+      } catch (err) {
+        console.warn("Supabase media transform update warning:", err);
+      }
+    }
+
     const asset = ADMIN_MEDIA.find((m) => m.id === mediaId || m.url === mediaId);
-    if (!asset) throw new Error("Média non trouvé");
-    asset.transform = transform;
+    if (asset) {
+      asset.transform = transform;
+    }
 
     // Propagate transform to all Homepage sections (draft and published) using this image
     const updateSectionTransforms = (secList: any[]) => {
       secList.forEach((s) => {
-        if (s.desktopImage === asset.url || s.image === asset.url) {
+        if (s.desktopImage === asset?.url || s.image === asset?.url) {
           const dt = transform.desktop || transform;
           s.desktopImageTransform = { ...(s.desktopImageTransform || {}), ...transform, ...dt };
         }
-        if (s.mobileImage === asset.url) {
+        if (s.mobileImage === asset?.url) {
           const mt = transform.mobile || transform;
           s.mobileImageTransform = { ...(s.mobileImageTransform || {}), ...transform, ...mt };
         }
@@ -850,10 +1547,10 @@ export const AilysRepository = {
     // Propagate transform to Products
     const updateProductTransforms = (prodList: any[]) => {
       prodList.forEach((p) => {
-        if (p.primaryImage === asset.url) {
+        if (p.primaryImage === asset?.url) {
           p.primaryImageTransform = { ...(p.primaryImageTransform || {}), ...transform };
         }
-        if (p.secondaryImage === asset.url) {
+        if (p.secondaryImage === asset?.url) {
           p.secondaryImageTransform = { ...(p.secondaryImageTransform || {}), ...transform };
         }
       });
@@ -862,7 +1559,7 @@ export const AilysRepository = {
     updateProductTransforms(PRODUCTS);
 
     saveStateToDisk();
-    return asset;
+    return asset || { id: mediaId, transform };
   },
 
   getImageTransform(url: string): ImageTransformMetadata | undefined {
@@ -870,11 +1567,25 @@ export const AilysRepository = {
   },
 
   async deleteMedia(mediaId: string) {
-    const idx = ADMIN_MEDIA.findIndex((m) => m.id === mediaId);
-    if (idx === -1) throw new Error("Média non trouvé");
-    const [deleted] = ADMIN_MEDIA.splice(idx, 1);
-    saveStateToDisk();
-    return deleted;
+    if (isLiveSupabaseConfigured()) {
+      try {
+        const supabase = createAdminSupabaseClient();
+        await supabase
+          .from("media")
+          .delete()
+          .or(`id.eq.${mediaId},public_url.eq.${mediaId}`);
+      } catch (err) {
+        console.warn("Supabase delete media warning:", err);
+      }
+    }
+
+    const idx = ADMIN_MEDIA.findIndex((m) => m.id === mediaId || m.url === mediaId);
+    if (idx !== -1) {
+      const [deleted] = ADMIN_MEDIA.splice(idx, 1);
+      saveStateToDisk();
+      return deleted;
+    }
+    return { id: mediaId };
   },
 
   // ---------------------------------------------------------------------------

@@ -1,25 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export async function GET(req: NextRequest) {
-  const token = req.cookies.get("ailys_admin_token")?.value;
+export async function GET() {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  if (!token) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    if (authError || !user) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    const { data: profiles, error: profileError } = await supabase.rpc("get_admin_profile");
+    const profile = Array.isArray(profiles) ? profiles[0] : null;
+
+    if (profileError || !profile || !profile.is_active) {
+      return NextResponse.json(
+        { authenticated: false, error: "Compte administrateur inactif ou non trouvé." },
+        { status: 401 }
+      );
+    }
+
+    const role = profile.role_name === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN";
+
+    return NextResponse.json({
+      authenticated: true,
+      user: {
+        id: profile.admin_id,
+        email: profile.email,
+        fullName: profile.full_name,
+        role,
+      },
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { authenticated: false, error: error.message },
+      { status: 500 }
+    );
   }
-
-  const session = verifyAdminToken(token);
-  if (!session) {
-    return NextResponse.json({ authenticated: false, error: "Session expirée ou invalide" }, { status: 401 });
-  }
-
-  return NextResponse.json({
-    authenticated: true,
-    user: {
-      id: session.id,
-      email: session.email,
-      fullName: session.fullName,
-      role: session.role,
-    },
-  });
 }

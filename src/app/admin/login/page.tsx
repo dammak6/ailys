@@ -2,9 +2,8 @@
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { useAdminAuth } from "@/lib/admin-auth-context";
-import { Lock, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
 import { AilysLogo } from "@/components/brand/AilysLogo";
 
 function LoginForm() {
@@ -13,6 +12,7 @@ function LoginForm() {
   const returnTo = searchParams.get("returnTo") || "/admin";
   const { login } = useAdminAuth();
 
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,11 +22,11 @@ function LoginForm() {
     setError(null);
     setLoading(true);
 
-    const result = await login(password);
+    const result = await login(email, password);
     if (result.success) {
       router.push(returnTo);
     } else {
-      setError(result.error || "Mot de passe incorrect.");
+      setError(result.error || "Identifiants invalides ou mot de passe incorrect.");
       setLoading(false);
     }
   };
@@ -52,7 +52,7 @@ function LoginForm() {
         <div className="bg-[#141414] border border-[#262626] rounded-sm p-8 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center space-x-2 text-xs text-[#8E8B82] uppercase tracking-wider mb-6">
             <ShieldCheck className="w-4 h-4 text-[#B79A5B]" />
-            <span>Accès Restreint • Direction & Atelier</span>
+            <span>Accès Restreint • Authentification Supabase Sécurisée</span>
           </div>
 
           {error && (
@@ -65,6 +65,28 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
+                htmlFor="email"
+                className="block text-xs uppercase tracking-wider text-[#A6A29A] mb-2 font-medium"
+              >
+                Adresse Email Administrateur
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@ailys.tn"
+                  className="w-full bg-[#0D0D0D] border border-[#2E2E2E] focus:border-[#B79A5B] text-sm text-[#F5F3EC] pl-10 pr-4 py-3 rounded-sm transition-colors outline-none placeholder:text-[#525252]"
+                />
+                <Mail className="w-4 h-4 text-[#6E6B65] absolute left-3.5 top-3.5" />
+              </div>
+            </div>
+
+            <div>
+              <label
                 htmlFor="password"
                 className="block text-xs uppercase tracking-wider text-[#A6A29A] mb-2 font-medium"
               >
@@ -75,7 +97,6 @@ function LoginForm() {
                   id="password"
                   type="password"
                   required
-                  autoFocus
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"

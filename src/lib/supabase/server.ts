@@ -3,7 +3,12 @@ import { cookies } from "next/headers";
 import { Database } from "./types";
 
 export async function createServerSupabaseClient() {
-  const cookieStore = await cookies();
+  let cookieStore: any = null;
+  try {
+    cookieStore = await cookies();
+  } catch {
+    // Called outside request scope (e.g. during static generation, builds, or scripts)
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
@@ -14,9 +19,10 @@ export async function createServerSupabaseClient() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return cookieStore ? cookieStore.getAll() : [];
         },
         setAll(cookiesToSet) {
+          if (!cookieStore) return;
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)

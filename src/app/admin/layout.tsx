@@ -25,9 +25,10 @@ import {
   Menu,
   X,
   Shield,
+  Users,
 } from "lucide-react";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: "/admin", label: "Tableau de Bord", icon: LayoutDashboard },
   { href: "/admin/products", label: "Produits", icon: Shirt },
   { href: "/admin/collections", label: "Collections", icon: Layers },
@@ -36,6 +37,10 @@ const NAV_ITEMS = [
   { href: "/admin/media", label: "Médiathèque", icon: ImageIcon },
   { href: "/admin/orders", label: "Commandes", icon: ShoppingBag },
   { href: "/admin/returns", label: "Retours & Échanges", icon: RotateCcw },
+];
+
+const SUPER_ADMIN_NAV_ITEMS = [
+  { href: "/admin/users", label: "Utilisateurs", icon: Users },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
 
@@ -49,12 +54,17 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const navItems =
+    user?.role === "SUPER_ADMIN"
+      ? [...BASE_NAV_ITEMS, ...SUPER_ADMIN_NAV_ITEMS]
+      : BASE_NAV_ITEMS;
+
   const currentNav =
-    NAV_ITEMS.find((item) =>
+    navItems.find((item) =>
       item.href === "/admin"
         ? pathname === "/admin"
         : pathname.startsWith(item.href)
-    ) || NAV_ITEMS[0];
+    ) || navItems[0];
 
   return (
     <div className="min-h-screen bg-[#FBFBF9] text-[#0B0B0B] flex flex-col md:flex-row antialiased">
@@ -86,7 +96,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
         {/* Navigation Items */}
         <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
               item.href === "/admin"
@@ -169,7 +179,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 top-[53px] bg-[#0B0B0B]/95 backdrop-blur-md z-30 p-6 flex flex-col justify-between">
           <nav className="space-y-2">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
                 item.href === "/admin"

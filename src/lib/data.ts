@@ -356,3 +356,24 @@ export const DEFAULT_IMAGE_TRANSFORM: ImageTransformMetadata = {
   objectPosition: "50% 50%",
   aspectRatio: "original",
 };
+
+export interface HomepageSection {
+  id: string;
+  key: string;
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+  desktopImage?: string;
+  mobileImage?: string;
+  desktopImageTransform?: ImageTransformMetadata;
+  mobileImageTransform?: ImageTransformMetadata;
+  selectedProductSlugs?: string[];
+  order: number;
+  isEnabled: boolean;
+}
+

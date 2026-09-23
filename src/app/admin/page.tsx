@@ -14,8 +14,12 @@ import {
   Package,
 } from "lucide-react";
 import { AdminSaveButton } from "@/components/admin/AdminSaveButton";
+import { useAdminAuth } from "@/lib/admin-auth-context";
 
 export default function AdminDashboardPage() {
+  const { user } = useAdminAuth();
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+
   const [orders, setOrders] = useState<any[]>([]);
   const [returns, setReturns] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -54,7 +58,7 @@ export default function AdminDashboardPage() {
       <div className="bg-white border border-[#E8E6DF] p-6 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl font-light text-[#0B0B0B]">
-            Tableau de Bord Exécutif
+            {isSuperAdmin ? "Tableau de Bord Exécutif" : "Tableau de Bord Opérationnel"}
           </h2>
           <p className="text-xs text-[#7A7770] mt-1">
             Supervision des ventes, logistique Cash on Delivery et gestion des pièces de collection.
@@ -80,26 +84,48 @@ export default function AdminDashboardPage() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Total Revenue */}
-        <div className="bg-white border border-[#E8E6DF] p-5 rounded-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-[#7A7770]">
-              Chiffre d'Affaires COD
-            </span>
-            <span className="p-2 bg-[#F5F3EC] rounded text-[#B79A5B]">
-              <TrendingUp className="w-4 h-4" />
-            </span>
+        {/* Total Revenue (SUPER_ADMIN) or Active Catalog (ADMIN) */}
+        {isSuperAdmin ? (
+          <div className="bg-white border border-[#E8E6DF] p-5 rounded-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-[#7A7770]">
+                Chiffre d'Affaires COD
+              </span>
+              <span className="p-2 bg-[#F5F3EC] rounded text-[#B79A5B]">
+                <TrendingUp className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="mt-4">
+              <span className="font-serif text-3xl font-light text-[#0B0B0B]">
+                {totalRevenue.toLocaleString("fr-TN", { minimumFractionDigits: 3 })} TND
+              </span>
+              <p className="text-[11px] text-[#7A7770] mt-1 flex items-center space-x-1 font-medium">
+                <span>{orders.length} commande(s)</span>
+                <span>• Toutes livraisons COD</span>
+              </p>
+            </div>
           </div>
-          <div className="mt-4">
-            <span className="font-serif text-3xl font-light text-[#0B0B0B]">
-              {totalRevenue.toLocaleString("fr-TN", { minimumFractionDigits: 3 })} TND
-            </span>
-            <p className="text-[11px] text-[#7A7770] mt-1 flex items-center space-x-1 font-medium">
-              <span>{orders.length} commande(s)</span>
-              <span>• Toutes livraisons COD</span>
-            </p>
+        ) : (
+          <div className="bg-white border border-[#E8E6DF] p-5 rounded-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-[#7A7770]">
+                Catalogue Actif
+              </span>
+              <span className="p-2 bg-[#F5F3EC] rounded text-[#B79A5B]">
+                <Package className="w-4 h-4" />
+              </span>
+            </div>
+            <div className="mt-4">
+              <span className="font-serif text-3xl font-light text-[#0B0B0B]">
+                {products.length}
+              </span>
+              <p className="text-[11px] text-[#7A7770] mt-1 flex items-center space-x-1 font-medium">
+                <span>Silhouettes en atelier</span>
+                <span>• Mode Opérationnel</span>
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Orders in Fulfillment */}
         <div className="bg-white border border-[#E8E6DF] p-5 rounded-sm">
@@ -192,7 +218,7 @@ export default function AdminDashboardPage() {
                   <th className="py-3 font-medium">Code</th>
                   <th className="py-3 font-medium">Client & Gouvernorat</th>
                   <th className="py-3 font-medium">Articles</th>
-                  <th className="py-3 font-medium">Total (TND)</th>
+                  {isSuperAdmin && <th className="py-3 font-medium">Total (TND)</th>}
                   <th className="py-3 font-medium">Statut</th>
                 </tr>
               </thead>
@@ -212,9 +238,11 @@ export default function AdminDashboardPage() {
                       <td className="py-3 text-[#555]">
                         {ord.items?.length || 1} pièce(s)
                       </td>
-                      <td className="py-3 font-serif font-medium text-[#0B0B0B]">
-                        {Number(ord.total).toFixed(3)} TND
-                      </td>
+                      {isSuperAdmin && (
+                        <td className="py-3 font-serif font-medium text-[#0B0B0B]">
+                          {Number(ord.total).toFixed(3)} TND
+                        </td>
+                      )}
                       <td className="py-3">
                         <span
                           className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider rounded font-medium ${

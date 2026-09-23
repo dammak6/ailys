@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function POST() {
-  const response = NextResponse.json({ success: true, message: "Déconnexion réussie." });
-  response.cookies.set("ailys_admin_token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-  return response;
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.auth.signOut();
+  } catch (err) {
+    console.warn("Logout error:", err);
+  }
+
+  return NextResponse.json({ success: true, message: "Déconnexion réussie." });
 }
