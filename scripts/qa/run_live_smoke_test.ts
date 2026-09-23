@@ -148,7 +148,8 @@ async function runLiveSmokeTest() {
       body: JSON.stringify({ email: "direction@ailys.tn", password: "AilysSuperAdmin2026!" }),
     });
     const loginData = await loginRes.json();
-    const setCookie = loginRes.headers.get("set-cookie") || "";
+    const rawCookie = loginRes.headers.get("set-cookie") || "";
+    const setCookie = rawCookie.split(";")[0];
 
     const superAdminAuthed = loginRes.status === 200 && loginData.user?.role === "SUPER_ADMIN";
     if (superAdminAuthed) {
@@ -210,7 +211,8 @@ async function runLiveSmokeTest() {
       body: JSON.stringify({ email: tempAdminEmail, password: tempAdminPassword }),
     });
     const opLoginData = await opLoginRes.json();
-    const opCookie = opLoginRes.headers.get("set-cookie") || "";
+    const rawOpCookie = opLoginRes.headers.get("set-cookie") || "";
+    const opCookie = rawOpCookie.split(";")[0];
 
     // Test operational admin permissions
     const [opOrdersRes, opAnalyticsRes, opUsersRes, opSettingsRes] = await Promise.all([
