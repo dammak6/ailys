@@ -1,27 +1,53 @@
 import React from "react";
-import { Truck, Sparkles, Phone } from "lucide-react";
+import { Truck, Sparkles, Phone, ShieldCheck } from "lucide-react";
+import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 
 export function AnnouncementBar() {
+  const marqueeItems = [
+    {
+      icon: <Truck className="w-3.5 h-3.5 text-ailys-gold shrink-0" />,
+      text: "Livraison offerte dès 200 DT partout en Tunisie",
+    },
+    {
+      icon: <BotanicalEmblem size={11} variant="gold" className="shrink-0" />,
+      text: "Confection artisanale à Sfax",
+    },
+    {
+      icon: <ShieldCheck className="w-3.5 h-3.5 text-ailys-gold shrink-0" />,
+      text: "Retours & échanges sous 14 jours",
+    },
+    {
+      icon: <Phone className="w-3 h-3 text-ailys-gold shrink-0" />,
+      text: "Service client dédié : +216 29 888 888",
+    },
+  ];
+
+  const renderMarqueeBlock = (keyPrefix: string) => (
+    <div key={keyPrefix} className="flex items-center space-x-8 sm:space-x-12 shrink-0 px-4">
+      {marqueeItems.map((item, idx) => (
+        <React.Fragment key={`${keyPrefix}-${idx}`}>
+          <div className="flex items-center gap-2.5 text-ailys-bone/90 hover:text-ailys-gold transition-colors whitespace-nowrap">
+            {item.icon}
+            <span className="font-sans text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium">
+              {item.text}
+            </span>
+          </div>
+          <span className="text-ailys-gold/40 text-xs select-none">•</span>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="bg-ailys-black text-ailys-bone py-2 px-4 border-b border-ailys-dark-border text-[11px] font-sans tracking-[0.18em] uppercase select-none transition-colors">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Left: Delivery info */}
-        <div className="hidden md:flex items-center gap-2 text-ailys-bone/80">
-          <Truck className="w-3.5 h-3.5 text-ailys-gold" />
-          <span>Livraison partout en Tunisie</span>
-        </div>
-
-        {/* Center: Brand tagline */}
-        <div className="mx-auto flex items-center gap-2 text-center text-ailys-bone/90 font-medium">
-          <Sparkles className="w-3 h-3 text-ailys-gold shrink-0" />
-          <span>Élégance intemporelle • Façonnée par la lumière tunisienne</span>
-          <Sparkles className="w-3 h-3 text-ailys-gold shrink-0 hidden sm:inline" />
-        </div>
-
-        {/* Right: Customer support */}
-        <div className="hidden lg:flex items-center gap-2 text-ailys-bone/80 hover:text-ailys-gold transition-colors">
-          <Phone className="w-3 h-3 text-ailys-gold" />
-          <a href="tel:+21670000000">+216 70 000 000</a>
+    <div
+      role="region"
+      aria-label="Annonces Maison AÏLYS"
+      className="bg-ailys-black text-ailys-bone py-2 overflow-hidden border-b border-ailys-dark-border select-none relative z-40"
+    >
+      <div className="w-full overflow-hidden flex">
+        <div className="animate-marquee-infinite flex shrink-0 items-center">
+          {renderMarqueeBlock("set1")}
+          {renderMarqueeBlock("set2")}
         </div>
       </div>
     </div>

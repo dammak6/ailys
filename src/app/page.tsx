@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 import { HairlineRule } from "@/components/brand/HairlineRule";
 import { ProductCard } from "@/components/common/ProductCard";
+import { FlashcardModal, FlashcardData } from "@/components/common/FlashcardModal";
 import { PRODUCTS, COLLECTIONS, Product } from "@/lib/data";
 
 interface SectionProps {
@@ -255,27 +256,82 @@ function DynamicPhilosophySection({ section }: { section: any }) {
 // -----------------------------------------------------------------------------
 // 5. CRAFTSMANSHIP SECTION (Authentic Visual Detail Gallery)
 // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// 5. CRAFTSMANSHIP SECTION (Interactive Flashcards: Confection & Matières)
+// -----------------------------------------------------------------------------
 function DynamicCraftsmanshipSection({ section }: { section: any }) {
-  const detailCards = [
+  const [activeCard, setActiveCard] = useState<FlashcardData | null>(null);
+
+  const flashcards: FlashcardData[] = [
     {
-      image: "/images/craftsmanship/gold-zipper-detail.webp",
-      title: "Finitions & Zips Métalliques",
-      desc: "Zips métalliques dorés et coutures renforcées pour un usage durable et fluide au quotidien.",
+      id: "matieres",
+      badge: "Matières Nobles",
+      title: "Matières & Textures",
+      subtitle: "La pureté des fibres méditerranéennes",
+      description:
+        "Chaque étoffe est rigoureusement sélectionnée pour sa fluidité, sa résistance au froissement et son tombé naturel. Lin aéré, soies brutes et cotons d'Égypte apportent une fraîcheur durable sous la clarté tunisienne.",
+      editorialDetails: [
+        "Sélection exclusive de fibres naturelles nobles certifiées OEKO-TEX®",
+        "Tissage aéré offrant une respirabilité idéale pour les climats chauds",
+        "Stabilité dimensionnelle et toucher soyeux lavage après lavage",
+      ],
+      image: "/images/craftsmanship/matieres.jpg",
     },
     {
-      image: "/images/craftsmanship/woven-label.webp",
-      title: "Griffe Tissée AÏLYS",
-      desc: "Chaque silhouette porte notre étiquette tissée avec discrétion et sobriété.",
+      id: "confection",
+      badge: "Patronage Précis",
+      title: "Confection & Coupe",
+      subtitle: "L'artisanat du volume et de l'aisance",
+      description:
+        "Dans notre atelier de Sfax, chaque silhouette naît d'une recherche minutieuse de proportions. Les patrons sont tracés à la main afin d'assurer une liberté de mouvement absolue sans compromettre la tenue architecturale du vêtement.",
+      editorialDetails: [
+        "Traçage artisanal et découpe pièce par pièce sur table de tailleur",
+        "Aisance étudiée pour accompagner les mouvements du corps avec élégance",
+        "Confection en petites séries maîtrisées dans le respect des artisans",
+      ],
+      image: "/images/craftsmanship/confection.jpg",
     },
     {
-      image: "/images/craftsmanship/care-label.webp",
-      title: "Transparence & Entretien",
-      desc: "Instructions claires et précises pour préserver la tenue et la douceur de vos vêtements.",
+      id: "finitions",
+      badge: "Haute Précision",
+      title: "Finitions & Détails",
+      subtitle: "L'excellence visible jusqu'à l'invisible",
+      description:
+        "L'élégance AÏLYS réside dans la précision des détails intérieurs et extérieurs : coutures anglaises renforcées, ourlets invisibles travaillés à la main et glissières métalliques dorées durables.",
+      editorialDetails: [
+        "Coutures intérieures gansées et finitions anglaises nettes",
+        "Zips métalliques dorés sur-mesure à glisse fluide et inaltérable",
+        "Points de renfort d'arrêt sur toutes les zones de tension mécanique",
+      ],
+      image: "/images/craftsmanship/finitions.jpg",
     },
     {
-      image: "/images/packaging/luxury-packaging.webp",
-      title: "Écrin & Présentation Soignée",
-      desc: "Chaque pièce est soigneusement pliée et livrée dans une boîte protectrice épurée.",
+      id: "savoir-faire",
+      badge: "Héritage Tunisien",
+      title: "Savoir-faire Atelier",
+      subtitle: "La mémoire du geste méditerranéen",
+      description:
+        "Héritière d'une longue tradition textile sfaxienne, la maison AÏLYS marie techniques d'assemblage traditionnelles et rigueur contemporaine pour créer des pièces pérennes qui traversent les saisons.",
+      editorialDetails: [
+        "Transmission de gestes tailleurs séculaires par nos maîtres artisans",
+        "Contrôle qualité strict à chaque étape d'assemblage",
+        "Production éthique valorisant l'expertise locale tunisienne",
+      ],
+      image: "/images/craftsmanship/savoir-faire.jpg",
+    },
+    {
+      id: "ecrin",
+      badge: "Expérience Signature",
+      title: "L'Écrin AÏLYS",
+      subtitle: "Un rituel de déballage précieux et protecteur",
+      description:
+        "Chaque création est délicatement enveloppée de papier de soie immaculé, scellée de l'emblème AÏLYS et disposée dans notre boîte de présentation rigide. La livraison devient un instant de découverte suspendu.",
+      editorialDetails: [
+        "Boîte de présentation rigide gaufrée de l'emblème à l'or mat",
+        "Pliage soigné sous papier de soie neutre protecteur",
+        "Carte de soin personnalisée et housse de rangement respirante",
+      ],
+      image: "/images/craftsmanship/ecrin.jpg",
     },
   ];
 
@@ -290,39 +346,60 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
             {section.title || "Confection & Matières"}
           </h2>
           <p className="font-sans text-xs sm:text-base text-ailys-black/70 font-light leading-relaxed">
-            {section.subtitle || "Matières sélectionnées, coupes précises et finitions soignées"}
+            {section.subtitle || "Matières sélectionnées, coupes précises et finitions soignées. Cliquez sur chaque fiche pour explorer les secrets de fabrication."}
           </p>
         </div>
 
-        {/* 4 Authentic Photographic Cards in 2-column mobile layout */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {detailCards.map((card, idx) => (
-            <div
-              key={idx}
-              className="bg-white border border-ailys-hairline rounded-sm overflow-hidden flex flex-col hover:border-ailys-gold/50 transition-all duration-300 group"
+        {/* 5 Authentic Editorial Flashcards in responsive grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-5">
+          {flashcards.map((card) => (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => setActiveCard(card)}
+              className="bg-white border border-ailys-hairline rounded-sm overflow-hidden flex flex-col text-left hover:border-ailys-gold/70 hover:shadow-lg transition-all duration-300 group focus:outline-none focus-visible:ring-1 focus-visible:ring-ailys-gold"
             >
-              <div className="relative aspect-4/3 w-full bg-ailys-bone overflow-hidden">
+              <div className="relative aspect-4/3 sm:aspect-square w-full bg-ailys-bone overflow-hidden">
                 <Image
                   src={card.image}
                   alt={card.title}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                 />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300" />
+                <span className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 backdrop-blur-xs text-[9px] uppercase tracking-wider text-ailys-gold font-sans font-medium rounded-xs">
+                  {card.badge}
+                </span>
               </div>
-              <div className="p-3.5 sm:p-6 flex flex-col flex-1 text-left space-y-1 sm:space-y-2">
-                <h3 className="font-serif text-xs sm:text-lg font-medium text-ailys-black group-hover:text-ailys-gold transition-colors line-clamp-2 sm:line-clamp-none">
-                  {card.title}
-                </h3>
-                <p className="font-sans text-[11px] sm:text-xs text-ailys-black/70 leading-relaxed font-light flex-1 line-clamp-3 sm:line-clamp-none">
-                  {card.desc}
-                </p>
+              <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between space-y-2">
+                <div>
+                  <h3 className="font-serif text-xs sm:text-sm font-medium text-ailys-black group-hover:text-ailys-gold-dark transition-colors line-clamp-1">
+                    {card.title}
+                  </h3>
+                  <p className="font-sans text-[11px] text-ailys-black/70 leading-relaxed font-light mt-1 line-clamp-2">
+                    {card.description}
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-ailys-hairline/60 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-widest text-ailys-gold font-medium">
+                    Découvrir
+                  </span>
+                  <ArrowRight className="w-3 h-3 text-ailys-gold transition-transform group-hover:translate-x-1" />
+                </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
-        <div className="text-center mt-8 sm:mt-12">
+        {/* Modal for Selected Flashcard */}
+        <FlashcardModal
+          card={activeCard}
+          isOpen={!!activeCard}
+          onClose={() => setActiveCard(null)}
+        />
+
+        <div className="text-center mt-10 sm:mt-14">
           <Link href={section.ctaLink || "/a-propos"}>
             <Button variant="primary" size="md">
               {section.ctaText || "En savoir plus sur nos ateliers"}

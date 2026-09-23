@@ -21,12 +21,24 @@ import {
   History,
   AlertCircle,
   Loader2,
+  User,
+  List,
+  Package,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { useAdminAuth } from "@/lib/admin-auth-context";
 
 export default function AdminOrdersPage() {
+  const { user } = useAdminAuth();
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+
   const [orders, setOrders] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"orders" | "customers" | "products">("orders");
+  const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
+  const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   // Invoice state for selected order
@@ -258,6 +270,86 @@ export default function AdminOrdersPage() {
     return matchesSearch && matchesStatus;
   });
 
+  // Grouped by Customer (Safe: financial metrics accessible only to SUPER_ADMIN)
+  const customerGroups = React.useMemo(() => {
+    const map = new Map<string, {
+      key: string;
+      name: string;
+      phone: string;
+      governorate: string;
+      city: string;
+      orders: any[];
+      totalSpent: number;
+    }>();
+
+    filteredOrders.forEach((ord) => {
+      const key = (ord.customerPhone || ord.customerName || "Inconnu").trim();
+      const existing = map.get(key) || {
+        key,
+        name: ord.customerName || "Client AÏLYS",
+        phone: ord.customerPhone || "—",
+        governorate: ord.governorate || "—",
+        city: ord.city || "—",
+        orders: [] as any[],
+        totalSpent: 0,
+      };
+      existing.orders.push(ord);
+      if (ord.status !== "annule") {
+        existing.totalSpent += Number(ord.total) || 0;
+      }
+      map.set(key, existing);
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.orders.length - a.orders.length);
+  }, [filteredOrders]);
+
+  // Grouped by Product (Safe: revenue accessible only to SUPER_ADMIN)
+  const productGroups = React.useMemo(() => {
+    const map = new Map<string, {
+      key: string;
+      name: string;
+      totalUnits: number;
+      totalRevenue: number;
+      variants: { size: string; color: string; count: number }[];
+      orders: { order: any; quantity: number }[];
+    }>();
+
+    filteredOrders.forEach((ord) => {
+      if (Array.isArray(ord.items)) {
+        ord.items.forEach((it: any) => {
+          const key = it.productName || it.name || "Silhouette AÏLYS";
+          const existing = map.get(key) || {
+            key,
+            name: key,
+            totalUnits: 0,
+            totalRevenue: 0,
+            variants: [] as { size: string; color: string; count: number }[],
+            orders: [] as { order: any; quantity: number }[],
+          };
+          const qty = Number(it.quantity) || 1;
+          const price = Number(it.price) || 0;
+          existing.totalUnits += qty;
+          if (ord.status !== "annule") {
+            existing.totalRevenue += price * qty;
+          }
+
+          const vKey = `${it.size || "—"} / ${it.color || "—"}`;
+          const existingV = existing.variants.find((v) => `${v.size} / ${v.color}` === vKey);
+          if (existingV) {
+            existingV.count += qty;
+          } else {
+            existing.variants.push({ size: it.size || "—", color: it.color || "—", count: qty });
+          }
+
+          existing.orders.push({ order: ord, quantity: qty });
+          map.set(key, existing);
+        });
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.totalUnits - a.totalUnits);
+  }, [filteredOrders]);
+
   const isOrderEditable = (status: string) => {
     return ["nouveau", "confirme", "en_preparation"].includes(status);
   };
@@ -323,6 +415,51 @@ export default function AdminOrdersPage() {
         </p>
       </div>
 
+      {/* VIEW MODE SWITCHER TABS */}
+      <div className="flex items-center space-x-2 border-b border-[#E8E6DF] pb-3">
+        <button
+          type="button"
+          onClick={() => setViewMode("orders")}
+          className={`inline-flex items-center space-x-2 px-3.5 py-2 text-xs uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+            viewMode === "orders"
+              ? "bg-[#0B0B0B] text-[#F5F3EC] font-medium"
+              : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
+          }`}
+        >
+          <List className="w-3.5 h-3.5 text-[#B79A5B]" />
+          <span>Vue par Commande</span>
+          <span className="text-[10px] opacity-75 font-mono">({filteredOrders.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode("customers")}
+          className={`inline-flex items-center space-x-2 px-3.5 py-2 text-xs uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+            viewMode === "customers"
+              ? "bg-[#0B0B0B] text-[#F5F3EC] font-medium"
+              : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
+          }`}
+        >
+          <User className="w-3.5 h-3.5 text-[#B79A5B]" />
+          <span>Vue par Client</span>
+          <span className="text-[10px] opacity-75 font-mono">({customerGroups.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode("products")}
+          className={`inline-flex items-center space-x-2 px-3.5 py-2 text-xs uppercase tracking-wider rounded-sm transition-colors cursor-pointer ${
+            viewMode === "products"
+              ? "bg-[#0B0B0B] text-[#F5F3EC] font-medium"
+              : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
+          }`}
+        >
+          <Package className="w-3.5 h-3.5 text-[#B79A5B]" />
+          <span>Vue par Produit</span>
+          <span className="text-[10px] opacity-75 font-mono">({productGroups.length})</span>
+        </button>
+      </div>
+
       {/* Filter & Search Bar */}
       <div className="bg-white border border-[#E8E6DF] p-4 rounded-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="relative w-full md:w-80">
@@ -330,7 +467,13 @@ export default function AdminOrdersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Code commande, client ou téléphone..."
+            placeholder={
+              viewMode === "customers"
+                ? "Rechercher par nom de client ou téléphone..."
+                : viewMode === "products"
+                ? "Rechercher par nom de silhouette..."
+                : "Code commande, client ou téléphone..."
+            }
             className="w-full bg-[#FBFBF9] border border-[#D5D2C9] text-xs py-2 pl-9 pr-4 rounded-sm outline-none focus:border-[#B79A5B]"
           />
           <Search className="w-3.5 h-3.5 text-[#7A7770] absolute left-3 top-2.5" />
@@ -348,7 +491,7 @@ export default function AdminOrdersPage() {
             <button
               key={st.key}
               onClick={() => setStatusFilter(st.key)}
-              className={`text-xs px-2.5 py-1.5 rounded-sm whitespace-nowrap transition-colors ${
+              className={`text-xs px-2.5 py-1.5 rounded-sm whitespace-nowrap transition-colors cursor-pointer ${
                 statusFilter === st.key
                   ? "bg-[#B79A5B] text-[#0B0B0B] font-semibold"
                   : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
@@ -360,70 +503,275 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-white border border-[#E8E6DF] rounded-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="bg-[#FAF9F5] border-b border-[#E8E6DF] text-[#7A7770] uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4 font-medium">Commande</th>
-                <th className="py-3 px-4 font-medium">Client & Contact</th>
-                <th className="py-3 px-4 font-medium">Destination</th>
-                <th className="py-3 px-4 font-medium">Articles</th>
-                <th className="py-3 px-4 font-medium">Montant COD</th>
-                <th className="py-3 px-4 font-medium">Statut</th>
-                <th className="py-3 px-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E8E6DF]">
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((ord) => (
-                  <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
-                      {ord.orderCode}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
-                      <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
-                        <Phone className="w-3 h-3 text-[#B79A5B]" />
-                        <span>{ord.customerPhone}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-[#444]">{ord.governorate}</div>
-                      <div className="text-[11px] text-[#7A7770] truncate max-w-xs">
-                        {ord.city}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-[#555]">
-                      {ord.items?.length || 1} pièce(s)
-                    </td>
-                    <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
-                      {Number(ord.total).toFixed(3)} TND
-                    </td>
-                    <td className="py-3 px-4">{getStatusBadge(ord.status)}</td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => setSelectedOrder(ord)}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Examiner</span>
-                      </button>
+      {/* 1. VUE PAR COMMANDE */}
+      {viewMode === "orders" && (
+        <div className="bg-white border border-[#E8E6DF] rounded-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#FAF9F5] border-b border-[#E8E6DF] text-[#7A7770] uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 font-medium">Commande</th>
+                  <th className="py-3 px-4 font-medium">Client & Contact</th>
+                  <th className="py-3 px-4 font-medium">Destination</th>
+                  <th className="py-3 px-4 font-medium">Articles</th>
+                  <th className="py-3 px-4 font-medium">Montant COD</th>
+                  <th className="py-3 px-4 font-medium">Statut</th>
+                  <th className="py-3 px-4 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E8E6DF]">
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((ord) => (
+                    <tr key={ord.id || ord.orderCode} className="hover:bg-[#FBFBF9] transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B0B0B]">
+                        {ord.orderCode}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-[#0B0B0B]">{ord.customerName}</div>
+                        <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
+                          <Phone className="w-3 h-3 text-[#B79A5B]" />
+                          <span>{ord.customerPhone}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-[#444]">{ord.governorate}</div>
+                        <div className="text-[11px] text-[#7A7770] truncate max-w-xs">
+                          {ord.city}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-[#555]">
+                        {ord.items?.length || 1} pièce(s)
+                      </td>
+                      <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
+                        {Number(ord.total).toFixed(3)} TND
+                      </td>
+                      <td className="py-3 px-4">{getStatusBadge(ord.status)}</td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => setSelectedOrder(ord)}
+                          className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Examiner</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-[#7A7770]">
+                      Aucune commande enregistrée.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-[#7A7770]">
-                    Aucune commande enregistrée.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 2. VUE PAR CLIENT */}
+      {viewMode === "customers" && (
+        <div className="bg-white border border-[#E8E6DF] rounded-sm overflow-hidden space-y-2">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#FAF9F5] border-b border-[#E8E6DF] text-[#7A7770] uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 font-medium">Client AÏLYS</th>
+                  <th className="py-3 px-4 font-medium">Contact</th>
+                  <th className="py-3 px-4 font-medium">Gouvernorat</th>
+                  <th className="py-3 px-4 font-medium">Commandes</th>
+                  {isSuperAdmin && <th className="py-3 px-4 font-medium">Dépense Totale (TND)</th>}
+                  <th className="py-3 px-4 font-medium text-right">Détails</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E8E6DF]">
+                {customerGroups.length > 0 ? (
+                  customerGroups.map((c) => (
+                    <React.Fragment key={c.key}>
+                      <tr className="hover:bg-[#FBFBF9] transition-colors">
+                        <td className="py-3 px-4 font-medium text-[#0B0B0B]">
+                          {c.name}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="text-[11px] text-[#7A7770] flex items-center space-x-1">
+                            <Phone className="w-3 h-3 text-[#B79A5B]" />
+                            <span>{c.phone}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-[#444]">
+                          {c.governorate} {c.city ? `(${c.city})` : ""}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-block px-2 py-0.5 bg-[#FAF9F5] border border-[#E8E6DF] rounded text-xs font-semibold text-[#0B0B0B]">
+                            {c.orders.length} commande(s)
+                          </span>
+                        </td>
+                        {isSuperAdmin && (
+                          <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
+                            {Number(c.totalSpent).toFixed(3)} TND
+                          </td>
+                        )}
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedCustomer(expandedCustomer === c.key ? null : c.key)}
+                            className="inline-flex items-center space-x-1 px-2.5 py-1 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs cursor-pointer"
+                          >
+                            <span>{expandedCustomer === c.key ? "Masquer" : "Historique"}</span>
+                            {expandedCustomer === c.key ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* Expanded Orders Drawer for this customer */}
+                      {expandedCustomer === c.key && (
+                        <tr>
+                          <td colSpan={isSuperAdmin ? 6 : 5} className="bg-[#FAF9F5] p-4 border-b border-[#E8E6DF]">
+                            <div className="space-y-2">
+                              <span className="text-[10px] uppercase tracking-wider text-[#7A7770] font-semibold block">
+                                Historique des Commandes de {c.name} :
+                              </span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {c.orders.map((ord: any) => (
+                                  <div
+                                    key={ord.id || ord.orderCode}
+                                    onClick={() => setSelectedOrder(ord)}
+                                    className="p-3 bg-white border border-[#E8E6DF] rounded hover:border-[#B79A5B] transition-colors cursor-pointer space-y-1"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-mono text-xs font-semibold text-[#0B0B0B]">
+                                        {ord.orderCode}
+                                      </span>
+                                      {getStatusBadge(ord.status)}
+                                    </div>
+                                    <div className="text-[11px] text-[#7A7770]">
+                                      {ord.items?.length || 1} article(s)
+                                      {isSuperAdmin ? ` • ${Number(ord.total).toFixed(3)} TND` : ""}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={isSuperAdmin ? 6 : 5} className="py-12 text-center text-[#7A7770]">
+                      Aucun client trouvé.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 3. VUE PAR PRODUIT */}
+      {viewMode === "products" && (
+        <div className="bg-white border border-[#E8E6DF] rounded-sm overflow-hidden space-y-2">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#FAF9F5] border-b border-[#E8E6DF] text-[#7A7770] uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 font-medium">Silhouette / Modèle</th>
+                  <th className="py-3 px-4 font-medium">Unités Commandées</th>
+                  <th className="py-3 px-4 font-medium">Répartition Tailles & Couleurs</th>
+                  {isSuperAdmin && <th className="py-3 px-4 font-medium">Chiffre d&apos;Affaires (TND)</th>}
+                  <th className="py-3 px-4 font-medium text-right">Commandes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E8E6DF]">
+                {productGroups.length > 0 ? (
+                  productGroups.map((p) => (
+                    <React.Fragment key={p.key}>
+                      <tr className="hover:bg-[#FBFBF9] transition-colors">
+                        <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
+                          {p.name}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-block px-2.5 py-0.5 bg-[#FAF9F5] border border-[#E8E6DF] rounded text-xs font-semibold text-[#0B0B0B]">
+                            {p.totalUnits} pièce(s)
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {p.variants.map((v, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block px-1.5 py-0.5 bg-[#F5F3EC] text-[#0B0B0B] rounded text-[10px]"
+                              >
+                                T.{v.size} ({v.count})
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        {isSuperAdmin && (
+                          <td className="py-3 px-4 font-serif font-medium text-sm text-[#0B0B0B]">
+                            {Number(p.totalRevenue).toFixed(3)} TND
+                          </td>
+                        )}
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedProduct(expandedProduct === p.key ? null : p.key)}
+                            className="inline-flex items-center space-x-1 px-2.5 py-1 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs cursor-pointer"
+                          >
+                            <span>{expandedProduct === p.key ? "Masquer" : "Voir flux"}</span>
+                            {expandedProduct === p.key ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* Expanded orders for this product */}
+                      {expandedProduct === p.key && (
+                        <tr>
+                          <td colSpan={isSuperAdmin ? 5 : 4} className="bg-[#FAF9F5] p-4 border-b border-[#E8E6DF]">
+                            <div className="space-y-2">
+                              <span className="text-[10px] uppercase tracking-wider text-[#7A7770] font-semibold block">
+                                Commandes contenant {p.name} :
+                              </span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {p.orders.map((po: any, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    onClick={() => setSelectedOrder(po.order)}
+                                    className="p-3 bg-white border border-[#E8E6DF] rounded hover:border-[#B79A5B] transition-colors cursor-pointer space-y-1"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-mono text-xs font-semibold text-[#0B0B0B]">
+                                        {po.order.orderCode}
+                                      </span>
+                                      {getStatusBadge(po.order.status)}
+                                    </div>
+                                    <div className="text-[11px] text-[#7A7770]">
+                                      {po.order.customerName} • Qté: {po.quantity}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={isSuperAdmin ? 5 : 4} className="py-12 text-center text-[#7A7770]">
+                      Aucun produit commandé.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* =================================================================== */}
       {/* ORDER DETAILS MODAL */}

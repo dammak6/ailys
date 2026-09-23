@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AilysRepository } from "@/lib/db/repository";
+import { EmailService } from "@/lib/services/email-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,6 +51,21 @@ export async function POST(req: NextRequest) {
         imageUrl: it.image,
       })),
     });
+
+    // Asynchronously dispatch order confirmation email without blocking or failing the order
+    EmailService.sendOrderConfirmation({
+      orderCode: orderResult.orderCode,
+      customerName: fullName,
+      customerEmail: email,
+      customerPhone: phone,
+      address,
+      city,
+      governorate,
+      subtotal: Number(subtotal),
+      shippingFee: Number(shippingFee),
+      total: Number(total),
+      items,
+    }).catch((e) => console.warn("[OrderAPI] Confirmation email dispatch caught:", e));
 
     return NextResponse.json(orderResult, { status: 201 });
   } catch (error: any) {

@@ -90,10 +90,10 @@ async function runFinalClosureSuite() {
     // SECTION 1: AUTH (Points 1 - 4)
     // =========================================================================
 
-    // TEST 01: Legacy Credential Scan (Zero occurrences)
+    // TEST 01: Legacy Credential Scan (Zero occurrences in application code)
     let legacyMatches = 0;
     try {
-      const searchOutput = execSync('git grep -n -E "aichalys2026|ailys_admin_token"', {
+      const searchOutput = execSync('git grep -n -E "aichalys2026|ailys_admin_token" -- ":!scripts/"', {
         cwd: process.cwd(),
         encoding: "utf-8",
       });

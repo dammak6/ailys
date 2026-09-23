@@ -23,6 +23,7 @@ import { ProductCard } from "@/components/common/ProductCard";
 import { PRODUCTS, Product } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
+import { trackViewContent, trackAddToCart } from "@/lib/tracking/meta-pixel";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -77,6 +78,18 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
     );
   }
 
+  // Track ViewContent on product load
+  useEffect(() => {
+    if (product) {
+      trackViewContent({
+        content_name: product.name,
+        content_ids: [product.id, product.slug],
+        value: product.price,
+        currency: "TND",
+      });
+    }
+  }, [product?.id]);
+
   const toggleAccordion = (id: string) => {
     setOpenAccordion((prev) => (prev === id ? null : id));
   };
@@ -101,6 +114,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       color: selectedColor,
       image: product.primaryImage,
       quantity: 1,
+    });
+
+    trackAddToCart({
+      content_name: product.name,
+      content_ids: [product.id, product.slug],
+      value: product.price,
+      currency: "TND",
     });
 
     setIsAdded(true);
@@ -291,6 +311,21 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   </button>
                 ))}
               </div>
+
+              {/* Prominent Size Guide trigger directly beneath size selectors */}
+              <div className="pt-1.5 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-sans uppercase tracking-[0.16em] text-ailys-black hover:text-ailys-gold font-medium py-1 border-b border-ailys-gold/40 hover:border-ailys-gold transition-colors focus:outline-none"
+                >
+                  <Ruler className="w-3.5 h-3.5 text-ailys-gold" />
+                  <span>Guide des Tailles</span>
+                </button>
+                <span className="text-[10px] sm:text-[11px] text-ailys-muted font-sans italic">
+                  {product.sizeGuide ? "Guide spécifique à cette silhouette" : "Coupe standard atelier AÏLYS"}
+                </span>
+              </div>
             </div>
 
             {/* Availability Notice */}
@@ -459,7 +494,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       </Container>
 
       {/* =========================================================================
-          SIZE GUIDE MODAL
+          SIZE GUIDE MODAL (Custom product guide or default AÏLYS standard)
           ========================================================================= */}
       {isSizeGuideOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -468,7 +503,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               <div className="flex items-center gap-2">
                 <Ruler className="w-4 h-4 text-ailys-gold" />
                 <h3 className="font-editorial-heading text-xl text-ailys-black">
-                  Guide des Tailles AÏLYS
+                  {product.sizeGuide?.title || `Guide des Tailles • ${product.name}`}
                 </h3>
               </div>
               <button
@@ -480,55 +515,81 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             <p className="text-xs text-ailys-black/75 font-sans leading-relaxed">
-              Nos silhouettes sont calibrées selon les standards de confection méditerranéens.
-              Si vous hésitez entre deux tailles, nous vous conseillons de privilégier la plus grande
-              pour une coupe sport-chic aérienne.
+              {product.sizeGuide?.description ||
+                "Nos silhouettes sont calibrées selon les standards de confection méditerranéens. Si vous hésitez entre deux tailles, nous vous conseillons de privilégier la plus grande pour une coupe sport-chic aérienne."}
             </p>
 
-            {/* Table */}
+            {/* Custom or Default Table */}
             <div className="overflow-x-auto border border-ailys-bone-border bg-white text-xs font-sans">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-ailys-bone-dark/50 text-ailys-black uppercase tracking-wider text-[11px] border-b border-ailys-bone-border">
-                    <th className="p-3">Taille AÏLYS</th>
-                    <th className="p-3">Tour de Poitrine</th>
-                    <th className="p-3">Tour de Taille</th>
-                    <th className="p-3">Tour de Bassin</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-ailys-bone-border text-ailys-black/80">
-                  <tr>
-                    <td className="p-3 font-semibold">36 (XS)</td>
-                    <td className="p-3">82 - 86 cm</td>
-                    <td className="p-3">62 - 66 cm</td>
-                    <td className="p-3">88 - 92 cm</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-semibold">38 (S)</td>
-                    <td className="p-3">86 - 90 cm</td>
-                    <td className="p-3">66 - 70 cm</td>
-                    <td className="p-3">92 - 96 cm</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-semibold">40 (M)</td>
-                    <td className="p-3">90 - 94 cm</td>
-                    <td className="p-3">70 - 74 cm</td>
-                    <td className="p-3">96 - 100 cm</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-semibold">42 (L)</td>
-                    <td className="p-3">94 - 98 cm</td>
-                    <td className="p-3">74 - 78 cm</td>
-                    <td className="p-3">100 - 104 cm</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-semibold">44 (XL)</td>
-                    <td className="p-3">98 - 104 cm</td>
-                    <td className="p-3">78 - 84 cm</td>
-                    <td className="p-3">104 - 110 cm</td>
-                  </tr>
-                </tbody>
-              </table>
+              {product.sizeGuide?.rows && product.sizeGuide.rows.length > 0 ? (
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-ailys-bone-dark/50 text-ailys-black uppercase tracking-wider text-[11px] border-b border-ailys-bone-border">
+                      {(product.sizeGuide.headers || ["Taille", "Tour de Poitrine", "Tour de Taille", "Tour de Bassin"]).map(
+                        (h: string, idx: number) => (
+                          <th key={idx} className="p-3">
+                            {h}
+                          </th>
+                        )
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-ailys-bone-border text-ailys-black/80">
+                    {product.sizeGuide.rows.map((row: any, rIdx: number) => (
+                      <tr key={rIdx}>
+                        <td className="p-3 font-semibold">{row.size}</td>
+                        {row.chest !== undefined && <td className="p-3">{row.chest}</td>}
+                        {row.waist !== undefined && <td className="p-3">{row.waist}</td>}
+                        {row.hips !== undefined && <td className="p-3">{row.hips}</td>}
+                        {row.length !== undefined && <td className="p-3">{row.length}</td>}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-ailys-bone-dark/50 text-ailys-black uppercase tracking-wider text-[11px] border-b border-ailys-bone-border">
+                      <th className="p-3">Taille AÏLYS</th>
+                      <th className="p-3">Tour de Poitrine</th>
+                      <th className="p-3">Tour de Taille</th>
+                      <th className="p-3">Tour de Bassin</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-ailys-bone-border text-ailys-black/80">
+                    <tr>
+                      <td className="p-3 font-semibold">36 (XS)</td>
+                      <td className="p-3">82 - 86 cm</td>
+                      <td className="p-3">62 - 66 cm</td>
+                      <td className="p-3">88 - 92 cm</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold">38 (S)</td>
+                      <td className="p-3">86 - 90 cm</td>
+                      <td className="p-3">66 - 70 cm</td>
+                      <td className="p-3">92 - 96 cm</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold">40 (M)</td>
+                      <td className="p-3">90 - 94 cm</td>
+                      <td className="p-3">70 - 74 cm</td>
+                      <td className="p-3">96 - 100 cm</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold">42 (L)</td>
+                      <td className="p-3">94 - 98 cm</td>
+                      <td className="p-3">74 - 78 cm</td>
+                      <td className="p-3">100 - 104 cm</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold">44 (XL)</td>
+                      <td className="p-3">98 - 104 cm</td>
+                      <td className="p-3">78 - 84 cm</td>
+                      <td className="p-3">104 - 110 cm</td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <div className="pt-2 text-right">

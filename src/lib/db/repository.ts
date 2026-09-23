@@ -158,6 +158,7 @@ export const AilysRepository = {
               isCapsule: Boolean(row.is_capsule),
               isSoldOut,
               isFeatured: Boolean(row.is_featured),
+              sizeGuide: row.size_guide || null,
             };
           });
 
@@ -565,6 +566,7 @@ export const AilysRepository = {
               isSoldOut,
               isFeatured: Boolean(row.is_featured),
               isPublished: Boolean(row.is_published),
+              sizeGuide: row.size_guide || null,
               createdAt: row.created_at,
             };
           });
@@ -629,6 +631,8 @@ export const AilysRepository = {
         if (updates.isCapsule !== undefined) updatePayload.is_capsule = updates.isCapsule;
         if (updates.isFeatured !== undefined) updatePayload.is_featured = updates.isFeatured;
         if (updates.isPublished !== undefined) updatePayload.is_published = updates.isPublished;
+        if (updates.sizeGuide !== undefined) updatePayload.size_guide = updates.sizeGuide;
+        if (updates.size_guide !== undefined) updatePayload.size_guide = updates.size_guide;
 
         await supabase
           .from("products")

@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { AilysLogo } from "@/components/brand/AilysLogo";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/tracking/meta-pixel";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
@@ -73,6 +74,17 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Track InitiateCheckout on checkout page entry
+  React.useEffect(() => {
+    if (items.length > 0) {
+      trackInitiateCheckout({
+        value: total,
+        num_items: items.length,
+        currency: "TND",
+      });
+    }
+  }, []);
+
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
@@ -106,6 +118,15 @@ export default function CheckoutPage() {
       if (!res.ok) {
         throw new Error(data.error || "Erreur lors de la validation.");
       }
+
+      // Track Purchase event with deduplication ID
+      trackPurchase({
+        orderId: data.orderCode || data.id,
+        value: Number(data.total) || total,
+        currency: "TND",
+        num_items: items.length,
+        content_ids: items.map((i) => i.productId),
+      });
 
       setConfirmedOrder({
         code: data.orderCode,

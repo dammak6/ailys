@@ -22,9 +22,27 @@ export interface Product {
   isCapsule?: boolean;
   isSoldOut?: boolean;
   isFeatured?: boolean;
+  sizeGuide?: ProductSizeGuide | null;
   primaryImageTransform?: ImageTransformMetadata;
   secondaryImageTransform?: ImageTransformMetadata;
   imageTransforms?: Record<string, ImageTransformMetadata>;
+}
+
+export interface SizeGuideRow {
+  size: string;
+  chest?: string;
+  waist?: string;
+  hips?: string;
+  length?: string;
+  [key: string]: string | undefined;
+}
+
+export interface ProductSizeGuide {
+  title?: string;
+  description?: string;
+  headers?: string[];
+  rows?: SizeGuideRow[];
+  unit?: string;
 }
 
 export interface Collection {

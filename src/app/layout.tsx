@@ -44,6 +44,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { Suspense } from "react";
+import { MetaPixel } from "@/components/tracking/MetaPixel";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +58,9 @@ export default function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} ${sourceSerif.variable}`}
     >
       <body className="bg-ailys-bone text-ailys-black antialiased selection:bg-ailys-gold selection:text-ailys-black flex flex-col min-h-screen">
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <CartProvider>
           <StorefrontShell>{children}</StorefrontShell>
         </CartProvider>

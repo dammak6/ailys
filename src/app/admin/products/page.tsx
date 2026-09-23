@@ -13,6 +13,7 @@ import {
   Check,
   X,
   AlertCircle,
+  Ruler,
 } from "lucide-react";
 
 export default function AdminProductsPage() {
@@ -24,6 +25,8 @@ export default function AdminProductsPage() {
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [sizeGuideMode, setSizeGuideMode] = useState<"default" | "custom">("default");
+  const [showSizeGuidePreview, setShowSizeGuidePreview] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<any>({
     id: "",
     name: "",
@@ -38,6 +41,7 @@ export default function AdminProductsPage() {
     care: "Nettoyage à sec délicat",
     fit: "Coupe cintrée contemporaine",
     sizes: ["36", "38", "40", "42"],
+    sizeGuide: null,
     isNew: true,
     isCapsule: false,
     isSoldOut: false,
@@ -66,6 +70,8 @@ export default function AdminProductsPage() {
 
   const handleOpenCreate = () => {
     setIsEditing(false);
+    setSizeGuideMode("default");
+    setShowSizeGuidePreview(false);
     setCurrentProduct({
       id: "",
       name: "",
@@ -80,6 +86,7 @@ export default function AdminProductsPage() {
       care: "Nettoyage à sec délicat",
       fit: "Coupe cintrée contemporaine",
       sizes: ["36", "38", "40", "42"],
+      sizeGuide: null,
       isNew: true,
       isCapsule: false,
       isSoldOut: false,
@@ -90,10 +97,14 @@ export default function AdminProductsPage() {
 
   const handleOpenEdit = (p: any) => {
     setIsEditing(true);
+    const hasCustomGuide = Boolean(p.sizeGuide && p.sizeGuide.rows && p.sizeGuide.rows.length > 0);
+    setSizeGuideMode(hasCustomGuide ? "custom" : "default");
+    setShowSizeGuidePreview(false);
     setCurrentProduct({
       ...p,
       salePrice: p.salePrice || "",
       sizes: Array.isArray(p.sizes) ? p.sizes : ["36", "38", "40"],
+      sizeGuide: p.sizeGuide || null,
     });
     setModalOpen(true);
   };
@@ -102,10 +113,14 @@ export default function AdminProductsPage() {
     e.preventDefault();
     try {
       const method = isEditing ? "PUT" : "POST";
+      const payload = {
+        ...currentProduct,
+        sizeGuide: sizeGuideMode === "custom" ? currentProduct.sizeGuide : null,
+      };
       const res = await fetch("/api/admin/products", {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentProduct),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -523,6 +538,300 @@ export default function AdminProductsPage() {
                   />
                   <span>Publié sur le site</span>
                 </label>
+              </div>
+
+              {/* ========================================================================= */}
+              {/* GUIDE DES TAILLES (Standard vs Personnalisé) */}
+              {/* ========================================================================= */}
+              <div className="pt-4 border-t border-[#E8E6DF] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Ruler className="w-4 h-4 text-[#B79A5B]" />
+                    <span className="font-serif text-sm font-medium text-[#0B0B0B]">
+                      Guide des Tailles
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSizeGuideMode("default");
+                        setShowSizeGuidePreview(false);
+                      }}
+                      className={`px-2.5 py-1 text-[11px] rounded-xs font-sans transition-colors cursor-pointer ${
+                        sizeGuideMode === "default"
+                          ? "bg-[#0B0B0B] text-[#F5F3EC] font-medium"
+                          : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
+                      }`}
+                    >
+                      Guide Standard Atelier (36-44)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSizeGuideMode("custom");
+                        if (!currentProduct.sizeGuide?.rows || currentProduct.sizeGuide.rows.length === 0) {
+                          setCurrentProduct({
+                            ...currentProduct,
+                            sizeGuide: {
+                              title: `Guide des Tailles • ${currentProduct.name || "Modèle"}`,
+                              description: "Mesures confection atelier spécifiques pour cette silhouette.",
+                              headers: ["Taille", "Tour de Poitrine", "Tour de Taille", "Tour de Bassin", "Longueur"],
+                              rows: [
+                                { size: "36 (XS)", chest: "84 cm", waist: "64 cm", hips: "90 cm", length: "98 cm" },
+                                { size: "38 (S)", chest: "88 cm", waist: "68 cm", hips: "94 cm", length: "99 cm" },
+                                { size: "40 (M)", chest: "92 cm", waist: "72 cm", hips: "98 cm", length: "100 cm" },
+                                { size: "42 (L)", chest: "96 cm", waist: "76 cm", hips: "102 cm", length: "101 cm" },
+                                { size: "44 (XL)", chest: "100 cm", waist: "80 cm", hips: "106 cm", length: "102 cm" },
+                              ],
+                            },
+                          });
+                        }
+                      }}
+                      className={`px-2.5 py-1 text-[11px] rounded-xs font-sans transition-colors cursor-pointer ${
+                        sizeGuideMode === "custom"
+                          ? "bg-[#B79A5B] text-[#0B0B0B] font-semibold"
+                          : "bg-[#F5F3EC] text-[#555] hover:bg-[#EAE8E1]"
+                      }`}
+                    >
+                      Guide Personnalisé pour cette Pièce
+                    </button>
+                  </div>
+                </div>
+
+                {sizeGuideMode === "default" ? (
+                  <p className="text-[11px] text-[#7A7770] bg-[#FAF9F5] p-3 rounded border border-[#E8E6DF] leading-relaxed">
+                    Ce produit utilise le guide standard AÏLYS (36: 82-86/62-66/88-92 cm jusqu&apos;à 44). Aucun paramétrage spécifique n&apos;est requis.
+                  </p>
+                ) : (
+                  <div className="bg-[#FAF9F5] p-4 rounded border border-[#B79A5B]/30 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                          Titre du Guide
+                        </label>
+                        <input
+                          type="text"
+                          value={currentProduct.sizeGuide?.title || ""}
+                          onChange={(e) =>
+                            setCurrentProduct({
+                              ...currentProduct,
+                              sizeGuide: {
+                                ...currentProduct.sizeGuide,
+                                title: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Ex: Guide des Tailles • Veste Tailleur"
+                          className="w-full bg-white border border-[#D5D2C9] px-2.5 py-1.5 text-xs rounded-sm outline-none focus:border-[#B79A5B]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                          Note de Coupe / Description
+                        </label>
+                        <input
+                          type="text"
+                          value={currentProduct.sizeGuide?.description || ""}
+                          onChange={(e) =>
+                            setCurrentProduct({
+                              ...currentProduct,
+                              sizeGuide: {
+                                ...currentProduct.sizeGuide,
+                                description: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Ex: Silhouette fluide, prenez votre taille habituelle."
+                          className="w-full bg-white border border-[#D5D2C9] px-2.5 py-1.5 text-xs rounded-sm outline-none focus:border-[#B79A5B]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Measurements Table */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] uppercase tracking-wider text-[#555] font-semibold">
+                          Tableau des Mesures en Atelier
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowSizeGuidePreview(!showSizeGuidePreview)}
+                            className="text-[10px] uppercase tracking-wider text-[#B79A5B] hover:underline font-semibold cursor-pointer"
+                          >
+                            {showSizeGuidePreview ? "Masquer Aperçu" : "Aperçu Rendu Client"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const rows = currentProduct.sizeGuide?.rows || [];
+                              const newRow = { size: "46 (XXL)", chest: "104 cm", waist: "84 cm", hips: "110 cm", length: "103 cm" };
+                              setCurrentProduct({
+                                ...currentProduct,
+                                sizeGuide: {
+                                  ...currentProduct.sizeGuide,
+                                  rows: [...rows, newRow],
+                                },
+                              });
+                            }}
+                            className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#0B0B0B] text-[#F5F3EC] rounded cursor-pointer"
+                          >
+                            + Ajouter une taille
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto border border-[#E8E6DF] bg-white rounded-xs">
+                        <table className="w-full text-left text-xs">
+                          <thead>
+                            <tr className="bg-[#F5F3EC] text-[#0B0B0B] uppercase text-[10px] tracking-wider border-b border-[#E8E6DF]">
+                              <th className="p-2">Taille</th>
+                              <th className="p-2">Poitrine</th>
+                              <th className="p-2">Taille</th>
+                              <th className="p-2">Bassin</th>
+                              <th className="p-2">Longueur</th>
+                              <th className="p-2 text-right">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#E8E6DF]">
+                            {(currentProduct.sizeGuide?.rows || []).map((row: any, rIdx: number) => (
+                              <tr key={rIdx} className="hover:bg-[#FAF9F5]">
+                                <td className="p-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.size || ""}
+                                    onChange={(e) => {
+                                      const updatedRows = [...currentProduct.sizeGuide.rows];
+                                      updatedRows[rIdx] = { ...updatedRows[rIdx], size: e.target.value };
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="w-20 border border-[#D5D2C9] px-1.5 py-1 text-xs rounded-xs"
+                                  />
+                                </td>
+                                <td className="p-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.chest || ""}
+                                    onChange={(e) => {
+                                      const updatedRows = [...currentProduct.sizeGuide.rows];
+                                      updatedRows[rIdx] = { ...updatedRows[rIdx], chest: e.target.value };
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="w-24 border border-[#D5D2C9] px-1.5 py-1 text-xs rounded-xs"
+                                  />
+                                </td>
+                                <td className="p-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.waist || ""}
+                                    onChange={(e) => {
+                                      const updatedRows = [...currentProduct.sizeGuide.rows];
+                                      updatedRows[rIdx] = { ...updatedRows[rIdx], waist: e.target.value };
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="w-24 border border-[#D5D2C9] px-1.5 py-1 text-xs rounded-xs"
+                                  />
+                                </td>
+                                <td className="p-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.hips || ""}
+                                    onChange={(e) => {
+                                      const updatedRows = [...currentProduct.sizeGuide.rows];
+                                      updatedRows[rIdx] = { ...updatedRows[rIdx], hips: e.target.value };
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="w-24 border border-[#D5D2C9] px-1.5 py-1 text-xs rounded-xs"
+                                  />
+                                </td>
+                                <td className="p-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.length || ""}
+                                    onChange={(e) => {
+                                      const updatedRows = [...currentProduct.sizeGuide.rows];
+                                      updatedRows[rIdx] = { ...updatedRows[rIdx], length: e.target.value };
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="w-24 border border-[#D5D2C9] px-1.5 py-1 text-xs rounded-xs"
+                                  />
+                                </td>
+                                <td className="p-1.5 text-right">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updatedRows = currentProduct.sizeGuide.rows.filter((_: any, idx: number) => idx !== rIdx);
+                                      setCurrentProduct({
+                                        ...currentProduct,
+                                        sizeGuide: { ...currentProduct.sizeGuide, rows: updatedRows },
+                                      });
+                                    }}
+                                    className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Preview box if toggled */}
+                    {showSizeGuidePreview && (
+                      <div className="p-3 bg-white border border-[#B79A5B] rounded-sm space-y-2">
+                        <div className="flex items-center gap-1.5 text-xs font-serif font-medium text-[#0B0B0B]">
+                          <Ruler className="w-3.5 h-3.5 text-[#B79A5B]" />
+                          <span>Aperçu Client : {currentProduct.sizeGuide?.title}</span>
+                        </div>
+                        <p className="text-[11px] text-[#7A7770] italic">
+                          {currentProduct.sizeGuide?.description}
+                        </p>
+                        <div className="overflow-x-auto text-[11px]">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-[#F5F3EC] border-b">
+                                <th className="p-2">Taille</th>
+                                <th className="p-2">Poitrine</th>
+                                <th className="p-2">Taille</th>
+                                <th className="p-2">Bassin</th>
+                                <th className="p-2">Longueur</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(currentProduct.sizeGuide?.rows || []).map((r: any, idx: number) => (
+                                <tr key={idx} className="border-b">
+                                  <td className="p-2 font-medium">{r.size}</td>
+                                  <td className="p-2">{r.chest}</td>
+                                  <td className="p-2">{r.waist}</td>
+                                  <td className="p-2">{r.hips}</td>
+                                  <td className="p-2">{r.length}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end space-x-3 pt-4 border-t border-[#E8E6DF]">

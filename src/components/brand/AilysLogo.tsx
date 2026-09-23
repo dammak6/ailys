@@ -25,24 +25,24 @@ export function AilysLogo({
   // Proportional 1:1 aspect ratio strictly preserving the official 566.93 x 566.93 SVG geometry
   const sizeMap = {
     sm: {
-      width: 72,
-      height: 72,
-      className: "w-[64px] h-[64px] sm:w-[72px] sm:h-[72px]",
+      width: 90,
+      height: 90,
+      className: "w-[80px] h-[80px] sm:w-[90px] sm:h-[90px]",
     },
     md: {
-      width: 96,
-      height: 96,
-      className: "w-[80px] h-[80px] sm:w-[96px] sm:h-[96px]",
+      width: 120,
+      height: 120,
+      className: "w-[100px] h-[100px] sm:w-[120px] sm:h-[120px]",
     },
     lg: {
-      width: 128,
-      height: 128,
-      className: "w-[110px] h-[110px] sm:w-[128px] sm:h-[128px]",
+      width: 150,
+      height: 150,
+      className: "w-[130px] h-[130px] sm:w-[150px] sm:h-[150px]",
     },
     xl: {
-      width: 160,
-      height: 160,
-      className: "w-[140px] h-[140px] sm:w-[160px] sm:h-[160px]",
+      width: 180,
+      height: 180,
+      className: "w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]",
     },
   };
 

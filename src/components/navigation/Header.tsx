@@ -107,6 +107,13 @@ export function Header({
             >
               À Propos
             </Link>
+
+            <Link
+              href="/contact"
+              className="hover:text-ailys-gold transition-colors tracking-[0.22em]"
+            >
+              Contact
+            </Link>
           </nav>
 
           {/* Center: Authoritative AÏLYS Official Logo */}

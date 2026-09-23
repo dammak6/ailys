@@ -91,9 +91,7 @@ export function MobileNav({
               { href: "/a-propos", label: "À Propos de la Maison" },
               { href: "/faq", label: "FAQ & Questions Fréquentes" },
               { href: "/contact", label: "Contact & Conciergerie" },
-              { href: "/faq", label: "Livraison 24h - 48h (Tunisie)" },
               { href: "/retours-echanges", label: "Retours & Échanges" },
-              { href: "/faq", label: "Guide des Tailles" },
             ].map((link, idx) => (
               <Link
                 key={`${link.href}-${idx}`}
@@ -109,9 +107,9 @@ export function MobileNav({
 
         {/* BOTTOM ATELIER REASSURANCE */}
         <div className="pt-6 mt-8 border-t border-ailys-bone-border space-y-4 font-sans text-xs">
-          <div className="flex items-center gap-2 text-ailys-black/80">
+          <div className="flex items-center gap-2.5 text-ailys-black/85 font-medium">
             <Truck className="w-4 h-4 text-ailys-gold shrink-0" />
-            <span>Expédié depuis notre atelier de Sfax sous 24h à 48h</span>
+            <span>Livraison offerte dès 200 DT partout en Tunisie</span>
           </div>
 
           <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-ailys-muted pt-1">
