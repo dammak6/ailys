@@ -291,7 +291,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   onClick={() => setIsSizeGuideOpen(true)}
                   className="flex items-center gap-1.5 text-ailys-gold-dark hover:underline uppercase tracking-wider text-[11px] min-h-[36px]"
                 >
-                  <Ruler className="w-3.5 h-3.5" /> Guide des tailles
+                  <Ruler className="w-3.5 h-3.5" /> Guide des Tailles
                 </button>
               </div>
 
@@ -310,21 +310,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     {s}
                   </button>
                 ))}
-              </div>
-
-              {/* Prominent Size Guide trigger directly beneath size selectors */}
-              <div className="pt-1.5 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setIsSizeGuideOpen(true)}
-                  className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-sans uppercase tracking-[0.16em] text-ailys-black hover:text-ailys-gold font-medium py-1 border-b border-ailys-gold/40 hover:border-ailys-gold transition-colors focus:outline-none"
-                >
-                  <Ruler className="w-3.5 h-3.5 text-ailys-gold" />
-                  <span>Guide des Tailles</span>
-                </button>
-                <span className="text-[10px] sm:text-[11px] text-ailys-muted font-sans italic">
-                  {product.sizeGuide ? "Guide spécifique à cette silhouette" : "Coupe standard atelier AÏLYS"}
-                </span>
               </div>
             </div>
 
