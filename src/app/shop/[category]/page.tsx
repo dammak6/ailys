@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, SlidersHorizontal, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/common/ProductCard";
-import { PRODUCTS, CATEGORIES, Product } from "@/lib/data";
+import { CATEGORIES, Product } from "@/lib/data";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -22,20 +22,23 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSub, setSelectedSub] = useState<string>("all");
   const [selectedSize, setSelectedSize] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
 
   useEffect(() => {
+    setLoading(true);
     fetch(`/api/products?category=${categoryKey}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setProducts(data);
         }
       })
-      .catch(console.error);
+      .catch((err) => console.error("Erreur chargement catégorie:", err))
+      .finally(() => setLoading(false));
   }, [categoryKey]);
 
   const categoryProducts = useMemo(() => {
@@ -110,7 +113,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
                 }`}
               >
-                Tout ({PRODUCTS.filter((p) => p.category === categoryKey).length})
+                Tout ({products.filter((p) => p.category === categoryKey).length})
               </button>
               {category.subcategories.map((sub) => (
                 <button
@@ -148,7 +151,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       <section className="py-8 sm:py-20">
         <Container size="xl">
           <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-5 sm:mb-8">
-            <span>{categoryProducts.length} pièces</span>
+            <span>{loading ? "Chargement..." : `${categoryProducts.length} pièces`}</span>
             {selectedSub !== "all" && (
               <button
                 onClick={() => setSelectedSub("all")}
@@ -159,7 +162,17 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             )}
           </div>
 
-          {categoryProducts.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex flex-col space-y-3 animate-pulse">
+                  <div className="w-full aspect-[3/4] bg-ailys-bone-dark/50 border border-ailys-bone-border" />
+                  <div className="h-4 bg-ailys-bone-dark/40 w-3/4 rounded-xs" />
+                  <div className="h-3 bg-ailys-bone-dark/30 w-1/4 rounded-xs" />
+                </div>
+              ))}
+            </div>
+          ) : categoryProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
               {categoryProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />

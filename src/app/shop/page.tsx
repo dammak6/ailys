@@ -5,24 +5,27 @@ import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, Check, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/common/ProductCard";
-import { PRODUCTS, CATEGORIES, Product } from "@/lib/data";
+import { Product } from "@/lib/data";
 
 export default function ShopPage() {
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSize, setSelectedSize] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetch("/api/products", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setProducts(data);
         }
       })
-      .catch(console.error);
+      .catch((err) => console.error("Erreur chargement catalogue:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const allSizes = ["36", "38", "40", "42", "44", "XS", "S", "M", "L", "XL", "XXL", "4 ans", "6 ans", "8 ans", "10 ans"];
@@ -140,13 +143,23 @@ export default function ShopPage() {
         </div>
 
         {/* Product Grid: 2 columns on mobile */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 lg:gap-10">
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <div key={i} className="flex flex-col space-y-3 animate-pulse">
+                <div className="w-full aspect-[3/4] bg-ailys-bone-dark/50 border border-ailys-bone-border" />
+                <div className="h-4 bg-ailys-bone-dark/40 w-3/4 rounded-xs" />
+                <div className="h-3 bg-ailys-bone-dark/30 w-1/4 rounded-xs" />
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 lg:gap-10">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
-        ) : PRODUCTS.length === 0 ? (
+        ) : products.length === 0 ? (
           <div className="py-20 sm:py-24 text-center space-y-3 sm:space-y-4 border border-dashed border-ailys-bone-border px-4">
             <p className="font-editorial-heading text-xl sm:text-2xl text-ailys-black">
               Catalogue en cours d&apos;actualisation

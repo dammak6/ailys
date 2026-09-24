@@ -20,7 +20,7 @@ import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ProductCard } from "@/components/common/ProductCard";
-import { PRODUCTS, Product } from "@/lib/data";
+import { Product } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
 import { trackViewContent, trackAddToCart } from "@/lib/tracking/meta-pixel";
@@ -31,26 +31,15 @@ interface ProductPageProps {
 
 export default function ProductDetailPage({ params }: ProductPageProps) {
   const resolvedParams = use(params);
-  const initialProduct = PRODUCTS.find((p) => p.slug === resolvedParams.slug) || null;
-  const [product, setProduct] = useState<Product | null>(initialProduct);
-  const [loading, setLoading] = useState(!initialProduct);
-
-  useEffect(() => {
-    fetch(`/api/products?slug=${resolvedParams.slug}`, { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && !data.error && data.slug) {
-          setProduct(data);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [resolvedParams.slug]);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
 
   const { addItem } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(initialProduct?.colors[0]?.name || "");
-  const [selectedSize, setSelectedSize] = useState(initialProduct?.sizes[0] || "");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [notifyContact, setNotifyContact] = useState("");
@@ -60,13 +49,34 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [openAccordion, setOpenAccordion] = useState<string | null>("description");
 
   useEffect(() => {
-    if (product) {
-      if (!selectedColor && product.colors?.[0]?.name) setSelectedColor(product.colors[0].name);
-      if (!selectedSize && product.sizes?.[0]) setSelectedSize(product.sizes[0]);
-    }
-  }, [product]);
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/products?slug=${resolvedParams.slug}`, { cache: "no-store" }).then(async (res) => {
+        if (res.status === 404) return null;
+        return res.json();
+      }),
+      fetch(`/api/products`, { cache: "no-store" }).then((res) => res.json()).catch(() => []),
+    ])
+      .then(([prodData, allProds]) => {
+        if (prodData && !prodData.error && prodData.slug) {
+          setProduct(prodData);
+          if (prodData.colors?.[0]?.name) setSelectedColor(prodData.colors[0].name);
+          if (prodData.sizes?.[0]) setSelectedSize(prodData.sizes[0]);
+        } else {
+          setNotFoundState(true);
+        }
+        if (Array.isArray(allProds)) {
+          setAllProducts(allProds);
+        }
+      })
+      .catch((err) => {
+        console.error("Erreur chargement produit PDP:", err);
+        setNotFoundState(true);
+      })
+      .finally(() => setLoading(false));
+  }, [resolvedParams.slug]);
 
-  if (!product && !loading) {
+  if (notFoundState || (!product && !loading)) {
     notFound();
   }
 
@@ -95,7 +105,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   // Related products
-  const relatedProducts = PRODUCTS.filter(
+  const relatedProducts = allProducts.filter(
     (p) => p.category === product.category && p.id !== product.id
   ).slice(0, 3);
 

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { createServerSupabaseClient } from "../supabase/server";
 import { createAdminSupabaseClient } from "../supabase/admin";
-import { PRODUCTS, COLLECTIONS, CATEGORIES, SAMPLE_ORDERS, Product, Collection, ImageTransformMetadata, DEFAULT_IMAGE_TRANSFORM } from "../data";
+import { CATEGORIES, SAMPLE_ORDERS, Product, Collection, ImageTransformMetadata, DEFAULT_IMAGE_TRANSFORM } from "../data";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const STORAGE_FILE = path.join(DATA_DIR, "admin-data.json");
@@ -64,132 +64,137 @@ function isLiveSupabaseConfigured(): boolean {
   return !!(url && key && !url.includes("placeholder-project") && !key.includes("placeholder-anon-key"));
 }
 
+async function getSupabaseAdminOrServerClient() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey && !serviceKey.includes("placeholder")) {
+    return createAdminSupabaseClient();
+  }
+  return await createServerSupabaseClient();
+}
+
+function mapSupabaseProductRow(row: any): Product {
+  const rawSizes = (row.product_variants || [])
+    .map((v: any) => v.sizes?.name?.replace(/\s*\(.*?\)/, "") || v.sizes?.code?.replace(/^[FHE]-/, ""))
+    .filter(Boolean);
+  const sizes = Array.from(new Set(rawSizes)) as string[];
+  if (sizes.length === 0) sizes.push("36", "38", "40", "42");
+
+  const rawColors = (row.product_variants || [])
+    .map((v: any) => (v.colors ? { name: v.colors.name, hex: v.colors.hex } : null))
+    .filter(Boolean);
+  const colorMap = new Map();
+  rawColors.forEach((c: any) => {
+    if (c && !colorMap.has(c.name)) colorMap.set(c.name, c);
+  });
+  const colors = Array.from(colorMap.values());
+  if (colors.length === 0) colors.push({ name: "Noir Ébène", hex: "#111111" });
+
+  const images = (row.product_images || []).sort(
+    (a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)
+  );
+  const primaryImg =
+    images.find((i: any) => i.is_primary)?.image_url ||
+    images[0]?.image_url ||
+    "/images/editorial/03_the_silhouette.webp";
+  const secondaryImg =
+    images.find((i: any) => !i.is_primary)?.image_url ||
+    images[1]?.image_url ||
+    primaryImg;
+  const gallery = images.map((i: any) => i.image_url);
+
+  const isSoldOut =
+    Boolean(row.is_sold_out_manual_override) ||
+    (Array.isArray(row.product_variants) &&
+      row.product_variants.length > 0 &&
+      row.product_variants.every((v: any) => (v.stock_quantity || 0) <= 0));
+
+  // Dynamic collection from collection_products join
+  const primaryCollection = row.collection_products?.[0]?.collections;
+  const collectionName = primaryCollection?.title || "";
+  const collectionSlug = primaryCollection?.slug || "";
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    subtitle: row.subtitle || "",
+    category: row.categories?.slug || "femme",
+    subCategory: row.sub_category || "",
+    price: Number(row.price),
+    salePrice: row.sale_price ? Number(row.sale_price) : undefined,
+    collection: collectionName,
+    collectionSlug: collectionSlug,
+    primaryImage: primaryImg,
+    secondaryImage: secondaryImg,
+    gallery: gallery.length > 0 ? gallery : [primaryImg],
+    colors,
+    sizes,
+    description: row.description || "",
+    materials: row.materials || "",
+    care: row.care || "",
+    fit: row.fit || "",
+    isNew: Boolean(row.is_new),
+    isCapsule: Boolean(row.is_capsule),
+    isSoldOut,
+    isFeatured: Boolean(row.is_featured),
+    sizeGuide: row.size_guide || null,
+  };
+}
+
 export const AilysRepository = {
   // ---------------------------------------------------------------------------
-  // PRODUCTS
+  // PRODUCTS (Supabase Single Source of Truth)
   // ---------------------------------------------------------------------------
   async getProducts(filters?: {
     category?: string;
     size?: string;
     sortBy?: "newest" | "price-asc" | "price-desc";
   }): Promise<Product[]> {
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = await createServerSupabaseClient();
-        let query = supabase
-          .from("products")
-          .select(`
-            *,
-            categories (*),
-            product_images (*),
-            product_variants (*, sizes (*), colors (*))
-          `)
-          .eq("is_published", true);
-
-        if (filters?.category && filters.category !== "all") {
-          query = query.eq("categories.slug", filters.category);
-        }
-
-        if (filters?.sortBy === "price-asc") {
-          query = query.order("price", { ascending: true });
-        } else if (filters?.sortBy === "price-desc") {
-          query = query.order("price", { ascending: false });
-        } else {
-          query = query.order("is_new", { ascending: false }).order("created_at", { ascending: false });
-        }
-
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) {
-          const mapped = data.map((row: any) => {
-            const rawSizes = (row.product_variants || [])
-              .map((v: any) => v.sizes?.name?.replace(/\s*\(.*?\)/, "") || v.sizes?.code?.replace(/^[FHE]-/, ""))
-              .filter(Boolean);
-            const sizes = Array.from(new Set(rawSizes)) as string[];
-            if (sizes.length === 0) sizes.push("36", "38", "40", "42");
-
-            const rawColors = (row.product_variants || [])
-              .map((v: any) => (v.colors ? { name: v.colors.name, hex: v.colors.hex } : null))
-              .filter(Boolean);
-            const colorMap = new Map();
-            rawColors.forEach((c: any) => {
-              if (c && !colorMap.has(c.name)) colorMap.set(c.name, c);
-            });
-            const colors = Array.from(colorMap.values());
-            if (colors.length === 0) colors.push({ name: "Noir Ébène", hex: "#111111" });
-
-            const images = (row.product_images || []).sort(
-              (a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)
-            );
-            const primaryImg =
-              images.find((i: any) => i.is_primary)?.image_url ||
-              images[0]?.image_url ||
-              "/images/editorial/03_the_silhouette.webp";
-            const secondaryImg =
-              images.find((i: any) => !i.is_primary)?.image_url ||
-              images[1]?.image_url ||
-              primaryImg;
-            const gallery = images.map((i: any) => i.image_url);
-
-            const isSoldOut =
-              Boolean(row.is_sold_out_manual_override) ||
-              (Array.isArray(row.product_variants) &&
-                row.product_variants.length > 0 &&
-                row.product_variants.every((v: any) => (v.stock_quantity || 0) <= 0));
-
-            return {
-              id: row.id,
-              slug: row.slug,
-              name: row.name,
-              subtitle: row.subtitle || "",
-              category: row.categories?.slug || "femme",
-              subCategory: row.sub_category || "",
-              price: Number(row.price),
-              salePrice: row.sale_price ? Number(row.sale_price) : undefined,
-              collection: "L'Atelier Urbain",
-              collectionSlug: "atelier-urbain",
-              primaryImage: primaryImg,
-              secondaryImage: secondaryImg,
-              gallery: gallery.length > 0 ? gallery : [primaryImg],
-              colors,
-              sizes,
-              description: row.description || "",
-              materials: row.materials || "",
-              care: row.care || "",
-              fit: row.fit || "",
-              isNew: Boolean(row.is_new),
-              isCapsule: Boolean(row.is_capsule),
-              isSoldOut,
-              isFeatured: Boolean(row.is_featured),
-              sizeGuide: row.size_guide || null,
-            };
-          });
-
-          if (filters?.size && filters.size !== "all") {
-            return mapped.filter((p: any) => p.sizes.includes(filters.size!));
-          }
-          return mapped;
-        }
-      } catch (err) {
-        console.warn("Supabase query failed, falling back to local data:", err);
-      }
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured. Database must be single source of truth.");
     }
 
-    // Default Fallback
-    let result = [...ADMIN_PRODUCTS];
+    const supabase = await createServerSupabaseClient();
+    let query = supabase
+      .from("products")
+      .select(`
+        *,
+        categories (*),
+        product_images (*),
+        product_variants (*, sizes (*), colors (*)),
+        collection_products (collections (*))
+      `)
+      .eq("is_published", true);
+
     if (filters?.category && filters.category !== "all") {
-      result = result.filter((p) => p.category === filters.category);
+      query = query.eq("categories.slug", filters.category);
     }
-    if (filters?.size && filters.size !== "all") {
-      result = result.filter((p) => p.sizes.includes(filters.size!));
-    }
+
     if (filters?.sortBy === "price-asc") {
-      result.sort((a, b) => a.price - b.price);
+      query = query.order("price", { ascending: true });
     } else if (filters?.sortBy === "price-desc") {
-      result.sort((a, b) => b.price - a.price);
+      query = query.order("price", { ascending: false });
     } else {
-      result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+      query = query.order("is_new", { ascending: false }).order("created_at", { ascending: false });
     }
-    return result.map((p) => {
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("Supabase getProducts query error:", error);
+      throw new Error(`Erreur Supabase lors de la récupération des produits: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    let mapped = data.map(mapSupabaseProductRow);
+
+    if (filters?.size && filters.size !== "all") {
+      mapped = mapped.filter((p) => p.sizes.includes(filters.size!));
+    }
+
+    return mapped.map((p) => {
       const asset = ADMIN_MEDIA.find((m) => m.url === p.primaryImage);
       return {
         ...p,
@@ -199,45 +204,80 @@ export const AilysRepository = {
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
-    const products = await this.getProducts();
-    return products.find((p) => p.slug === slug) || null;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select(`
+        *,
+        categories (*),
+        product_images (*),
+        product_variants (*, sizes (*), colors (*)),
+        collection_products (collections (*))
+      `)
+      .eq("slug", slug)
+      .eq("is_published", true)
+      .maybeSingle();
+
+    if (error) {
+      console.error(`Supabase getProductBySlug error for slug ${slug}:`, error);
+      throw new Error(`Erreur Supabase: ${error.message}`);
+    }
+
+    if (!data) return null;
+
+    const mapped = mapSupabaseProductRow(data);
+    const asset = ADMIN_MEDIA.find((m) => m.url === mapped.primaryImage);
+    return {
+      ...mapped,
+      primaryImageTransform: mapped.primaryImageTransform || asset?.transform,
+    };
   },
 
   // ---------------------------------------------------------------------------
-  // COLLECTIONS
+  // COLLECTIONS (Supabase Single Source of Truth)
   // ---------------------------------------------------------------------------
   async getCollections(): Promise<Collection[]> {
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = await createServerSupabaseClient();
-        const { data, error } = await supabase
-          .from("collections")
-          .select(`
-            *,
-            collection_products (product_id, products (slug))
-          `)
-          .eq("is_published", true)
-          .order("display_order", { ascending: true });
-
-        if (!error && data && data.length > 0) {
-          return data.map((row: any) => ({
-            id: row.id,
-            slug: row.slug,
-            title: row.title,
-            subtitle: row.subtitle || "",
-            description: row.description || "",
-            story: row.story || "",
-            heroDesktopImage: row.hero_desktop_image,
-            heroMobileImage: row.hero_mobile_image || row.hero_desktop_image,
-            productSlugs: row.collection_products?.map((cp: any) => cp.products?.slug).filter(Boolean) || [],
-          }));
-        }
-      } catch (err) {
-        console.warn("Supabase collections query failed, fallback to local:", err);
-      }
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
     }
 
-    return ADMIN_COLLECTIONS.filter((c: any) => c.isPublished);
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("collections")
+      .select(`
+        *,
+        collection_products (product_id, products (slug))
+      `)
+      .eq("is_published", true)
+      .order("display_order", { ascending: true });
+
+    if (error) {
+      console.error("Supabase getCollections error:", error);
+      throw new Error(`Erreur Supabase getCollections: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    return data.map((row: any) => ({
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      subtitle: row.subtitle || "",
+      description: row.description || "",
+      story: row.story || "",
+      heroDesktopImage: row.hero_desktop_image,
+      heroMobileImage: row.hero_mobile_image || row.hero_desktop_image,
+      productSlugs: row.collection_products?.map((cp: any) => cp.products?.slug).filter(Boolean) || [],
+      isCapsule: Boolean(row.is_capsule),
+      isPublished: Boolean(row.is_published),
+      productCount: row.collection_products?.filter((cp: any) => !!cp.products)?.length || 0,
+    }));
   },
 
   async getCollectionBySlug(slug: string): Promise<Collection | null> {
@@ -498,255 +538,500 @@ export const AilysRepository = {
   },
 
   // ---------------------------------------------------------------------------
-  // ADMIN: PRODUCTS CRUD
+  // ADMIN: PRODUCTS CRUD (Supabase Single Source of Truth)
   // ---------------------------------------------------------------------------
   async getAllAdminProducts() {
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = createAdminSupabaseClient();
-        const { data, error } = await supabase
-          .from("products")
-          .select(`
-            *,
-            categories (*),
-            product_images (*),
-            product_variants (*, sizes (*), colors (*))
-          `)
-          .order("created_at", { ascending: false });
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select(`
+        *,
+        categories (*),
+        product_images (*),
+        product_variants (*, sizes (*), colors (*)),
+        collection_products (collections (*))
+      `)
+      .order("created_at", { ascending: false });
 
-        if (!error && data && data.length > 0) {
-          return data.map((row: any) => {
-            const rawSizes = (row.product_variants || [])
-              .map((v: any) => v.sizes?.name?.replace(/\s*\(.*?\)/, "") || v.sizes?.code?.replace(/^[FHE]-/, ""))
-              .filter(Boolean);
-            const sizes = Array.from(new Set(rawSizes)) as string[];
-            if (sizes.length === 0) sizes.push("36", "38", "40", "42");
-
-            const colorsMap = new Map<string, { name: string; hex: string }>();
-            (row.product_variants || []).forEach((v: any) => {
-              if (v.colors?.name) {
-                colorsMap.set(v.colors.name, {
-                  name: v.colors.name,
-                  hex: v.colors.hex || "#111111",
-                });
-              }
-            });
-            const colors = Array.from(colorsMap.values());
-            if (colors.length === 0) {
-              colors.push({ name: "Noir Atelier", hex: "#111111" });
-            }
-
-            const images = (row.product_images || []).sort((a: any, b: any) => a.display_order - b.display_order);
-            const primaryImage = images.find((i: any) => i.is_primary)?.image_url || images[0]?.image_url || "/images/editorial/03_the_silhouette.webp";
-            const secondaryImage = images[1]?.image_url || primaryImage;
-            const gallery = images.map((i: any) => i.image_url);
-
-            const isSoldOut = (row.product_variants || []).every((v: any) => Number(v.stock_quantity) <= 0);
-
-            return {
-              id: row.id,
-              slug: row.slug,
-              name: row.name,
-              subtitle: row.subtitle || "",
-              category: row.categories?.gender || "femme",
-              subCategory: row.categories?.name || "",
-              price: Number(row.price),
-              salePrice: row.sale_price ? Number(row.sale_price) : undefined,
-              collection: "L'Atelier Urbain",
-              collectionSlug: "atelier-urbain",
-              primaryImage,
-              secondaryImage,
-              gallery: gallery.length > 0 ? gallery : [primaryImage],
-              colors,
-              sizes,
-              description: row.description || "",
-              materials: row.materials || "",
-              care: row.care_instructions || "",
-              fit: row.fit || "",
-              isNew: Boolean(row.is_new),
-              isCapsule: Boolean(row.is_capsule),
-              isSoldOut,
-              isFeatured: Boolean(row.is_featured),
-              isPublished: Boolean(row.is_published),
-              sizeGuide: row.size_guide || null,
-              createdAt: row.created_at,
-            };
-          });
-        }
-      } catch (err) {
-        console.warn("Supabase admin products query failed, fallback to local:", err);
-      }
+    if (error) {
+      console.error("Supabase getAllAdminProducts error:", error);
+      throw new Error(`Erreur Supabase Admin: ${error.message}`);
     }
 
-    loadStateFromDisk();
-    return ADMIN_PRODUCTS;
+    if (!data) return [];
+
+    return data.map((row: any) => {
+      const p = mapSupabaseProductRow(row);
+      return {
+        ...p,
+        isPublished: Boolean(row.is_published),
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
+    });
   },
 
   async createProduct(data: any) {
-    const newProduct: any = {
-      id: `prod-${Date.now()}`,
-      slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+
+    // 1. Resolve category_id
+    let categoryId = data.categoryId;
+    if (!categoryId && data.category) {
+      const { data: cat } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", data.category.toLowerCase())
+        .maybeSingle();
+      if (cat) categoryId = cat.id;
+    }
+    if (!categoryId) {
+      const { data: firstCat } = await supabase.from("categories").select("id").limit(1).single();
+      categoryId = firstCat?.id;
+    }
+
+    const newId = crypto.randomUUID();
+    const slug = (data.slug || data.name || "produit")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    const newProductRow: any = {
+      id: newId,
       name: data.name,
+      slug,
       subtitle: data.subtitle || "",
-      category: data.category || "femme",
-      subCategory: data.subCategory || "",
-      price: Number(data.price),
-      salePrice: data.salePrice ? Number(data.salePrice) : undefined,
-      collection: data.collection || "L'Atelier Urbain",
-      collectionSlug: data.collectionSlug || "atelier-urbain",
-      primaryImage: data.primaryImage || "/images/editorial/03_the_silhouette.webp",
-      secondaryImage: data.secondaryImage || "/images/editorial/10_the_close_up.webp",
-      gallery: data.gallery || [data.primaryImage || "/images/editorial/03_the_silhouette.webp"],
-      colors: data.colors || [{ name: "Noir Mât", hex: "#0B0B0B" }],
-      sizes: data.sizes || ["36", "38", "40", "42"],
       description: data.description || "",
-      materials: data.materials || "100% Matières Naturelles",
-      care: data.care || "Nettoyage à sec recommandé",
-      fit: data.fit || "Coupe ajustée",
-      isNew: data.isNew ?? true,
-      isCapsule: data.isCapsule ?? false,
-      isSoldOut: data.isSoldOut ?? false,
-      isFeatured: data.isFeatured ?? false,
-      isPublished: data.isPublished ?? true,
-      createdAt: new Date().toISOString(),
+      materials: data.materials || "",
+      care: data.care || data.care_instructions || "",
+      fit: data.fit || "",
+      price: Number(data.price),
+      sale_price: data.salePrice ? Number(data.salePrice) : null,
+      category_id: categoryId,
+      sub_category: data.subCategory || "",
+      is_published: data.isPublished !== undefined ? Boolean(data.isPublished) : true,
+      is_new: data.isNew !== undefined ? Boolean(data.isNew) : true,
+      is_capsule: Boolean(data.isCapsule),
+      is_featured: Boolean(data.isFeatured),
+      is_sold_out_manual_override: Boolean(data.isSoldOut),
+      size_guide: data.sizeGuide || null,
     };
-    ADMIN_PRODUCTS.unshift(newProduct);
-    PRODUCTS.unshift(newProduct);
-    saveStateToDisk();
-    return newProduct;
+
+    const { data: created, error } = await supabase
+      .from("products")
+      .insert(newProductRow)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase createProduct error:", error);
+      throw new Error(`Erreur Supabase création produit: ${error.message}`);
+    }
+
+    // 2. Insert primary image if provided
+    if (data.primaryImage) {
+      await supabase.from("product_images").insert({
+        product_id: newId,
+        image_url: data.primaryImage,
+        is_primary: true,
+        display_order: 1,
+      });
+    }
+
+    // 3. Insert secondary/gallery images
+    if (Array.isArray(data.gallery) && data.gallery.length > 0) {
+      const galleryInserts = data.gallery
+        .filter((img: string) => img && img !== data.primaryImage)
+        .map((img: string, idx: number) => ({
+          product_id: newId,
+          image_url: img,
+          is_primary: false,
+          display_order: idx + 2,
+        }));
+      if (galleryInserts.length > 0) {
+        await supabase.from("product_images").insert(galleryInserts);
+      }
+    }
+
+    // 4. Default variants if sizes provided
+    if (Array.isArray(data.sizes) && data.sizes.length > 0) {
+      const { data: dbSizes } = await supabase.from("sizes").select("id, name, code");
+      const { data: dbColors } = await supabase.from("colors").select("id, name").limit(1);
+      const defaultColorId = dbColors?.[0]?.id;
+
+      if (dbSizes && defaultColorId) {
+        const variantInserts = data.sizes.map((sName: string, idx: number) => {
+          const matchSize = dbSizes.find(
+            (s: any) =>
+              s.name.toLowerCase().includes(sName.toLowerCase()) ||
+              s.code.toLowerCase().includes(sName.toLowerCase())
+          ) || dbSizes[0];
+
+          return {
+            product_id: newId,
+            size_id: matchSize.id,
+            color_id: defaultColorId,
+            sku: `AILYS-${slug.slice(0, 10).toUpperCase()}-${sName.toUpperCase()}-${idx}`,
+            stock_quantity: 15,
+            low_stock_threshold: 3,
+            is_active: true,
+          };
+        });
+        await supabase.from("product_variants").insert(variantInserts);
+      }
+    }
+
+    // 5. Connect collection if specified
+    if (data.collectionId || data.collectionSlug || data.collection) {
+      let colId = data.collectionId;
+      if (!colId) {
+        const cSlug = data.collectionSlug || data.collection?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        const { data: col } = await supabase.from("collections").select("id").eq("slug", cSlug).maybeSingle();
+        if (col) colId = col.id;
+      }
+      if (colId) {
+        await supabase.from("collection_products").insert({
+          collection_id: colId,
+          product_id: newId,
+          display_order: 1,
+        });
+      }
+    }
+
+    return created;
   },
 
   async updateProduct(id: string, updates: any) {
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = createAdminSupabaseClient();
-        const updatePayload: any = { updated_at: new Date().toISOString() };
-        if (updates.name !== undefined) updatePayload.name = updates.name;
-        if (updates.subtitle !== undefined) updatePayload.subtitle = updates.subtitle;
-        if (updates.price !== undefined) updatePayload.price = Number(updates.price);
-        if (updates.salePrice !== undefined) updatePayload.sale_price = updates.salePrice ? Number(updates.salePrice) : null;
-        if (updates.description !== undefined) updatePayload.description = updates.description;
-        if (updates.materials !== undefined) updatePayload.materials = updates.materials;
-        if (updates.care !== undefined) updatePayload.care_instructions = updates.care;
-        if (updates.fit !== undefined) updatePayload.fit = updates.fit;
-        if (updates.isNew !== undefined) updatePayload.is_new = updates.isNew;
-        if (updates.isCapsule !== undefined) updatePayload.is_capsule = updates.isCapsule;
-        if (updates.isFeatured !== undefined) updatePayload.is_featured = updates.isFeatured;
-        if (updates.isPublished !== undefined) updatePayload.is_published = updates.isPublished;
-        if (updates.sizeGuide !== undefined) updatePayload.size_guide = updates.sizeGuide;
-        if (updates.size_guide !== undefined) updatePayload.size_guide = updates.size_guide;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const updatePayload: any = { updated_at: new Date().toISOString() };
 
-        await supabase
-          .from("products")
-          .update(updatePayload)
-          .or(`id.eq.${id},slug.eq.${id}`);
-      } catch (err) {
-        console.warn("Supabase product update warning:", err);
-      }
+    if (updates.name !== undefined) updatePayload.name = updates.name;
+    if (updates.slug !== undefined) updatePayload.slug = updates.slug;
+    if (updates.subtitle !== undefined) updatePayload.subtitle = updates.subtitle;
+    if (updates.price !== undefined) updatePayload.price = Number(updates.price);
+    if (updates.salePrice !== undefined) updatePayload.sale_price = updates.salePrice ? Number(updates.salePrice) : null;
+    if (updates.description !== undefined) updatePayload.description = updates.description;
+    if (updates.materials !== undefined) updatePayload.materials = updates.materials;
+    if (updates.care !== undefined) updatePayload.care = updates.care;
+    if (updates.care_instructions !== undefined) updatePayload.care = updates.care_instructions;
+    if (updates.fit !== undefined) updatePayload.fit = updates.fit;
+    if (updates.isNew !== undefined) updatePayload.is_new = updates.isNew;
+    if (updates.isCapsule !== undefined) updatePayload.is_capsule = updates.isCapsule;
+    if (updates.isFeatured !== undefined) updatePayload.is_featured = updates.isFeatured;
+    if (updates.isPublished !== undefined) updatePayload.is_published = updates.isPublished;
+    if (updates.isSoldOut !== undefined) updatePayload.is_sold_out_manual_override = updates.isSoldOut;
+    if (updates.sizeGuide !== undefined) updatePayload.size_guide = updates.sizeGuide;
+    if (updates.size_guide !== undefined) updatePayload.size_guide = updates.size_guide;
+    if (updates.subCategory !== undefined) updatePayload.sub_category = updates.subCategory;
+
+    if (updates.category) {
+      const { data: cat } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", updates.category.toLowerCase())
+        .maybeSingle();
+      if (cat) updatePayload.category_id = cat.id;
     }
 
-    const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
-    if (idx !== -1) {
-      ADMIN_PRODUCTS[idx] = { ...ADMIN_PRODUCTS[idx], ...updates };
-      const pIdx = PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
-      if (pIdx !== -1) PRODUCTS[pIdx] = { ...PRODUCTS[pIdx], ...updates };
-      saveStateToDisk();
-      return ADMIN_PRODUCTS[idx];
+    const { data, error } = await supabase
+      .from("products")
+      .update(updatePayload)
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase updateProduct error:", error);
+      throw new Error(`Erreur Supabase mise à jour produit: ${error.message}`);
     }
-    return updates;
+
+    return data;
   },
 
   async togglePublishProduct(id: string) {
-    const product = ADMIN_PRODUCTS.find((p) => p.id === id || p.slug === id);
-    const newStatus = product ? !product.isPublished : true;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const { data: existing, error: fetchErr } = await supabase
+      .from("products")
+      .select("id, is_published")
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .maybeSingle();
 
-    if (isLiveSupabaseConfigured()) {
-      try {
-        const supabase = createAdminSupabaseClient();
-        await supabase
-          .from("products")
-          .update({ is_published: newStatus, updated_at: new Date().toISOString() })
-          .or(`id.eq.${id},slug.eq.${id}`);
-      } catch (err) {
-        console.warn("Supabase toggle product publish warning:", err);
-      }
+    if (fetchErr || !existing) {
+      throw new Error("Produit non trouvé dans Supabase");
     }
 
-    if (!product) throw new Error("Produit non trouvé");
-    product.isPublished = newStatus;
-    const pIdx = PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
-    if (pIdx !== -1) (PRODUCTS[pIdx] as any).isPublished = newStatus;
-    saveStateToDisk();
-    return product;
+    const newStatus = !existing.is_published;
+    const { data, error } = await supabase
+      .from("products")
+      .update({ is_published: newStatus, updated_at: new Date().toISOString() })
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Erreur Supabase toggle publish: ${error.message}`);
+    }
+
+    return data;
   },
 
   async deleteProduct(id: string) {
-    const idx = ADMIN_PRODUCTS.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Produit non trouvé");
-    const [deleted] = ADMIN_PRODUCTS.splice(idx, 1);
-    const pIdx = PRODUCTS.findIndex((p) => p.id === id);
-    if (pIdx !== -1) PRODUCTS.splice(pIdx, 1);
-    saveStateToDisk();
-    return deleted;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+
+    const { data: existing } = await supabase
+      .from("products")
+      .select("id, name, slug")
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .maybeSingle();
+
+    if (!existing) {
+      throw new Error("Produit introuvable dans Supabase");
+    }
+
+    // Clean up dependent foreign keys explicitly
+    await supabase.from("collection_products").delete().eq("product_id", existing.id);
+    await supabase.from("product_images").delete().eq("product_id", existing.id);
+    await supabase.from("product_variants").delete().eq("product_id", existing.id);
+
+    const { data, error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase deleteProduct error:", error);
+      throw new Error(`Erreur Supabase suppression produit: ${error.message}`);
+    }
+
+    return data;
   },
 
   // ---------------------------------------------------------------------------
-  // ADMIN: COLLECTIONS CRUD
+  // ADMIN: COLLECTIONS CRUD (Supabase Single Source of Truth)
   // ---------------------------------------------------------------------------
   async getAllAdminCollections() {
-    return ADMIN_COLLECTIONS;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const { data, error } = await supabase
+      .from("collections")
+      .select(`
+        *,
+        collection_products (product_id, products (id, slug, name))
+      `)
+      .order("display_order", { ascending: true });
+
+    if (error) {
+      console.error("Supabase getAllAdminCollections error:", error);
+      throw new Error(`Erreur Supabase: ${error.message}`);
+    }
+
+    if (!data) return [];
+
+    return data.map((row: any) => ({
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      subtitle: row.subtitle || "",
+      description: row.description || "",
+      story: row.story || "",
+      heroDesktopImage: row.hero_desktop_image,
+      heroMobileImage: row.hero_mobile_image || row.hero_desktop_image,
+      isCapsule: Boolean(row.is_capsule),
+      isPublished: Boolean(row.is_published),
+      displayOrder: row.display_order,
+      productCount: row.collection_products?.filter((cp: any) => !!cp.products)?.length || 0,
+      productSlugs: row.collection_products?.map((cp: any) => cp.products?.slug).filter(Boolean) || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
   },
 
   async createCollection(data: any) {
-    const newCol: any = {
-      id: `col-${Date.now()}`,
-      slug: data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const newId = crypto.randomUUID();
+    const slug = (data.slug || data.title || "collection")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    const newColRow: any = {
+      id: newId,
+      slug,
       title: data.title,
       subtitle: data.subtitle || "",
       description: data.description || "",
       story: data.story || data.description || "",
-      heroDesktopImage: data.heroDesktopImage || "/images/editorial/08_mediterranean_street.webp",
-      heroMobileImage: data.heroMobileImage || "/images/editorial/03_the_silhouette.webp",
-      isCapsule: data.isCapsule ?? false,
-      isPublished: data.isPublished ?? true,
-      productCount: data.productCount || 0,
-      productSlugs: data.productSlugs || [],
-      createdAt: new Date().toISOString(),
+      hero_desktop_image: data.heroDesktopImage || "/images/editorial/08_mediterranean_street.webp",
+      hero_mobile_image: data.heroMobileImage || data.heroDesktopImage || "/images/editorial/03_the_silhouette.webp",
+      is_capsule: Boolean(data.isCapsule),
+      is_published: data.isPublished !== undefined ? Boolean(data.isPublished) : true,
+      display_order: data.displayOrder || 1,
     };
-    ADMIN_COLLECTIONS.unshift(newCol);
-    COLLECTIONS.unshift(newCol);
-    saveStateToDisk();
-    return newCol;
+
+    const { data: created, error } = await supabase
+      .from("collections")
+      .insert(newColRow)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase createCollection error:", error);
+      throw new Error(`Erreur Supabase création collection: ${error.message}`);
+    }
+
+    if (Array.isArray(data.productSlugs) && data.productSlugs.length > 0) {
+      const { data: prods } = await supabase
+        .from("products")
+        .select("id, slug")
+        .in("slug", data.productSlugs);
+
+      if (prods && prods.length > 0) {
+        const links = prods.map((p: any, idx: number) => ({
+          collection_id: newId,
+          product_id: p.id,
+          display_order: idx + 1,
+        }));
+        await supabase.from("collection_products").insert(links);
+      }
+    }
+
+    return created;
   },
 
   async updateCollection(id: string, updates: any) {
-    const idx = ADMIN_COLLECTIONS.findIndex((c) => c.id === id);
-    if (idx === -1) throw new Error("Collection non trouvée");
-    ADMIN_COLLECTIONS[idx] = { ...ADMIN_COLLECTIONS[idx], ...updates };
-    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
-    if (cIdx !== -1) COLLECTIONS[cIdx] = { ...COLLECTIONS[cIdx], ...updates };
-    saveStateToDisk();
-    return ADMIN_COLLECTIONS[idx];
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const updatePayload: any = { updated_at: new Date().toISOString() };
+
+    if (updates.title !== undefined) updatePayload.title = updates.title;
+    if (updates.slug !== undefined) updatePayload.slug = updates.slug;
+    if (updates.subtitle !== undefined) updatePayload.subtitle = updates.subtitle;
+    if (updates.description !== undefined) updatePayload.description = updates.description;
+    if (updates.story !== undefined) updatePayload.story = updates.story;
+    if (updates.heroDesktopImage !== undefined) updatePayload.hero_desktop_image = updates.heroDesktopImage;
+    if (updates.heroMobileImage !== undefined) updatePayload.hero_mobile_image = updates.heroMobileImage;
+    if (updates.isCapsule !== undefined) updatePayload.is_capsule = updates.isCapsule;
+    if (updates.isPublished !== undefined) updatePayload.is_published = updates.isPublished;
+    if (updates.displayOrder !== undefined) updatePayload.display_order = updates.displayOrder;
+
+    const { data, error } = await supabase
+      .from("collections")
+      .update(updatePayload)
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase updateCollection error:", error);
+      throw new Error(`Erreur Supabase mise à jour collection: ${error.message}`);
+    }
+
+    if (Array.isArray(updates.productSlugs)) {
+      const colId = data?.id || id;
+      await supabase.from("collection_products").delete().eq("collection_id", colId);
+      if (updates.productSlugs.length > 0) {
+        const { data: prods } = await supabase
+          .from("products")
+          .select("id, slug")
+          .in("slug", updates.productSlugs);
+        if (prods && prods.length > 0) {
+          const links = prods.map((p: any, idx: number) => ({
+            collection_id: colId,
+            product_id: p.id,
+            display_order: idx + 1,
+          }));
+          await supabase.from("collection_products").insert(links);
+        }
+      }
+    }
+
+    return data;
   },
 
   async togglePublishCollection(id: string) {
-    const col = ADMIN_COLLECTIONS.find((c) => c.id === id);
-    if (!col) throw new Error("Collection non trouvée");
-    col.isPublished = !col.isPublished;
-    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
-    if (cIdx !== -1) COLLECTIONS[cIdx].isPublished = col.isPublished;
-    saveStateToDisk();
-    return col;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+    const { data: existing, error: fetchErr } = await supabase
+      .from("collections")
+      .select("id, is_published")
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .maybeSingle();
+
+    if (fetchErr || !existing) {
+      throw new Error("Collection non trouvée dans Supabase");
+    }
+
+    const newStatus = !existing.is_published;
+    const { data, error } = await supabase
+      .from("collections")
+      .update({ is_published: newStatus, updated_at: new Date().toISOString() })
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Erreur Supabase toggle publish collection: ${error.message}`);
+    }
+
+    return data;
   },
 
   async deleteCollection(id: string) {
-    const idx = ADMIN_COLLECTIONS.findIndex((c) => c.id === id);
-    if (idx === -1) throw new Error("Collection non trouvée");
-    const [deleted] = ADMIN_COLLECTIONS.splice(idx, 1);
-    const cIdx = COLLECTIONS.findIndex((c) => c.id === id);
-    if (cIdx !== -1) COLLECTIONS.splice(cIdx, 1);
-    saveStateToDisk();
-    return deleted;
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+
+    const { data: existing } = await supabase
+      .from("collections")
+      .select("id")
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .maybeSingle();
+
+    if (!existing) {
+      throw new Error("Collection introuvable dans Supabase");
+    }
+
+    await supabase.from("collection_products").delete().eq("collection_id", existing.id);
+
+    const { data, error } = await supabase
+      .from("collections")
+      .delete()
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase deleteCollection error:", error);
+      throw new Error(`Erreur Supabase suppression collection: ${error.message}`);
+    }
+
+    return data;
   },
 
   // ---------------------------------------------------------------------------
@@ -1562,7 +1847,6 @@ export const AilysRepository = {
       });
     };
     updateProductTransforms(ADMIN_PRODUCTS);
-    updateProductTransforms(PRODUCTS);
 
     saveStateToDisk();
     return asset || { id: mediaId, transform };
@@ -1645,9 +1929,9 @@ export const AilysRepository = {
 // IN-MEMORY ADMIN DATA STORES
 // =============================================================================
 
-export const ADMIN_PRODUCTS: any[] = [...PRODUCTS];
+export const ADMIN_PRODUCTS: any[] = [];
 
-export const ADMIN_COLLECTIONS: any[] = [...COLLECTIONS];
+export const ADMIN_COLLECTIONS: any[] = [];
 
 export const ADMIN_PROMOTIONS: any[] = [];
 
@@ -2033,8 +2317,6 @@ export function saveStateToDisk() {
       homepageDraft: HOMEPAGE_DRAFT_SECTIONS,
       homepagePublished: HOMEPAGE_PUBLISHED_SECTIONS,
       homepageMeta: { ...HOMEPAGE_CMS_META, lastSavedAt: timestamp },
-      products: ADMIN_PRODUCTS,
-      collections: ADMIN_COLLECTIONS,
       promotions: ADMIN_PROMOTIONS,
       orders: ADMIN_ORDERS,
       returns: ADMIN_RETURNS,
@@ -2045,8 +2327,6 @@ export function saveStateToDisk() {
       success: true,
       lastSavedAt: timestamp,
       stats: {
-        products: ADMIN_PRODUCTS.length,
-        collections: ADMIN_COLLECTIONS.length,
         promotions: ADMIN_PROMOTIONS.length,
         orders: ADMIN_ORDERS.length,
         returns: ADMIN_RETURNS.length,
@@ -2072,8 +2352,6 @@ export function getLastSavedInfo() {
   return {
     lastSavedAt: savedTime,
     stats: {
-      products: ADMIN_PRODUCTS.length,
-      collections: ADMIN_COLLECTIONS.length,
       promotions: ADMIN_PROMOTIONS.length,
       orders: ADMIN_ORDERS.length,
       returns: ADMIN_RETURNS.length,
@@ -2087,18 +2365,6 @@ export function loadStateFromDisk() {
     if (fs.existsSync(STORAGE_FILE)) {
       const raw = fs.readFileSync(STORAGE_FILE, "utf-8");
       const data = JSON.parse(raw);
-      if (Array.isArray(data.products) && data.products.length > 0) {
-        ADMIN_PRODUCTS.length = 0;
-        ADMIN_PRODUCTS.push(...data.products);
-        PRODUCTS.length = 0;
-        PRODUCTS.push(...data.products);
-      }
-      if (Array.isArray(data.collections) && data.collections.length > 0) {
-        ADMIN_COLLECTIONS.length = 0;
-        ADMIN_COLLECTIONS.push(...data.collections);
-        COLLECTIONS.length = 0;
-        COLLECTIONS.push(...data.collections);
-      }
       if (Array.isArray(data.promotions)) {
         ADMIN_PROMOTIONS.length = 0;
         ADMIN_PROMOTIONS.push(...data.promotions);

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Search, ShoppingBag, Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart-context";
-import { PRODUCTS } from "@/lib/data";
+import type { Product } from "@/lib/data";
 import { AilysLogo } from "../brand/AilysLogo";
 import { MegaMenu } from "./MegaMenu";
 import { MobileNav } from "./MobileNav";
@@ -30,8 +30,23 @@ export function Header({
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
 
   const handleOpenSearch = onOpenSearch || (() => setIsSearchModalOpen(true));
+
+  useEffect(() => {
+    if (isSearchModalOpen && products.length === 0) {
+      fetch("/api/products")
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data.products || [];
+          if (Array.isArray(list) && list.length > 0) {
+            setProducts(list);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isSearchModalOpen, products.length]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -214,7 +229,7 @@ export function Header({
                 <div className="space-y-4">
                   {(() => {
                     const q = searchQuery.toLowerCase();
-                    const matches = PRODUCTS.filter(
+                    const matches = products.filter(
                       (p) =>
                         p.name.toLowerCase().includes(q) ||
                         p.category.toLowerCase().includes(q) ||

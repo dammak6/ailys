@@ -14,7 +14,7 @@ import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 import { HairlineRule } from "@/components/brand/HairlineRule";
 import { ProductCard } from "@/components/common/ProductCard";
 import { FlashcardModal, FlashcardData } from "@/components/common/FlashcardModal";
-import { PRODUCTS, COLLECTIONS, Product } from "@/lib/data";
+import { Product } from "@/lib/data";
 
 interface SectionProps {
   section: any;
@@ -513,7 +513,7 @@ function HomePageContent() {
   const isPreview = searchParams.get("preview") === "true";
 
   const [sections, setSections] = useState<any[]>([]);
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -531,7 +531,7 @@ function HomePageContent() {
         }
         if (resProducts.ok) {
           const prodData = await resProducts.json();
-          if (Array.isArray(prodData) && prodData.length > 0) {
+          if (Array.isArray(prodData)) {
             setProducts(prodData);
           }
         }
