@@ -22,9 +22,12 @@ export function AnnouncementBar() {
     },
   ];
 
+  // Duplicate items within each block to guarantee full coverage of wide viewports with zero reset jump
+  const displayItems = [...marqueeItems, ...marqueeItems];
+
   const renderMarqueeBlock = (keyPrefix: string) => (
     <div key={keyPrefix} className="flex items-center space-x-8 sm:space-x-12 shrink-0 px-4">
-      {marqueeItems.map((item, idx) => (
+      {displayItems.map((item, idx) => (
         <React.Fragment key={`${keyPrefix}-${idx}`}>
           <div className="flex items-center gap-2.5 text-ailys-bone/90 hover:text-ailys-gold transition-colors whitespace-nowrap">
             {item.icon}
@@ -45,7 +48,10 @@ export function AnnouncementBar() {
       className="bg-ailys-black text-ailys-bone py-2 overflow-hidden border-b border-ailys-dark-border select-none relative z-40"
     >
       <div className="w-full overflow-hidden flex">
-        <div className="animate-marquee-infinite flex shrink-0 items-center">
+        <div
+          className="animate-marquee-infinite flex shrink-0 items-center"
+          style={{ willChange: "transform" }}
+        >
           {renderMarqueeBlock("set1")}
           {renderMarqueeBlock("set2")}
         </div>

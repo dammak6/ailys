@@ -68,6 +68,15 @@ const config: Config = {
       transitionTimingFunction: {
         editorial: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
+      keyframes: {
+        "marquee-scroll": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        "marquee-infinite": "marquee-scroll 32s linear infinite",
+      },
     },
   },
   plugins: [],
