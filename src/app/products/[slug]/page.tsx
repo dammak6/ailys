@@ -76,18 +76,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       .finally(() => setLoading(false));
   }, [resolvedParams.slug]);
 
-  if (notFoundState || (!product && !loading)) {
-    notFound();
-  }
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-ailys-bone flex items-center justify-center font-serif text-ailys-black">
-        AÏLYS • Chargement...
-      </div>
-    );
-  }
-
   // Track ViewContent on product load
   useEffect(() => {
     if (product) {
@@ -99,6 +87,18 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       });
     }
   }, [product?.id]);
+
+  if (notFoundState || (!product && !loading)) {
+    notFound();
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-ailys-bone flex items-center justify-center font-serif text-ailys-black">
+        AÏLYS • Chargement...
+      </div>
+    );
+  }
 
   const toggleAccordion = (id: string) => {
     setOpenAccordion((prev) => (prev === id ? null : id));
