@@ -111,9 +111,10 @@ async function runFinalClosureSuite() {
     }
 
     // TEST 02: Supabase Login (direction@ailys.tn via GoTrue)
+    const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
     const { data: superLogin, error: superLoginErr } = await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
 
     if (!superLoginErr && superLogin.session && superLogin.user) {

@@ -57,7 +57,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Desktop Image Composition */}
       <div className="hidden sm:block absolute inset-0 z-0">
         <Image
-          src={section.desktopImage || "/images/editorial/01_ailys_hero.webp"}
+          src={section.desktopImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/01_ailys_hero.webp"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -72,7 +72,7 @@ function DynamicHeroSection({ section }: { section: any }) {
       {/* Mobile Dedicated Composition */}
       <div className="block sm:hidden absolute inset-0 z-0">
         <Image
-          src={section.mobileImage || "/images/editorial/02_ailys_portrait.webp"}
+          src={section.mobileImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/02_ailys_portrait.webp"}
           alt={section.title || "AÏLYS Campagne"}
           fill
           priority
@@ -190,7 +190,7 @@ function EditorialImageBreak({ section }: { section?: any }) {
   return (
     <section className="relative w-full h-[46vh] sm:h-[70vh] bg-ailys-black overflow-hidden flex items-center justify-center">
       <Image
-        src={section?.desktopImage || "/images/editorial/05_movement.webp"}
+        src={section?.desktopImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/05_movement.webp"}
         alt={section?.title || "L'Allure AÏLYS dans la lumière tunisienne"}
         fill
         sizes="100vw"
@@ -275,7 +275,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
         "Tissage aéré offrant une respirabilité idéale pour les climats chauds",
         "Stabilité dimensionnelle et toucher soyeux lavage après lavage",
       ],
-      image: "/images/craftsmanship/matieres.jpg",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/craftsmanship/matieres.jpg",
     },
     {
       id: "confection",
@@ -289,7 +289,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
         "Aisance étudiée pour accompagner les mouvements du corps avec élégance",
         "Confection en petites séries maîtrisées dans le respect des artisans",
       ],
-      image: "/images/craftsmanship/confection.jpg",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/craftsmanship/confection.jpg",
     },
     {
       id: "finitions",
@@ -303,7 +303,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
         "Zips métalliques dorés sur-mesure à glisse fluide et inaltérable",
         "Points de renfort d'arrêt sur toutes les zones de tension mécanique",
       ],
-      image: "/images/craftsmanship/finitions.jpg",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/craftsmanship/finitions.jpg",
     },
     {
       id: "savoir-faire",
@@ -317,7 +317,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
         "Contrôle qualité strict à chaque étape d'assemblage",
         "Production éthique valorisant l'expertise locale tunisienne",
       ],
-      image: "/images/craftsmanship/savoir-faire.jpg",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/craftsmanship/savoir-faire.jpg",
     },
     {
       id: "ecrin",
@@ -331,7 +331,7 @@ function DynamicCraftsmanshipSection({ section }: { section: any }) {
         "Pliage soigné sous papier de soie neutre protecteur",
         "Carte de soin personnalisée et housse de rangement respirante",
       ],
-      image: "/images/craftsmanship/ecrin.jpg",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/craftsmanship/ecrin.jpg",
     },
   ];
 
@@ -424,7 +424,7 @@ function DynamicAboutSection({ section }: { section: any }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 lg:gap-20 items-center">
           <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-ailys-bone border border-ailys-hairline shadow-sm max-w-lg mx-auto w-full">
             <Image
-              src={section.desktopImage || "/images/editorial/07_minimal_studio.webp"}
+              src={section.desktopImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/07_minimal_studio.webp"}
               alt="Aïcha & la Fleur de Lys — Origine de la marque AÏLYS"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"

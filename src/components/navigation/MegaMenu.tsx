@@ -18,7 +18,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "FEMME",
       href: "/shop/femme",
-      image: "/images/editorial/02_ailys_portrait.webp",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/02_ailys_portrait.webp",
       featuredText: "L'allure sport-chic au féminin",
       sublinks: [
         { label: "Voir tout Femme", href: "/shop/femme" },
@@ -31,7 +31,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "HOMME",
       href: "/shop/homme",
-      image: "/images/editorial/man-collection.webp",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/man-collection.webp",
       featuredText: "Coupes épurées & matières nobles",
       sublinks: [
         { label: "Voir tout Homme", href: "/shop/homme" },
@@ -44,7 +44,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
     {
       title: "ENFANT",
       href: "/shop/enfant",
-      image: "/images/editorial/children-collection.webp",
+      image: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/children-collection.webp",
       featuredText: "L'élégance familiale partagée",
       sublinks: [
         { label: "Voir tout Enfant", href: "/shop/enfant" },

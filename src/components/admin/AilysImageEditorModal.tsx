@@ -758,7 +758,7 @@ export function AilysImageEditorModal({
                 type="text"
                 value={currentUrl}
                 onChange={(e) => setCurrentUrl(e.target.value)}
-                placeholder="/images/campaign/..."
+                placeholder="https://...supabase.co/storage/v1/object/public/media/..."
                 className="w-full bg-[#111] border border-[#333] text-xs text-white px-3 py-2 rounded outline-none focus:border-[#B79A5B]"
               />
             </div>

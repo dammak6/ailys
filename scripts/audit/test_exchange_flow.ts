@@ -39,10 +39,15 @@ async function runExchangeFlowTest() {
   const createdOrderIds: string[] = [];
   const createdReturnIds: string[] = [];
 
+  const adminPassword = process.env.ADMIN_TEST_PASSWORD;
+  if (!adminPassword) {
+    throw new Error("ADMIN_TEST_PASSWORD environment variable is required to run exchange flow tests.");
+  }
+
   // Authenticate as Super Admin
   const { data: authData, error: authErr } = await superAdminClient.auth.signInWithPassword({
     email: "direction@ailys.tn",
-    password: "AilysSuperAdmin2026!",
+    password: adminPassword,
   });
 
   if (authErr || !authData.session) {

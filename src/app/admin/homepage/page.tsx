@@ -1074,7 +1074,7 @@ export default function AdminHomepageCMSPage() {
                               <div key={p.id} className="bg-white p-2 rounded border border-[#E8E6DF]">
                                 <div className="aspect-3/4 relative bg-[#EFECE4] rounded overflow-hidden">
                                   <Image
-                                    src={p.primaryImage || "/images/editorial/03_the_silhouette.webp"}
+                                    src={p.primaryImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/03_the_silhouette.webp"}
                                     alt={p.name}
                                     fill
                                     className="object-cover"
@@ -1128,7 +1128,7 @@ export default function AdminHomepageCMSPage() {
                           <div className="p-8 bg-[#EFECE4] flex flex-col sm:flex-row items-center gap-6">
                             <div className="w-full sm:w-48 aspect-3/4 relative rounded overflow-hidden shrink-0">
                               <Image
-                                src={sec.desktopImage || "/images/editorial/07_minimal_studio.webp"}
+                                src={sec.desktopImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/07_minimal_studio.webp"}
                                 alt="About"
                                 fill
                                 style={
@@ -1191,8 +1191,8 @@ export default function AdminHomepageCMSPage() {
           onClose={() => setImageEditorOpen(false)}
           imageUrl={
             imageEditorField === "desktop"
-              ? editingSection.desktopImage || "/images/editorial/01_ailys_hero.webp"
-              : editingSection.mobileImage || "/images/editorial/02_ailys_portrait.webp"
+              ? editingSection.desktopImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/01_ailys_hero.webp"
+              : editingSection.mobileImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/02_ailys_portrait.webp"
           }
           imageName={`${editingSection.title} — Visuel ${
             imageEditorField === "desktop" ? "Desktop" : "Mobile"

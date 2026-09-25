@@ -75,11 +75,12 @@ async function runPrelaunchQA() {
   // Baseline stocks for cleanup
   const variantOriginalStocks: Record<string, number> = {};
 
+  const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
   try {
     // Authenticate Super Admin client via GoTrue
     const { data: superAuth, error: authErr } = await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
     if (authErr || !superAuth.session) {
       throw new Error(`Failed to authenticate superAdminClient: ${authErr?.message}`);
@@ -459,7 +460,7 @@ async function runPrelaunchQA() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "direction@ailys.tn",
-        password: "AilysSuperAdmin2026!",
+        password: adminPassword,
       }),
     });
 
@@ -644,7 +645,8 @@ async function runPrelaunchQA() {
     const staticDir = path.resolve(process.cwd(), ".next/static");
     if (fs.existsSync(staticDir)) {
       try {
-        const grepOutput = execSync('git grep -n -E "AilysSuperAdmin2026|SUPABASE_SERVICE_ROLE_KEY" -- .next/static || true', {
+        const pattern = adminPassword ? `SUPABASE_SERVICE_ROLE_KEY|${adminPassword}` : "SUPABASE_SERVICE_ROLE_KEY";
+        const grepOutput = execSync(`git grep -n -E "${pattern}" -- .next/static || true`, {
           cwd: process.cwd(),
           encoding: "utf-8",
         });

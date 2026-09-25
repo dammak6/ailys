@@ -19,7 +19,6 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
 import { formatPrice } from "@/lib/utils";
-import { SAMPLE_ORDERS } from "@/lib/data";
 
 export default function ReturnsExchangesPage() {
   const [orderCodeInput, setOrderCodeInput] = useState("");

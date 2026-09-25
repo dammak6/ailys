@@ -27,9 +27,10 @@ async function runAudit() {
     if (superAdminAuth) {
       // Test password authentication via public client
       const testClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+      const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
       const { data: loginRes, error: loginErr } = await testClient.auth.signInWithPassword({
         email: "direction@ailys.tn",
-        password: "AilysSuperAdmin2026!",
+        password: adminPassword,
       });
 
       if (!loginErr && loginRes.session) {

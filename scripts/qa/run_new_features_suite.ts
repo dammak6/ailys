@@ -53,10 +53,11 @@ async function runNewFeaturesVerification() {
   console.log("             Target: ailys (kafyatqatggifedqtctm, eu-west-1)                   ");
   console.log("================================================================================\n");
 
+  const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
   try {
     await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
 
     // -------------------------------------------------------------------------
@@ -225,7 +226,7 @@ async function runNewFeaturesVerification() {
     // Test logging in as direction@ailys.tn
     const { data: superAuth, error: superAuthErr } = await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
 
     const isSuperAuthed = !superAuthErr && Boolean(superAuth.session);

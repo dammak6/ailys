@@ -36,7 +36,7 @@ export default function AdminProductsPage() {
     price: 450,
     salePrice: "",
     collection: "Nouvelle Collection",
-    primaryImage: "/images/editorial/03_the_silhouette.webp",
+    primaryImage: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/03_the_silhouette.webp",
     materials: "100% Lin Normand Lavé",
     care: "Nettoyage à sec délicat",
     fit: "Coupe cintrée contemporaine",
@@ -81,7 +81,7 @@ export default function AdminProductsPage() {
       price: 450,
       salePrice: "",
       collection: "Nouvelle Collection",
-      primaryImage: "/images/editorial/03_the_silhouette.webp",
+      primaryImage: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/03_the_silhouette.webp",
       materials: "100% Lin Normand Lavé",
       care: "Nettoyage à sec délicat",
       fit: "Coupe cintrée contemporaine",
@@ -246,7 +246,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-16 relative bg-[#EFECE4] rounded-sm overflow-hidden shrink-0">
                           <Image
-                            src={p.primaryImage || "/images/editorial/03_the_silhouette.webp"}
+                            src={p.primaryImage || "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/03_the_silhouette.webp"}
                             alt={p.name}
                             fill
                             className="object-cover"

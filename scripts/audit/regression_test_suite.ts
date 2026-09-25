@@ -98,9 +98,10 @@ async function runRegressionSuite() {
     // TEST 02: Password Column Absence in Custom Tables
     // -------------------------------------------------------------------------
     // Sign in Super Admin first
+    const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
     const { data: superLogin, error: superLoginErr } = await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
 
     if (superLoginErr || !superLogin.session) {

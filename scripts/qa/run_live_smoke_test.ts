@@ -142,10 +142,11 @@ async function runLiveSmokeTest() {
     // -------------------------------------------------------------------------
     // 5. AUTHENTICATION & SUPER_ADMIN FLOW
     // -------------------------------------------------------------------------
+    const adminPassword = process.env.ADMIN_TEST_PASSWORD || "";
     const loginRes = await fetch(`${BASE_URL}/api/admin/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "direction@ailys.tn", password: "AilysSuperAdmin2026!" }),
+      body: JSON.stringify({ email: "direction@ailys.tn", password: adminPassword }),
     });
     const loginData = await loginRes.json();
     const rawCookie = loginRes.headers.get("set-cookie") || "";
@@ -190,7 +191,7 @@ async function runLiveSmokeTest() {
     // Authenticate Super Admin client directly for administrative setup
     await superAdminClient.auth.signInWithPassword({
       email: "direction@ailys.tn",
-      password: "AilysSuperAdmin2026!",
+      password: adminPassword,
     });
 
     createdAdminEmails.push(tempAdminEmail);
@@ -504,7 +505,7 @@ async function runLiveSmokeTest() {
             if (
               content.includes("service_role") ||
               content.includes("aichalys2026") ||
-              content.includes("AilysSuperAdmin2026!") ||
+              (adminPassword && content.includes(adminPassword)) ||
               content.includes("placeholder-service-role-key")
             ) {
               bundleSecretsCount++;

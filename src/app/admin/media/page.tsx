@@ -329,7 +329,7 @@ export default function AdminMediaPage() {
                   required
                   value={newAssetUrl}
                   onChange={(e) => setNewAssetUrl(e.target.value)}
-                  placeholder="Ex: /images/campaign/hero-portait-woman.webp"
+                  placeholder="https://...supabase.co/storage/v1/object/public/media/..."
                   className="w-full border border-[#D5D2C9] px-3 py-2 text-xs rounded-sm outline-none focus:border-[#B79A5B]"
                 />
               </div>

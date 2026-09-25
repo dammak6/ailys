@@ -25,17 +25,16 @@ try {
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://kafyatqatggifedqtctm.supabase.co";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-const newPassword = process.argv[2];
-const currentPassword = process.argv[3] || "AilysSuperAdmin2026!";
+const newPassword: string = process.argv[2] || "";
+const currentPassword: string = process.argv[3] || process.env.ADMIN_CURRENT_PASSWORD || "";
 
-if (!newPassword) {
+if (!newPassword || !currentPassword) {
   console.log("\n=======================================================");
   console.log("   AÏLYS — Super Admin Password Reset CLI Utility      ");
   console.log("=======================================================\n");
   console.log("Usage:");
-  console.log("  npx tsx scripts/set-superadmin-password.ts <NewPassword> [CurrentPassword]\n");
-  console.log("Example:");
-  console.log('  npx tsx scripts/set-superadmin-password.ts "MyNewSecretPassword2026!"\n');
+  console.log("  npx tsx scripts/set-superadmin-password.ts <NewPassword> <CurrentPassword>\n");
+  console.log("Or set ADMIN_CURRENT_PASSWORD environment variable.");
   process.exit(1);
 }
 
@@ -70,7 +69,7 @@ async function main() {
   console.log("✅ Super Admin password updated successfully!");
   console.log(`   Account: direction@ailys.tn`);
   console.log(`   Role: SUPER_ADMIN`);
-  console.log(`   New Password: ${newPassword}`);
+  console.log(`   New Password: [UPDATED SUCCESSFULLY]`);
 }
 
 main().catch(console.error);

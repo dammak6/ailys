@@ -76,7 +76,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "L'allure sport-chic au féminin",
     description:
       "Des tailleurs déstructurés en lin lavé aux robes fluides coupées pour la liberté de mouvement. Une élégance sobre pensée pour le jour et le crépuscule.",
-    heroImage: "/images/editorial/03_the_silhouette.webp",
+    heroImage: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/03_the_silhouette.webp",
     subcategories: ["Tailleurs & Ensembles", "Robes & Combinaisons", "Vestes & Manteaux", "Pantalons & Jupes", "Tops & Chemises"],
   },
   homme: {
@@ -85,7 +85,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "Coupes épurées & matières nobles",
     description:
       "L'équilibre précis entre confection tailleur et aisance sportive. Des polos en piqué de coton doux, vestes structurées légères et pantalons décontractés.",
-    heroImage: "/images/editorial/man-collection.webp",
+    heroImage: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/man-collection.webp",
     subcategories: ["Vestes Sport-Chic", "Polos & Mailles", "Pantalons & Chinos", "Chemises Légères"],
   },
   enfant: {
@@ -94,7 +94,7 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     tagline: "L'élégance familiale partagée",
     description:
       "Conçus avec les mêmes étoffes nobles et finitions artisanales que les pièces adultes, pour un vestiaire familial harmonieux et durable.",
-    heroImage: "/images/editorial/children-collection.webp",
+    heroImage: "https://kafyatqatggifedqtctm.supabase.co/storage/v1/object/public/media/editorial/children-collection.webp",
     subcategories: ["Ensembles Fille", "Ensembles Garçon", "Robes d'Été", "Capsules Famille"],
   },
 };
