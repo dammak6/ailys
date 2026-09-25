@@ -94,9 +94,9 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://facebook.com/ailys"
+                href="https://www.facebook.com/profile.php?id=61593845134583"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
                 aria-label="Facebook AÏLYS"
               >
