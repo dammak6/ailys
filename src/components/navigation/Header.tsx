@@ -85,7 +85,7 @@ export function Header({
           </div>
 
           {/* Desktop Left: Clean Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-sans uppercase tracking-[0.2em] font-medium text-ailys-black lg:w-1/3">
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-sans uppercase tracking-[0.2em] font-medium text-ailys-black lg:flex-1 lg:min-w-max whitespace-nowrap">
             {/* SHOP with MegaMenu trigger */}
             <div
               className="relative py-2"
@@ -118,7 +118,7 @@ export function Header({
 
             <Link
               href="/a-propos"
-              className="hover:text-ailys-gold transition-colors tracking-[0.22em]"
+              className="hover:text-ailys-gold transition-colors tracking-[0.22em] whitespace-nowrap"
             >
               À Propos
             </Link>
@@ -132,7 +132,7 @@ export function Header({
           </nav>
 
           {/* Center: Authoritative AÏLYS Official Logo */}
-          <div className="flex-1 lg:w-1/3 flex justify-center items-center">
+          <div className="flex-1 lg:flex-initial lg:w-auto lg:shrink-0 flex justify-center items-center px-4">
             <AilysLogo
               size={isScrolled ? "sm" : "md"}
               className={cn(
@@ -143,7 +143,7 @@ export function Header({
           </div>
 
           {/* Right: Search & Cart (min 44x44 touch targets on mobile) */}
-          <div className="flex items-center justify-end gap-1 sm:gap-6 text-ailys-black w-20 lg:w-1/3">
+          <div className="flex items-center justify-end gap-1 sm:gap-6 text-ailys-black w-20 lg:flex-1">
             <button
               type="button"
               onClick={handleOpenSearch}
