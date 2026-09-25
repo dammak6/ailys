@@ -576,6 +576,7 @@ export type Database = {
           alt_text: string | null
           bucket_name: string
           created_at: string
+          display_name: string | null
           filename: string
           height: number | null
           id: string
@@ -584,12 +585,15 @@ export type Database = {
           public_url: string
           size_bytes: number
           transform_metadata: Json | null
+          usage_locations: string[] | null
+          usage_tag: string | null
           width: number | null
         }
         Insert: {
           alt_text?: string | null
           bucket_name?: string
           created_at?: string
+          display_name?: string | null
           filename: string
           height?: number | null
           id?: string
@@ -598,12 +602,15 @@ export type Database = {
           public_url: string
           size_bytes: number
           transform_metadata?: Json | null
+          usage_locations?: string[] | null
+          usage_tag?: string | null
           width?: number | null
         }
         Update: {
           alt_text?: string | null
           bucket_name?: string
           created_at?: string
+          display_name?: string | null
           filename?: string
           height?: number | null
           id?: string
@@ -612,6 +619,8 @@ export type Database = {
           public_url?: string
           size_bytes?: number
           transform_metadata?: Json | null
+          usage_locations?: string[] | null
+          usage_tag?: string | null
           width?: number | null
         }
         Relationships: []

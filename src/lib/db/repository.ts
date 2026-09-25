@@ -1623,6 +1623,10 @@ export const AilysRepository = {
     return data.map((m: any) => ({
       id: m.id,
       name: m.original_name || m.filename,
+      displayName: m.display_name || m.original_name || m.filename,
+      filename: m.filename || m.original_name,
+      usageTag: m.usage_tag || "Non assigné",
+      usageLocations: m.usage_locations || [],
       url: m.public_url,
       dimensions: m.width && m.height ? `${m.width} x ${m.height}` : "1200 x 1600",
       size: m.size_bytes ? `${Math.round(m.size_bytes / 1024)} KB` : "450 KB",
@@ -1638,11 +1642,17 @@ export const AilysRepository = {
     }
     const supabase = await getSupabaseAdminOrServerClient();
     const filename = asset.name || `image-${Date.now()}.webp`;
+    const displayName = asset.displayName || asset.name || filename;
+    const usageTag = asset.usageTag || "Non assigné";
+    const usageLocations = asset.usageLocations || [];
     const { data: inserted, error } = await supabase
       .from("media")
       .insert({
         filename,
         original_name: asset.name || filename,
+        display_name: displayName,
+        usage_tag: usageTag,
+        usage_locations: usageLocations,
         mime_type: asset.mimeType || "image/jpeg",
         size_bytes: typeof asset.size === "number" ? asset.size : 102400,
         public_url: asset.url,
@@ -1660,6 +1670,10 @@ export const AilysRepository = {
     return {
       id: inserted.id,
       name: inserted.original_name || inserted.filename,
+      displayName: inserted.display_name || inserted.original_name || inserted.filename,
+      filename: inserted.filename || inserted.original_name,
+      usageTag: inserted.usage_tag || "Non assigné",
+      usageLocations: inserted.usage_locations || [],
       url: inserted.public_url,
       dimensions: asset.dimensions || "1200 x 1600",
       size: asset.size || "450 KB",
@@ -1669,22 +1683,47 @@ export const AilysRepository = {
     };
   },
 
-  async updateMediaTransform(mediaId: string, transform: ImageTransformMetadata) {
+  async updateMediaDetails(
+    mediaId: string,
+    updates: { displayName?: string; usageTag?: string; transform?: ImageTransformMetadata }
+  ) {
     if (!isLiveSupabaseConfigured()) {
       throw new Error("Supabase is not configured.");
     }
     const supabase = await getSupabaseAdminOrServerClient();
-    const { error } = await supabase
-      .from("media")
-      .update({ transform_metadata: transform as any })
-      .or(`id.eq.${mediaId},public_url.eq.${mediaId}`);
-
-    if (error) {
-      console.error("Supabase updateMediaTransform error:", error);
-      throw new Error(`Erreur Supabase cadrage image: ${error.message}`);
+    const dbPayload: any = {};
+    if (updates.displayName !== undefined) {
+      dbPayload.display_name = updates.displayName;
+    }
+    if (updates.usageTag !== undefined) {
+      dbPayload.usage_tag = updates.usageTag;
+    }
+    if (updates.transform !== undefined) {
+      dbPayload.transform_metadata = updates.transform;
     }
 
-    return { id: mediaId, transform };
+    const { data, error } = await supabase
+      .from("media")
+      .update(dbPayload)
+      .or(`id.eq.${mediaId},public_url.eq.${mediaId}`)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase updateMediaDetails error:", error);
+      throw new Error(`Erreur Supabase mise à jour média: ${error.message}`);
+    }
+
+    return {
+      id: mediaId,
+      displayName: data?.display_name,
+      usageTag: data?.usage_tag,
+      transform: data?.transform_metadata,
+    };
+  },
+
+  async updateMediaTransform(mediaId: string, transform: ImageTransformMetadata) {
+    return this.updateMediaDetails(mediaId, { transform });
   },
 
   getImageTransform(_url: string): ImageTransformMetadata | undefined {

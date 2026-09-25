@@ -43,7 +43,11 @@ export async function PATCH(req: NextRequest) {
     if (!data.id) {
       return NextResponse.json({ error: "ID de média requis" }, { status: 400 });
     }
-    const updated = await AilysRepository.updateMediaTransform(data.id, data.transform);
+    const updated = await AilysRepository.updateMediaDetails(data.id, {
+      displayName: data.displayName,
+      usageTag: data.usageTag,
+      transform: data.transform,
+    });
     return NextResponse.json(updated);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
