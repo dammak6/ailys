@@ -26,6 +26,7 @@ import {
   Package,
   ChevronDown,
   ChevronUp,
+  Trash2,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/admin-auth-context";
 
@@ -55,6 +56,61 @@ export default function AdminOrdersPage() {
   // Edit history
   const [editHistory, setEditHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Delete order modal state
+  const [orderToDelete, setOrderToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteNotification, setDeleteNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  // Auto-dismiss delete notification after 5 seconds
+  useEffect(() => {
+    if (deleteNotification) {
+      const timer = setTimeout(() => setDeleteNotification(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [deleteNotification]);
+
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteNotification(null);
+    try {
+      const res = await fetch(`/api/admin/orders?id=${orderToDelete.id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setDeleteNotification({
+          type: "success",
+          message: `La commande ${orderToDelete.orderCode || orderToDelete.id} a été supprimée avec succès.`,
+        });
+        if (
+          selectedOrder &&
+          (selectedOrder.id === orderToDelete.id || selectedOrder.orderCode === orderToDelete.orderCode)
+        ) {
+          setSelectedOrder(null);
+        }
+        setOrderToDelete(null);
+        await fetchOrders();
+      } else {
+        setDeleteNotification({
+          type: "error",
+          message: json.error || "Une erreur est survenue lors de la suppression de la commande.",
+        });
+      }
+    } catch (err: any) {
+      console.error("Delete order error:", err);
+      setDeleteNotification({
+        type: "error",
+        message: err.message || "Erreur de connexion au serveur lors de la suppression.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -415,6 +471,33 @@ export default function AdminOrdersPage() {
         </p>
       </div>
 
+      {/* Delete Notification Banner */}
+      {deleteNotification && (
+        <div
+          className={`p-3.5 rounded-sm border text-xs flex items-center justify-between animate-fadeIn shadow-xs ${
+            deleteNotification.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+              : "bg-red-50 border-red-200 text-red-900"
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            {deleteNotification.type === "success" ? (
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            )}
+            <span>{deleteNotification.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDeleteNotification(null)}
+            className="text-gray-500 hover:text-gray-800 p-0.5 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* VIEW MODE SWITCHER TABS */}
       <div className="flex items-center space-x-2 border-b border-[#E8E6DF] pb-3">
         <button
@@ -547,13 +630,25 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="py-3 px-4">{getStatusBadge(ord.status)}</td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedOrder(ord)}
-                          className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Examiner</span>
-                        </button>
+                        <div className="inline-flex items-center space-x-1.5 justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedOrder(ord)}
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE8E1] text-[#0B0B0B] rounded-sm text-xs font-medium cursor-pointer transition-colors"
+                            title="Examiner la commande"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>Examiner</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setOrderToDelete(ord)}
+                            className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-sm cursor-pointer transition-colors border border-transparent hover:border-red-200"
+                            title="Supprimer la commande"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -993,8 +1088,18 @@ export default function AdminOrdersPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-end pt-5 mt-6 border-t border-[#E8E6DF]">
+            <div className="flex items-center justify-between pt-5 mt-6 border-t border-[#E8E6DF]">
               <button
+                type="button"
+                onClick={() => setOrderToDelete(selectedOrder)}
+                className="inline-flex items-center space-x-1.5 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-sm border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Supprimer cette commande</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setSelectedOrder(null)}
                 className="px-4 py-2 border border-[#D5D2C9] text-xs font-medium rounded-sm hover:bg-[#F5F3EC] cursor-pointer"
               >
@@ -1167,6 +1272,85 @@ export default function AdminOrdersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* DELETE ORDER CONFIRMATION MODAL */}
+      {/* =================================================================== */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-70 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E8E6DF] rounded-sm max-w-md w-full p-6 shadow-2xl animate-fadeIn">
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2.5 bg-red-50 rounded-full text-red-600 shrink-0 border border-red-100">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-serif text-lg font-light text-[#0B0B0B]">
+                  Supprimer la commande
+                </h3>
+                <p className="text-xs text-[#7A7770] mt-1.5 leading-relaxed font-medium">
+                  Are you sure you want to delete this order? This action cannot be undone.
+                </p>
+                <p className="text-[11px] text-[#A3A099] mt-1 leading-relaxed">
+                  Cette action est irréversible et supprimera définitivement la commande ainsi que l'ensemble de ses lignes d'articles et son historique.
+                </p>
+              </div>
+            </div>
+
+            {/* Order summary card */}
+            <div className="mt-4 p-3 bg-[#FAF9F5] border border-[#E8E6DF] rounded-sm space-y-1.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-[#7A7770]">Commande :</span>
+                <span className="font-mono font-medium text-[#0B0B0B]">
+                  {orderToDelete.orderCode || orderToDelete.id}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#7A7770]">Client :</span>
+                <span className="font-medium text-[#0B0B0B]">{orderToDelete.customerName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#7A7770]">Montant total :</span>
+                <span className="font-serif font-medium text-[#0B0B0B]">
+                  {Number(orderToDelete.total).toFixed(3)} TND
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#7A7770]">Statut :</span>
+                <span>{getStatusBadge(orderToDelete.status)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-3 pt-5 mt-5 border-t border-[#E8E6DF]">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setOrderToDelete(null)}
+                className="px-4 py-2 border border-[#D5D2C9] text-xs font-medium rounded-sm hover:bg-[#F5F3EC] cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleConfirmDeleteOrder}
+                className="inline-flex items-center space-x-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-sm cursor-pointer transition-colors shadow-xs disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Suppression...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirmer la suppression</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

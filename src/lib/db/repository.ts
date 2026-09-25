@@ -1217,6 +1217,75 @@ export const AilysRepository = {
     };
   },
 
+  async deleteOrder(orderId: string) {
+    if (!isLiveSupabaseConfigured()) {
+      throw new Error("Supabase is not configured.");
+    }
+    const supabase = await getSupabaseAdminOrServerClient();
+
+    // 1. Fetch order details to ensure it exists and get identifiers
+    const { data: order, error: findErr } = await supabase
+      .from("orders")
+      .select("id, order_code")
+      .or(`id.eq.${orderId},order_code.eq.${orderId}`)
+      .maybeSingle();
+
+    if (findErr) {
+      console.error("Supabase deleteOrder find error:", findErr);
+      throw new Error(`Erreur recherche commande: ${findErr.message}`);
+    }
+
+    if (!order) {
+      throw new Error("Commande non trouvée dans Supabase");
+    }
+
+    // 2. Fetch associated documents (e.g. invoice PDFs) to clean up storage if present
+    const { data: documents } = await supabase
+      .from("order_documents")
+      .select("storage_path")
+      .eq("order_id", order.id);
+
+    // 3. Delete order from orders table
+    // Database foreign key CASCADE rules automatically handle:
+    // - order_items
+    // - order_status_history
+    // - order_edit_history
+    // - promotion_usages
+    // - order_documents
+    // Database foreign key SET NULL rules automatically handle:
+    // - returns.order_id
+    const { error: deleteErr } = await supabase
+      .from("orders")
+      .delete()
+      .eq("id", order.id);
+
+    if (deleteErr) {
+      console.error("Supabase deleteOrder error:", deleteErr);
+      throw new Error(`Erreur Supabase suppression commande: ${deleteErr.message}`);
+    }
+
+    // 4. Safely clean up invoice PDF file(s) from Supabase Storage if any
+    if (documents && documents.length > 0) {
+      const paths = documents
+        .map((d: any) => d.storage_path)
+        .filter((p: string | null) => Boolean(p));
+
+      if (paths.length > 0) {
+        try {
+          await supabase.storage.from("invoices").remove(paths);
+        } catch (storageErr) {
+          console.warn("Could not delete invoice file(s) from Supabase Storage:", storageErr);
+        }
+      }
+    }
+
+    return {
+      success: true,
+      id: order.id,
+      orderCode: order.order_code,
+    };
+  },
+
   // ---------------------------------------------------------------------------
   // ADMIN: RETURNS & EXCHANGES MANAGEMENT (Supabase Single Source of Truth)
   // ---------------------------------------------------------------------------
