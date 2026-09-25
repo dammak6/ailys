@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
+import { useSiteSettings } from "@/lib/site-settings-context";
 
 export default function ContactPage() {
+  const { settings } = useSiteSettings();
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,12 +56,12 @@ export default function ContactPage() {
                     Téléphone Direct
                   </h4>
                   <a
-                    href="tel:+21670000000"
+                    href={`tel:${settings.contactPhone.replace(/\s+/g, "")}`}
                     className="text-sm sm:text-base font-sans font-medium text-ailys-black hover:text-ailys-gold transition-colors block mt-0.5"
                   >
-                    +216 70 000 000
+                    {settings.contactPhone}
                   </a>
-                  <span className="text-[11px] text-ailys-muted">Du lundi au samedi, 9h — 19h</span>
+                  <span className="text-[11px] text-ailys-muted">{settings.openingHours}</span>
                 </div>
               </div>
 
@@ -73,12 +75,12 @@ export default function ContactPage() {
                     Conciergerie WhatsApp
                   </h4>
                   <a
-                    href="https://wa.me/21670000000"
+                    href={`https://wa.me/${settings.contactWhatsApp.replace(/[^0-9]/g, "")}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-sm font-sans font-medium text-ailys-black hover:text-ailys-gold transition-colors block mt-0.5"
                   >
-                    +216 70 000 000 (Discussion instantanée)
+                    {settings.contactWhatsApp} (Discussion instantanée)
                   </a>
                   <span className="text-[11px] text-ailys-muted">Conseil personnalisé & tailles</span>
                 </div>
@@ -94,10 +96,10 @@ export default function ContactPage() {
                     Courrier Électronique
                   </h4>
                   <a
-                    href="mailto:contact@ailys.tn"
+                    href={`mailto:${settings.contactEmail}`}
                     className="text-sm font-sans font-medium text-ailys-black hover:text-ailys-gold transition-colors block mt-0.5"
                   >
-                    contact@ailys.tn
+                    {settings.contactEmail}
                   </a>
                   <span className="text-[11px] text-ailys-muted">Réponse sous 24h ouvrées</span>
                 </div>
@@ -112,9 +114,9 @@ export default function ContactPage() {
                   <h4 className="text-xs uppercase tracking-wider font-semibold text-ailys-black">
                     Atelier Central
                   </h4>
-                  <p className="text-xs font-sans text-ailys-black/75 leading-relaxed mt-0.5">
-                    Atelier AÏLYS<br />
-                    Sfax, Tunisie
+                  <p className="text-xs font-sans text-ailys-black/75 leading-relaxed mt-0.5 whitespace-pre-line">
+                    Atelier {settings.brandName || "AÏLYS"}{"\n"}
+                    {settings.atelierAddress}
                   </p>
                 </div>
               </div>

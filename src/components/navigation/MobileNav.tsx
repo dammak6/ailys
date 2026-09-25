@@ -5,6 +5,7 @@ import Link from "next/link";
 import { X, ChevronRight, Phone, Truck, ShieldCheck } from "lucide-react";
 import { AilysLogo } from "../brand/AilysLogo";
 import { HairlineRule } from "../brand/HairlineRule";
+import { useSiteSettings } from "@/lib/site-settings-context";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function MobileNav({
   isOpen,
   onClose,
 }: MobileNavProps) {
+  const { settings } = useSiteSettings();
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -109,7 +111,7 @@ export function MobileNav({
         <div className="pt-6 mt-8 border-t border-ailys-bone-border space-y-4 font-sans text-xs">
           <div className="flex items-center gap-2.5 text-ailys-black/85 font-medium">
             <Truck className="w-4 h-4 text-ailys-gold shrink-0" />
-            <span>Livraison offerte dès 200 DT partout en Tunisie</span>
+            <span>Livraison offerte dès {settings.freeShippingThreshold} DT partout en Tunisie</span>
           </div>
 
           <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-ailys-muted pt-1">

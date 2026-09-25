@@ -5,6 +5,7 @@ import { AnnouncementBar } from "@/components/navigation/AnnouncementBar";
 import { Header } from "@/components/navigation/Header";
 import { Footer } from "@/components/navigation/Footer";
 import { CartDrawer } from "@/components/customer/CartDrawer";
+import { SiteSettingsProvider } from "@/lib/site-settings-context";
 
 interface StorefrontShellProps {
   children: React.ReactNode;
@@ -19,12 +20,13 @@ export function StorefrontShell({ children }: StorefrontShellProps) {
   }
 
   return (
-    <>
+    <SiteSettingsProvider>
       <AnnouncementBar />
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
       <CartDrawer />
-    </>
+    </SiteSettingsProvider>
   );
 }
+

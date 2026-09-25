@@ -5,11 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useSiteSettings } from "@/lib/site-settings-context";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, removeItem, updateQuantity, subtotal, totalItems } = useCart();
+  const { settings } = useSiteSettings();
 
   React.useEffect(() => {
     if (isCartOpen) {
@@ -31,9 +33,12 @@ export function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const freeShippingThreshold = 200;
+  const freeShippingThreshold = settings.freeShippingThreshold;
+  const standardShippingFee = settings.standardShippingFee;
+  const shippingCurrency = settings.shippingCurrency;
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
   const progressPercent = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const shippingFee = subtotal >= freeShippingThreshold ? 0 : standardShippingFee;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden select-none">
@@ -181,7 +186,7 @@ export function CartDrawer() {
                 </div>
                 <div className="flex justify-between">
                   <span>Livraison estimée</span>
-                  <span>{subtotal >= freeShippingThreshold ? "Offerte" : "7 TND"}</span>
+                  <span>{shippingFee === 0 ? "Offerte" : `${standardShippingFee} ${shippingCurrency}`}</span>
                 </div>
               </div>
 
@@ -189,7 +194,7 @@ export function CartDrawer() {
                 <span className="font-editorial-heading text-lg">Total à régler</span>
                 <div className="text-right">
                   <span className="font-editorial-heading text-xl text-ailys-black">
-                    {formatPrice(subtotal + (subtotal >= freeShippingThreshold ? 0 : 7))}
+                    {formatPrice(subtotal + shippingFee)}
                   </span>
                   <p className="text-[10px] uppercase tracking-widest text-ailys-gold font-medium">
                     Paiement en espèces à la livraison

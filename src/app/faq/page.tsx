@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronDown, HelpCircle, Phone, ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
+import { useSiteSettings } from "@/lib/site-settings-context";
 
 interface FAQItem {
   q: string;
@@ -17,6 +18,7 @@ interface FAQCategory {
 }
 
 export default function FAQPage() {
+  const { settings } = useSiteSettings();
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({
     "0-0": true,
     "1-0": true,
@@ -53,11 +55,11 @@ export default function FAQPage() {
       items: [
         {
           q: "Quels sont les délais et modalités de livraison ?",
-          a: "Toutes nos commandes sont expédiées directement depuis notre atelier de Sfax. La livraison intervient sous 24 à 48 heures sur l'ensemble du territoire tunisien.",
+          a: `Toutes nos commandes sont expédiées directement depuis notre atelier de ${settings.atelierAddress}. La livraison intervient sous ${settings.deliveryDelayTunis} sur l'ensemble du territoire tunisien.`,
         },
         {
           q: "Quels sont les frais de livraison ?",
-          a: "La livraison est entièrement offerte pour toute commande égale ou supérieure à 200 TND. Pour les commandes inférieures, un tarif forfaitaire de 7 TND s'applique sur l'ensemble du territoire tunisien.",
+          a: `La livraison est entièrement offerte pour toute commande égale ou supérieure à ${settings.freeShippingThreshold} ${settings.shippingCurrency}. Pour les commandes inférieures, un tarif forfaitaire de ${settings.standardShippingFee} ${settings.shippingCurrency} s'applique sur l'ensemble du territoire tunisien.`,
         },
         {
           q: "Que faire si je suis absent lors du passage du livreur ?",
@@ -167,14 +169,14 @@ export default function FAQPage() {
             Une question spécifique ?
           </h4>
           <p className="text-xs sm:text-sm font-sans text-ailys-black/70 max-w-md mx-auto leading-relaxed">
-            Notre conciergerie est joignable du lundi au samedi pour vous assister personnellement.
+            Notre conciergerie est joignable {settings.openingHours ? settings.openingHours.toLowerCase() : "du lundi au samedi"} pour vous assister personnellement.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <a
-              href="tel:+21670000000"
+              href={`tel:${settings.contactPhone.replace(/\s+/g, "")}`}
               className="px-6 py-2.5 bg-ailys-black text-ailys-bone text-xs uppercase tracking-widest hover:bg-ailys-black/90 transition-colors"
             >
-              Appeler le +216 70 000 000
+              Appeler le {settings.contactPhone}
             </a>
             <Link
               href="/contact"

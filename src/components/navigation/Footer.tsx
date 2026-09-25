@@ -6,9 +6,14 @@ import { ArrowRight, Phone, Mail, ShieldCheck, RefreshCw, Truck } from "lucide-r
 import { AilysLogo } from "../brand/AilysLogo";
 import { BotanicalEmblem } from "../brand/BotanicalEmblem";
 import { HairlineRule } from "../brand/HairlineRule";
+import { useSiteSettings } from "@/lib/site-settings-context";
 
 export function Footer() {
+  const { settings } = useSiteSettings();
   const [openSection, setOpenSection] = React.useState<string | null>(null);
+
+  const cleanPhone = (settings.contactPhone || "").replace(/\s+/g, "");
+  const cleanWhatsApp = (settings.contactWhatsApp || "").replace(/[^\d]/g, "");
 
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section));
@@ -23,10 +28,10 @@ export function Footer() {
             <Truck className="w-5 h-5 text-ailys-gold shrink-0 mt-0.5" />
             <div>
               <h4 className="text-xs uppercase tracking-[0.16em] font-medium text-ailys-bone">
-                Livraison 24h - 48h
+                Livraison {settings.deliveryDelayTunis || "24h - 48h"}
               </h4>
               <p className="text-[11px] sm:text-xs text-ailys-bone/60 mt-0.5 sm:mt-1 font-sans">
-                Expédié depuis l&apos;atelier de Sfax
+                Expédié depuis {settings.atelierAddress || "Sfax, Tunisie"} • Offerte dès {settings.freeShippingThreshold} DT
               </p>
             </div>
           </div>
@@ -55,17 +60,22 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start gap-2.5 sm:gap-3.5 p-3 sm:p-0 bg-ailys-black/40 sm:bg-transparent rounded-sm border border-ailys-dark-border/40 sm:border-none">
-            <Phone className="w-5 h-5 text-ailys-gold shrink-0 mt-0.5" />
+          <a
+            href={cleanWhatsApp ? `https://wa.me/${cleanWhatsApp}` : cleanPhone ? `tel:${cleanPhone}` : "/contact"}
+            target={cleanWhatsApp ? "_blank" : undefined}
+            rel={cleanWhatsApp ? "noopener noreferrer" : undefined}
+            className="flex flex-col sm:flex-row items-start gap-2.5 sm:gap-3.5 p-3 sm:p-0 bg-ailys-black/40 sm:bg-transparent rounded-sm border border-ailys-dark-border/40 sm:border-none group hover:text-ailys-gold transition-colors"
+          >
+            <Phone className="w-5 h-5 text-ailys-gold shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
             <div>
-              <h4 className="text-xs uppercase tracking-[0.16em] font-medium text-ailys-bone">
+              <h4 className="text-xs uppercase tracking-[0.16em] font-medium text-ailys-bone group-hover:text-ailys-gold transition-colors">
                 Conciergerie
               </h4>
               <p className="text-[11px] sm:text-xs text-ailys-bone/60 mt-0.5 sm:mt-1 font-sans">
-                Disponible par WhatsApp & Tel
+                {settings.contactPhone || "WhatsApp & Téléphone"}
               </p>
             </div>
-          </div>
+          </a>
         </div>
       </div>
 
@@ -76,34 +86,51 @@ export function Footer() {
           <div className="md:col-span-4 flex flex-col items-start space-y-4 sm:space-y-6">
             <AilysLogo variant="light" size="lg" />
             <p className="text-xs font-sans text-ailys-bone/70 leading-relaxed max-w-sm">
-              Maison de confection contemporaine tunisienne. Des silhouettes
-              sport-chic et intemporelles, façonnées dans notre atelier de Sfax.
+              {settings.brandTagline || "Maison de confection contemporaine tunisienne."} Des silhouettes
+              sport-chic et intemporelles, façonnées dans notre atelier de {settings.atelierAddress || "Sfax, Tunisie"}.
             </p>
             <div className="flex items-center gap-2 text-ailys-bone/70">
-              <a
-                href="https://instagram.com/ailys.officiel"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
-                aria-label="Instagram AÏLYS"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
-              </a>
-              <a
-                href="https://www.facebook.com/profile.php?id=61593845134583"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
-                aria-label="Facebook AÏLYS"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                </svg>
-              </a>
+              {settings.instagramUrl && (
+                <a
+                  href={settings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
+                  aria-label="Instagram AÏLYS"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                </a>
+              )}
+              {settings.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
+                  aria-label="Facebook AÏLYS"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                  </svg>
+                </a>
+              )}
+              {settings.tiktokUrl && (
+                <a
+                  href={settings.tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ailys-gold transition-colors w-11 h-11 flex items-center justify-center border border-ailys-dark-border/60 hover:border-ailys-gold/50"
+                  aria-label="TikTok AÏLYS"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                  </svg>
+                </a>
+              )}
             </div>
           </div>
 

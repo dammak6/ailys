@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "../supabase/server";
 import { createAdminSupabaseClient } from "../supabase/admin";
 import {
@@ -8,6 +9,10 @@ import {
   ImageTransformMetadata,
   DEFAULT_IMAGE_TRANSFORM,
 } from "../data";
+import type { SiteSettings } from "../site-settings-context";
+
+export type { SiteSettings };
+
 
 export interface CreateOrderParams {
   customerName: string;
@@ -1877,9 +1882,9 @@ export const AilysRepository = {
   },
 
   // ---------------------------------------------------------------------------
-  // ADMIN: STORE SETTINGS (Supabase Single Source of Truth - site_settings)
+  // STORE SETTINGS (Supabase Single Source of Truth - site_settings)
   // ---------------------------------------------------------------------------
-  async getSiteSettings() {
+  async getSiteSettings(): Promise<SiteSettings> {
     if (!isLiveSupabaseConfigured()) {
       throw new Error("Supabase is not configured.");
     }
@@ -1898,26 +1903,34 @@ export const AilysRepository = {
 
     const brand = settingsMap.get("brand_info") || {};
     const contact = settingsMap.get("contact_info") || {};
+    const social = settingsMap.get("social_links") || {};
     const shipping = settingsMap.get("shipping_rules") || {};
     const announcement = settingsMap.get("announcement_bar") || {};
 
     return {
       brandName: brand.name || "AÏLYS",
-      brandTagline: brand.tagline || "",
-      atelierAddress: brand.atelierAddress || "",
-      contactPhone: contact.phone || "",
-      contactWhatsApp: contact.whatsapp || "",
-      contactEmail: contact.email || "",
+      brandTagline: brand.tagline || "Maison de Confection Contemporaine Tunisienne",
+      atelierAddress: brand.atelierAddress || "Sfax, Tunisie",
+      contactPhone: contact.phone || "+216 11223344",
+      contactWhatsApp: contact.whatsapp || "+216 11223344",
+      contactEmail: contact.email || "concierge@ailys.tn",
+      openingHours: contact.openingHours || "Du lundi au samedi, 9h — 19h",
+      instagramUrl: social.instagram || "https://instagram.com/ailys.officiel",
+      facebookUrl: social.facebook || "https://www.facebook.com/profile.php?id=61593845134583",
+      tiktokUrl: social.tiktok || "",
       freeShippingThreshold: Number(shipping.freeShippingThreshold ?? 200),
       standardShippingFee: Number(shipping.standardShippingFee ?? 7),
+      shippingCurrency: shipping.currency || "TND",
       deliveryDelayTunis: shipping.delayTunis || "24h - 48h",
       deliveryDelayRegions: shipping.delayRegions || "24h - 48h",
-      announcementBarMessage: announcement.message || "",
+      announcementBarMessage:
+        announcement.message ||
+        "Livraison 24h - 48h partout en Tunisie • Expédié depuis Sfax • Paiement à la livraison",
       announcementBarActive: announcement.active ?? true,
     };
   },
 
-  async updateSiteSettings(updates: any) {
+  async updateSiteSettings(updates: any): Promise<SiteSettings> {
     if (!isLiveSupabaseConfigured()) {
       throw new Error("Supabase is not configured.");
     }
@@ -1938,6 +1951,7 @@ export const AilysRepository = {
 
     const brand = { ...(settingsMap.get("brand_info") || {}) };
     const contact = { ...(settingsMap.get("contact_info") || {}) };
+    const social = { ...(settingsMap.get("social_links") || {}) };
     const shipping = { ...(settingsMap.get("shipping_rules") || {}) };
     const announcement = { ...(settingsMap.get("announcement_bar") || {}) };
 
@@ -1948,9 +1962,15 @@ export const AilysRepository = {
     if (updates.contactPhone !== undefined) contact.phone = updates.contactPhone;
     if (updates.contactWhatsApp !== undefined) contact.whatsapp = updates.contactWhatsApp;
     if (updates.contactEmail !== undefined) contact.email = updates.contactEmail;
+    if (updates.openingHours !== undefined) contact.openingHours = updates.openingHours;
+
+    if (updates.instagramUrl !== undefined) social.instagram = updates.instagramUrl;
+    if (updates.facebookUrl !== undefined) social.facebook = updates.facebookUrl;
+    if (updates.tiktokUrl !== undefined) social.tiktok = updates.tiktokUrl;
 
     if (updates.freeShippingThreshold !== undefined) shipping.freeShippingThreshold = Number(updates.freeShippingThreshold);
     if (updates.standardShippingFee !== undefined) shipping.standardShippingFee = Number(updates.standardShippingFee);
+    if (updates.shippingCurrency !== undefined) shipping.currency = updates.shippingCurrency;
     if (updates.deliveryDelayTunis !== undefined) shipping.delayTunis = updates.deliveryDelayTunis;
     if (updates.deliveryDelayRegions !== undefined) shipping.delayRegions = updates.deliveryDelayRegions;
 
@@ -1961,6 +1981,7 @@ export const AilysRepository = {
     const rowsToUpsert = [
       { key: "brand_info", value: brand, is_public: true, description: "Brand identification", updated_at: now },
       { key: "contact_info", value: contact, is_public: true, description: "Customer concierge channels", updated_at: now },
+      { key: "social_links", value: social, is_public: true, description: "Social media profile URLs", updated_at: now },
       { key: "shipping_rules", value: shipping, is_public: true, description: "Shipping fee calculation parameters", updated_at: now },
       { key: "announcement_bar", value: announcement, is_public: true, description: "Header alert banner", updated_at: now },
     ];
@@ -1974,18 +1995,29 @@ export const AilysRepository = {
       throw new Error(`Erreur enregistrement paramètres: ${upsertErr.message}`);
     }
 
+    try {
+      revalidatePath("/", "layout");
+    } catch {}
+
     return {
       brandName: brand.name || "AÏLYS",
-      brandTagline: brand.tagline || "",
-      atelierAddress: brand.atelierAddress || "",
-      contactPhone: contact.phone || "",
-      contactWhatsApp: contact.whatsapp || "",
-      contactEmail: contact.email || "",
+      brandTagline: brand.tagline || "Maison de Confection Contemporaine Tunisienne",
+      atelierAddress: brand.atelierAddress || "Sfax, Tunisie",
+      contactPhone: contact.phone || "+216 11223344",
+      contactWhatsApp: contact.whatsapp || "+216 11223344",
+      contactEmail: contact.email || "concierge@ailys.tn",
+      openingHours: contact.openingHours || "Du lundi au samedi, 9h — 19h",
+      instagramUrl: social.instagram || "https://instagram.com/ailys.officiel",
+      facebookUrl: social.facebook || "https://www.facebook.com/profile.php?id=61593845134583",
+      tiktokUrl: social.tiktok || "",
       freeShippingThreshold: Number(shipping.freeShippingThreshold ?? 200),
       standardShippingFee: Number(shipping.standardShippingFee ?? 7),
+      shippingCurrency: shipping.currency || "TND",
       deliveryDelayTunis: shipping.delayTunis || "24h - 48h",
       deliveryDelayRegions: shipping.delayRegions || "24h - 48h",
-      announcementBarMessage: announcement.message || "",
+      announcementBarMessage:
+        announcement.message ||
+        "Livraison 24h - 48h partout en Tunisie • Expédié depuis Sfax • Paiement à la livraison",
       announcementBarActive: announcement.active ?? true,
     };
   },

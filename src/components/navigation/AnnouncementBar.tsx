@@ -1,24 +1,33 @@
+"use client";
+
 import React from "react";
 import { Truck, Sparkles, Phone, ShieldCheck } from "lucide-react";
 import { BotanicalEmblem } from "@/components/brand/BotanicalEmblem";
+import { useSiteSettings } from "@/lib/site-settings-context";
 
 export function AnnouncementBar() {
+  const { settings } = useSiteSettings();
+
+  if (!settings.announcementBarActive) {
+    return null;
+  }
+
   const marqueeItems = [
     {
+      icon: <Sparkles className="w-3.5 h-3.5 text-ailys-gold shrink-0" />,
+      text: settings.announcementBarMessage,
+    },
+    {
       icon: <Truck className="w-3.5 h-3.5 text-ailys-gold shrink-0" />,
-      text: "Livraison offerte dès 200 DT partout en Tunisie",
+      text: `Livraison offerte dès ${settings.freeShippingThreshold} DT partout en Tunisie`,
     },
     {
       icon: <BotanicalEmblem size={11} variant="gold" className="shrink-0" />,
-      text: "Confection artisanale à Sfax",
-    },
-    {
-      icon: <ShieldCheck className="w-3.5 h-3.5 text-ailys-gold shrink-0" />,
-      text: "Retours & échanges sous 14 jours",
+      text: `Confection artisanale à ${settings.atelierAddress || "Sfax, Tunisie"}`,
     },
     {
       icon: <Phone className="w-3 h-3 text-ailys-gold shrink-0" />,
-      text: "Service client dédié : +216 29 888 888",
+      text: `Service client dédié : ${settings.contactPhone}`,
     },
   ];
 

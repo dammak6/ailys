@@ -20,11 +20,13 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { AilysLogo } from "@/components/brand/AilysLogo";
 import { useCart } from "@/lib/cart-context";
+import { useSiteSettings } from "@/lib/site-settings-context";
 import { formatPrice } from "@/lib/utils";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/tracking/meta-pixel";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
+  const { settings } = useSiteSettings();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -40,8 +42,10 @@ export default function CheckoutPage() {
     governorate: string;
   } | null>(null);
 
-  const freeShippingThreshold = 200;
-  const shippingFee = subtotal >= freeShippingThreshold ? 0 : 7;
+  const freeShippingThreshold = settings.freeShippingThreshold;
+  const standardShippingFee = settings.standardShippingFee;
+  const shippingCurrency = settings.shippingCurrency;
+  const shippingFee = subtotal >= freeShippingThreshold ? 0 : standardShippingFee;
   const total = subtotal + shippingFee;
 
   const governorates = [
@@ -161,7 +165,7 @@ export default function CheckoutPage() {
                 Merci pour votre confiance
               </h1>
               <p className="text-xs sm:text-sm font-sans text-ailys-muted">
-                Votre commande est transmise directement à notre atelier de confection à Sfax.
+                Votre commande est transmise directement à notre atelier de confection à {settings.atelierAddress}.
               </p>
             </div>
 
@@ -239,7 +243,7 @@ export default function CheckoutPage() {
             Validation de votre commande
           </h1>
           <p className="text-xs sm:text-sm font-sans text-ailys-muted">
-            Aucun compte requis. Expédié depuis notre atelier de Sfax. Règlement en espèces à la livraison.
+            Aucun compte requis. Expédié depuis notre atelier de {settings.atelierAddress}. Règlement en espèces à la livraison.
           </p>
         </div>
 
@@ -348,7 +352,7 @@ export default function CheckoutPage() {
                     </strong>
                     <p className="text-xs text-ailys-black/70 leading-relaxed">
                       Réglez en espèces au livreur lors de la réception de votre colis.
-                      Expédié depuis notre atelier de Sfax sous 24h à 48h. Aucune carte requise.
+                      Expédié depuis notre atelier de {settings.atelierAddress} sous {settings.deliveryDelayTunis}. Aucune carte requise.
                     </p>
                   </div>
                   <span className="w-4 h-4 rounded-full bg-ailys-black flex items-center justify-center text-ailys-bone text-[10px] shrink-0 mt-0.5 ml-2">
@@ -402,7 +406,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span>Frais de livraison</span>
                     <span className="font-medium text-ailys-black">
-                      {shippingFee === 0 ? "Offerte" : "7 TND"}
+                      {shippingFee === 0 ? "Offerte" : `${standardShippingFee} ${shippingCurrency}`}
                     </span>
                   </div>
                 </div>
@@ -441,7 +445,7 @@ export default function CheckoutPage() {
                     <ShieldCheck className="w-3.5 h-3.5 inline mr-1 text-ailys-gold" />
                     Garantie échange sous 7 jours partout en Tunisie
                   </p>
-                  <p className="text-ailys-muted/70">Expédié depuis Sfax • Livraison 24h-48h</p>
+                  <p className="text-ailys-muted/70">Expédié depuis {settings.atelierAddress} • Livraison {settings.deliveryDelayTunis}</p>
                 </div>
               </div>
             </div>

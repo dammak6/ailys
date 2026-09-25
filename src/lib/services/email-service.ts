@@ -4,6 +4,8 @@
 // and does NOT fail customer orders or transactions.
 // =============================================================================
 
+import { AilysRepository } from "@/lib/db/repository";
+
 export interface EmailResult {
   success: boolean;
   status: "SENT" | "PROVIDER_NOT_CONFIGURED" | "FAILED";
@@ -86,6 +88,11 @@ export const EmailService = {
       };
     }
 
+    const settings = await AilysRepository.getSiteSettings();
+    const brandName = settings.brandName || "AÏLYS";
+    const atelierAddress = settings.atelierAddress || "Sfax, Tunisie";
+    const contactPhone = settings.contactPhone || "+216 11223344";
+
     const itemsHtml = Array.isArray(order.items)
       ? order.items
           .map(
@@ -146,7 +153,7 @@ export const EmailService = {
           </div>
 
           <div style="border-top: 1px solid #E8E6DF; padding-top: 20px; text-align: center; font-size: 11px; color: #7A7770;">
-            <p style="margin: 0;">Maison AÏLYS • Sfax, Tunisie • +216 29 888 888</p>
+            <p style="margin: 0;">Maison ${brandName} • ${atelierAddress} • ${contactPhone}</p>
             <p style="margin: 5px 0 0 0; letter-spacing: 0.1em; text-transform: uppercase;">Élégance discrète • Façonnée par la lumière tunisienne</p>
           </div>
         </div>
@@ -178,6 +185,8 @@ export const EmailService = {
     };
 
     const label = statusLabels[newStatus] || newStatus;
+    const settings = await AilysRepository.getSiteSettings();
+    const contactPhone = settings.contactPhone || "+216 11223344";
 
     const html = `
       <div style="background-color: #F5F3EC; padding: 40px 15px; font-family: 'Montserrat', Helvetica, Arial, sans-serif; color: #0B0B0B;">
@@ -200,7 +209,7 @@ export const EmailService = {
           </div>
 
           <div style="border-top: 1px solid #E8E6DF; padding-top: 20px; text-align: center; font-size: 11px; color: #7A7770;">
-            <p style="margin: 0;">Pour toute question, contactez notre atelier au +216 29 888 888</p>
+            <p style="margin: 0;">Pour toute question, contactez notre atelier au ${contactPhone}</p>
           </div>
         </div>
       </div>

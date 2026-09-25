@@ -10,6 +10,13 @@ export interface InvoiceItem {
   totalPrice: number;
 }
 
+export interface InvoiceSellerInfo {
+  brandName?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface InvoiceData {
   documentNumber: string;
   orderCode: string;
@@ -30,6 +37,7 @@ export interface InvoiceData {
   discountAmount?: number;
   totalAmount: number;
   notes?: string;
+  sellerInfo?: InvoiceSellerInfo;
 }
 
 /**
@@ -105,6 +113,10 @@ export async function generateInvoicePdfBuffer(data: InvoiceData): Promise<Buffe
 
       // --- SELLER & CUSTOMER SECTION ---
       const infoTop = 130;
+      const sellerBrand = data.sellerInfo?.brandName || 'AÏLYS Tunisie';
+      const sellerAddress = data.sellerInfo?.address || 'Sfax, Tunisie';
+      const sellerEmail = data.sellerInfo?.email || 'concierge@ailys.tn';
+      const sellerPhone = data.sellerInfo?.phone || '+216 11223344';
 
       // Emetteur (Seller)
       doc
@@ -115,15 +127,14 @@ export async function generateInvoicePdfBuffer(data: InvoiceData): Promise<Buffe
         .font('Helvetica-Bold')
         .fontSize(9)
         .fillColor(primaryColor)
-        .text('AÏLYS Tunisie', 40, infoTop + 14)
+        .text(sellerBrand, 40, infoTop + 14)
         .font('Helvetica')
         .fontSize(8.5)
         .fillColor(secondaryColor)
-        .text('Avenue Habib Bourguiba, Les Berges du Lac', 40, infoTop + 27)
-        .text('1053 Tunis, Tunisie', 40, infoTop + 39)
-        .text('Email : concierge@ailys.tn', 40, infoTop + 51)
-        .text('Tél : +216 71 123 456', 40, infoTop + 63)
-        .text('Matricule Fiscal : 1234567/B/A/M/000', 40, infoTop + 75);
+        .text(sellerAddress, 40, infoTop + 27)
+        .text(`Email : ${sellerEmail}`, 40, infoTop + 40)
+        .text(`Tél : ${sellerPhone}`, 40, infoTop + 52)
+        .text('Matricule Fiscal : 1234567/B/A/M/000', 40, infoTop + 64);
 
       // Client (Buyer)
       doc
@@ -303,7 +314,7 @@ export async function generateInvoicePdfBuffer(data: InvoiceData): Promise<Buffe
         .fillColor(secondaryColor)
         .text('• Les articles AÏLYS bénéficient d\'un droit d\'échange ou de retour sous 14 jours calendaires suivant la date de réception.', 40, footerTop + 19)
         .text('• Les pièces doivent être restituées non portées, non lavées, avec leurs étiquettes d\'origine scellées et dans leur écrin protecteur.', 40, footerTop + 28)
-        .text('• Pour toute demande de conciergerie ou d\'ajustement sur mesure, contactez : concierge@ailys.tn ou au +216 71 123 456.', 40, footerTop + 37)
+        .text(`• Pour toute demande de conciergerie ou d'ajustement sur mesure, contactez : ${sellerEmail} ou au ${sellerPhone}.`, 40, footerTop + 37)
         .text('AÏLYS S.A.R.L — Société immatriculée au Registre National des Entreprises de Tunisie. Facture émise sous scellement électronique.', 40, footerTop + 49, { align: 'center', width: 515 });
 
       doc.end();

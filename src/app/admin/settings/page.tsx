@@ -11,6 +11,7 @@ import {
   Mail,
   MapPin,
   Megaphone,
+  Globe,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -24,10 +25,14 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<any>({
     brandName: "AÏLYS",
     brandTagline: "Maison de Confection Contemporaine Tunisienne",
-    contactPhone: "+216 70 000 000",
-    contactWhatsApp: "+216 98 000 000",
+    contactPhone: "+216 11223344",
+    contactWhatsApp: "+216 11223344",
     contactEmail: "concierge@ailys.tn",
+    openingHours: "Du lundi au samedi, 9h — 19h",
     atelierAddress: "Sfax, Tunisie",
+    instagramUrl: "https://instagram.com/ailys.officiel",
+    facebookUrl: "https://www.facebook.com/profile.php?id=61593845134583",
+    tiktokUrl: "",
     freeShippingThreshold: 200,
     standardShippingFee: 7,
     deliveryDelayTunis: "24h - 48h",
@@ -219,6 +224,78 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setSettings({ ...settings, atelierAddress: e.target.value })
                 }
+                className="w-full border border-[#D5D2C9] px-3 py-2 rounded-sm outline-none focus:border-[#B79A5B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                Horaires d'Ouverture & Conciergerie
+              </label>
+              <input
+                type="text"
+                value={settings.openingHours || ""}
+                onChange={(e) =>
+                  setSettings({ ...settings, openingHours: e.target.value })
+                }
+                placeholder="Du lundi au samedi, 9h — 19h"
+                className="w-full border border-[#D5D2C9] px-3 py-2 rounded-sm outline-none focus:border-[#B79A5B]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Social Media & Public Links */}
+        <div className="bg-white border border-[#E8E6DF] p-6 rounded-sm space-y-4">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#E8E6DF] text-[#0B0B0B]">
+            <Globe className="w-4 h-4 text-[#B79A5B]" />
+            <h3 className="font-serif text-base font-medium">
+              Réseaux Sociaux & Présence en Ligne
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                Lien Instagram
+              </label>
+              <input
+                type="url"
+                value={settings.instagramUrl || ""}
+                onChange={(e) =>
+                  setSettings({ ...settings, instagramUrl: e.target.value })
+                }
+                placeholder="https://instagram.com/ailys.officiel"
+                className="w-full border border-[#D5D2C9] px-3 py-2 rounded-sm outline-none focus:border-[#B79A5B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                Lien Facebook
+              </label>
+              <input
+                type="url"
+                value={settings.facebookUrl || ""}
+                onChange={(e) =>
+                  setSettings({ ...settings, facebookUrl: e.target.value })
+                }
+                placeholder="https://facebook.com/..."
+                className="w-full border border-[#D5D2C9] px-3 py-2 rounded-sm outline-none focus:border-[#B79A5B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#7A7770] mb-1 font-medium">
+                Lien TikTok
+              </label>
+              <input
+                type="url"
+                value={settings.tiktokUrl || ""}
+                onChange={(e) =>
+                  setSettings({ ...settings, tiktokUrl: e.target.value })
+                }
+                placeholder="https://tiktok.com/@..."
                 className="w-full border border-[#D5D2C9] px-3 py-2 rounded-sm outline-none focus:border-[#B79A5B]"
               />
             </div>

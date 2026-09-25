@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { generateInvoicePdfBuffer, InvoiceData } from '@/lib/invoices/generate-invoice';
+import { AilysRepository } from '@/lib/db/repository';
 
 export interface InvoiceResult {
   id: string;
@@ -101,6 +102,7 @@ export class InvoiceService {
     const documentNumber = invoiceNumData as string;
 
     // 5. Build InvoiceData
+    const siteSettings = await AilysRepository.getSiteSettings();
     const invoiceData: InvoiceData = {
       documentNumber,
       orderCode: order.order_code,
@@ -119,6 +121,12 @@ export class InvoiceService {
       discountAmount: Number(order.discount_amount || 0),
       totalAmount: Number(order.total),
       notes: order.delivery_notes || undefined,
+      sellerInfo: {
+        brandName: siteSettings.brandName ? `${siteSettings.brandName} Tunisie` : undefined,
+        address: siteSettings.atelierAddress,
+        email: siteSettings.contactEmail,
+        phone: siteSettings.contactPhone,
+      },
       items: items.map((it: any) => ({
         title: it.product_name,
         sku: it.sku || undefined,

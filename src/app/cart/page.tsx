@@ -7,13 +7,17 @@ import { Trash2, Plus, Minus, ArrowRight, Truck, ShieldCheck } from "lucide-reac
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/lib/cart-context";
+import { useSiteSettings } from "@/lib/site-settings-context";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal, totalItems } = useCart();
-  const freeShippingThreshold = 200;
+  const { settings } = useSiteSettings();
+  const freeShippingThreshold = settings.freeShippingThreshold;
+  const standardShippingFee = settings.standardShippingFee;
+  const shippingCurrency = settings.shippingCurrency;
   const remainingForFree = Math.max(0, freeShippingThreshold - subtotal);
-  const shippingFee = subtotal >= freeShippingThreshold ? 0 : 7;
+  const shippingFee = subtotal >= freeShippingThreshold ? 0 : standardShippingFee;
   const total = subtotal + shippingFee;
 
   return (
@@ -56,7 +60,7 @@ export default function CartPage() {
                   </span>
                 ) : (
                   <span className="text-green-800 font-medium">
-                    Félicitations ! Vous bénéficiez de la livraison offerte depuis Sfax.
+                    Félicitations ! Vous bénéficiez de la livraison offerte depuis {settings.atelierAddress}.
                   </span>
                 )}
               </div>
@@ -144,7 +148,7 @@ export default function CartPage() {
                 <div className="flex justify-between">
                   <span>Livraison en Tunisie</span>
                   <span className="font-medium text-ailys-black">
-                    {shippingFee === 0 ? "Offerte" : "7 TND"}
+                    {shippingFee === 0 ? "Offerte" : `${standardShippingFee} ${shippingCurrency}`}
                   </span>
                 </div>
               </div>
@@ -169,7 +173,7 @@ export default function CartPage() {
               </Link>
 
               <div className="text-center text-[10px] uppercase tracking-wider text-ailys-muted space-y-1">
-                <p>Expédié depuis notre atelier de Sfax sous 24h à 48h</p>
+                <p>Expédié depuis notre atelier de {settings.atelierAddress} sous {settings.deliveryDelayTunis}</p>
                 <p>Paiement sécurisé en espèces à la livraison</p>
                 <p>Échange sous 7 jours partout en Tunisie</p>
               </div>
