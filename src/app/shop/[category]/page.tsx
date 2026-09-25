@@ -42,14 +42,18 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   }, [categoryKey]);
 
   const categoryProducts = useMemo(() => {
-    let list = products.filter((p) => p.category === categoryKey);
+    let list = products.filter(
+      (p) => (p.category || "").trim().toLowerCase() === categoryKey
+    );
 
     if (selectedSub !== "all") {
-      list = list.filter((p) => p.subCategory === selectedSub);
+      list = list.filter(
+        (p) => (p.subCategory || "").trim().toLowerCase() === selectedSub.trim().toLowerCase()
+      );
     }
 
     if (selectedSize !== "all") {
-      list = list.filter((p) => p.sizes.includes(selectedSize));
+      list = list.filter((p) => Array.isArray(p.sizes) && p.sizes.includes(selectedSize));
     }
 
     if (sortBy === "newest") {
@@ -61,7 +65,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     }
 
     return list;
-  }, [categoryKey, selectedSub, selectedSize, sortBy]);
+  }, [categoryKey, selectedSub, selectedSize, sortBy, products]);
 
   return (
     <div className="w-full bg-ailys-bone">
@@ -113,7 +117,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     : "bg-ailys-bone text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
                 }`}
               >
-                Tout ({products.filter((p) => p.category === categoryKey).length})
+                Tout ({products.filter((p) => (p.category || "").trim().toLowerCase() === categoryKey).length})
               </button>
               {category.subcategories.map((sub) => (
                 <button

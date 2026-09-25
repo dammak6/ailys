@@ -170,20 +170,27 @@ export const AilysRepository = {
       throw new Error("Supabase is not configured. Database must be single source of truth.");
     }
 
+    const categoryFilter = filters?.category && filters.category !== "all"
+      ? filters.category.trim().toLowerCase()
+      : undefined;
+    const categorySlug = categoryFilter
+      ? (categoryFilter === "women" ? "femme" : categoryFilter === "men" ? "homme" : categoryFilter === "kids" ? "enfant" : categoryFilter)
+      : undefined;
+
     const supabase = await getSupabaseAdminOrServerClient();
     let query = supabase
       .from("products")
       .select(`
         *,
-        categories (*),
+        categories${categorySlug ? "!inner" : ""} (*),
         product_images (*),
         product_variants (*, sizes (*), colors (*)),
         collection_products (collections (*))
       `)
       .eq("is_published", true);
 
-    if (filters?.category && filters.category !== "all") {
-      query = query.eq("categories.slug", filters.category);
+    if (categorySlug) {
+      query = query.eq("categories.slug", categorySlug);
     }
 
     if (filters?.sortBy === "price-asc") {

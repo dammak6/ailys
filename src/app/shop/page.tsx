@@ -1,19 +1,42 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, ChevronDown, Check, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { ProductCard } from "@/components/common/ProductCard";
 import { Product } from "@/lib/data";
 
-export default function ShopPage() {
+function normalizeCategory(val?: string | null): "all" | "femme" | "homme" | "enfant" {
+  if (!val) return "all";
+  const v = val.trim().toLowerCase();
+  if (v === "all" || v === "tout" || v === "tous") return "all";
+  if (v === "femme" || v === "women" || v === "femmes" || v === "woman") return "femme";
+  if (v === "homme" || v === "men" || v === "hommes" || v === "man") return "homme";
+  if (v === "enfant" || v === "kids" || v === "enfants" || v === "children" || v === "kid") return "enfant";
+  return "all";
+}
+
+function ShopContent() {
+  const searchParams = useSearchParams();
+  const initialCategory = normalizeCategory(searchParams.get("category"));
+  const initialSize = searchParams.get("size") || "all";
+  const initialSort = (searchParams.get("sort") as "newest" | "price-asc" | "price-desc") || "newest";
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedSize, setSelectedSize] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [selectedSize, setSelectedSize] = useState<string>(initialSize);
+  const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">(initialSort);
+
+  // Sync state if URL searchParams change (browser back/forward navigation)
+  useEffect(() => {
+    const cat = normalizeCategory(searchParams.get("category"));
+    setSelectedCategory(cat);
+    if (searchParams.get("size")) setSelectedSize(searchParams.get("size")!);
+    if (searchParams.get("sort")) setSortBy(searchParams.get("sort") as any);
+  }, [searchParams]);
 
   useEffect(() => {
     setLoading(true);
@@ -28,17 +51,65 @@ export default function ShopPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const allSizes = ["36", "38", "40", "42", "44", "XS", "S", "M", "L", "XL", "XXL", "4 ans", "6 ans", "8 ans", "10 ans"];
+  const allSizes = [
+    "36", "38", "40", "42", "44",
+    "XS", "S", "M", "L", "XL", "XXL",
+    "4 ans", "6 ans", "8 ans", "10 ans"
+  ];
+
+  const updateUrlParams = (cat: string, size: string, sort: string) => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (cat === "all") {
+      url.searchParams.delete("category");
+    } else {
+      url.searchParams.set("category", cat);
+    }
+    if (size === "all") {
+      url.searchParams.delete("size");
+    } else {
+      url.searchParams.set("size", size);
+    }
+    if (sort === "newest") {
+      url.searchParams.delete("sort");
+    } else {
+      url.searchParams.set("sort", sort);
+    }
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const handleCategoryChange = (catId: string) => {
+    const normalized = normalizeCategory(catId);
+    setSelectedCategory(normalized);
+    updateUrlParams(normalized, selectedSize, sortBy);
+  };
+
+  const handleSizeChange = (newSize: string) => {
+    setSelectedSize(newSize);
+    updateUrlParams(selectedCategory, newSize, sortBy);
+  };
+
+  const handleSortChange = (newSort: "newest" | "price-asc" | "price-desc") => {
+    setSortBy(newSort);
+    updateUrlParams(selectedCategory, selectedSize, newSort);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory("all");
+    setSelectedSize("all");
+    updateUrlParams("all", "all", sortBy);
+  };
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    if (selectedCategory !== "all") {
-      list = list.filter((p) => p.category === selectedCategory);
+    const targetCategory = normalizeCategory(selectedCategory);
+    if (targetCategory !== "all") {
+      list = list.filter((p) => normalizeCategory(p.category) === targetCategory);
     }
 
     if (selectedSize !== "all") {
-      list = list.filter((p) => p.sizes.includes(selectedSize));
+      list = list.filter((p) => Array.isArray(p.sizes) && p.sizes.includes(selectedSize));
     }
 
     if (sortBy === "newest") {
@@ -50,7 +121,7 @@ export default function ShopPage() {
     }
 
     return list;
-  }, [selectedCategory, selectedSize, sortBy]);
+  }, [products, selectedCategory, selectedSize, sortBy]);
 
   return (
     <div className="w-full py-12 sm:py-16 bg-ailys-bone">
@@ -78,19 +149,22 @@ export default function ShopPage() {
               { id: "femme", label: "Femme" },
               { id: "homme", label: "Homme" },
               { id: "enfant", label: "Enfant" },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 transition-all duration-200 shrink-0 text-xs tracking-wider cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-ailys-black text-ailys-bone font-medium shadow-xs"
-                    : "bg-white/80 text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+            ].map((cat) => {
+              const isActive = normalizeCategory(selectedCategory) === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id)}
+                  className={`px-3.5 py-1.5 transition-all duration-200 shrink-0 text-xs tracking-wider cursor-pointer ${
+                    isActive
+                      ? "bg-ailys-black text-ailys-bone font-medium shadow-xs"
+                      : "bg-white/80 text-ailys-black/70 hover:text-ailys-black border border-ailys-bone-border"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Controls: Size Filter & Sorting */}
@@ -99,7 +173,8 @@ export default function ShopPage() {
             <div className="relative flex-1 sm:flex-initial">
               <select
                 value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
+                onChange={(e) => handleSizeChange(e.target.value)}
+                aria-label="Filtrer par taille"
                 className="w-full sm:w-auto bg-white border border-ailys-bone-border pl-3 pr-7 py-2 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
               >
                 <option value="all">Toutes tailles</option>
@@ -115,7 +190,8 @@ export default function ShopPage() {
             <div className="relative flex-1 sm:flex-initial">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => handleSortChange(e.target.value as any)}
+                aria-label="Trier par"
                 className="w-full sm:w-auto bg-white border border-ailys-bone-border pl-3 pr-7 py-2 text-xs uppercase tracking-wider text-ailys-black focus:outline-none focus:border-ailys-gold cursor-pointer"
               >
                 <option value="newest">Nouveautés</option>
@@ -129,12 +205,9 @@ export default function ShopPage() {
         {/* Products Count */}
         <div className="flex items-center justify-between text-xs uppercase tracking-widest text-ailys-muted mb-6 sm:mb-8">
           <span>{filteredProducts.length} pièces trouvées</span>
-          {(selectedCategory !== "all" || selectedSize !== "all") && (
+          {(normalizeCategory(selectedCategory) !== "all" || selectedSize !== "all") && (
             <button
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedSize("all");
-              }}
+              onClick={handleResetFilters}
               className="text-ailys-gold-dark hover:underline flex items-center gap-1 cursor-pointer"
             >
               <X className="w-3 h-3" /> Réinitialiser
@@ -177,10 +250,7 @@ export default function ShopPage() {
               Modifiez vos filtres de taille ou de catégorie pour découvrir d&apos;autres silhouettes.
             </p>
             <button
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedSize("all");
-              }}
+              onClick={handleResetFilters}
               className="px-6 py-2.5 bg-ailys-black text-ailys-bone text-xs uppercase tracking-widest hover:bg-ailys-black/90 transition-colors cursor-pointer"
             >
               Voir tout le catalogue
@@ -189,5 +259,19 @@ export default function ShopPage() {
         )}
       </Container>
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full py-12 sm:py-16 bg-ailys-bone min-h-[60vh] flex items-center justify-center font-serif text-ailys-black">
+          AÏLYS • Chargement...
+        </div>
+      }
+    >
+      <ShopContent />
+    </Suspense>
   );
 }
