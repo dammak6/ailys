@@ -13,6 +13,8 @@ import {
   Key,
   Clock,
   AlertCircle,
+  AlertTriangle,
+  Trash2,
   X,
   Lock,
   Mail,
@@ -39,6 +41,7 @@ export default function AdminUsersPage() {
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [resetModalAdmin, setResetModalAdmin] = useState<AdminUserRecord | null>(null);
+  const [deleteModalAdmin, setDeleteModalAdmin] = useState<AdminUserRecord | null>(null);
 
   // Form states for creation
   const [newEmail, setNewEmail] = useState("");
@@ -51,6 +54,10 @@ export default function AdminUsersPage() {
   const [resetPasswordVal, setResetPasswordVal] = useState("");
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+
+  // States for deletion
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
 
@@ -180,6 +187,31 @@ export default function AdminUsersPage() {
       setResetError(err.message);
     } finally {
       setResetting(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModalAdmin) return;
+    setDeleteError(null);
+    setDeleting(true);
+
+    try {
+      const res = await fetch(`/api/admin/users/${deleteModalAdmin.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Échec de la suppression de l'administrateur.");
+      }
+
+      setSuccessMsg(data.message || `L'administrateur ${deleteModalAdmin.email} a été définitivement supprimé.`);
+      setDeleteModalAdmin(null);
+      await loadAdmins();
+    } catch (err: any) {
+      setDeleteError(err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -399,6 +431,20 @@ export default function AdminUsersPage() {
                           >
                             <Key className="w-3.5 h-3.5" />
                           </button>
+
+                          {/* Delete Admin Button (SUPER_ADMIN only, cannot delete self) */}
+                          {isSuperAdmin && !isCurrent && (
+                            <button
+                              onClick={() => {
+                                setDeleteModalAdmin(adm);
+                                setDeleteError(null);
+                              }}
+                              title="Supprimer définitivement cet administrateur"
+                              className="p-1.5 text-red-600 hover:text-white hover:bg-red-600 border border-red-200 rounded hover:border-red-600 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -579,6 +625,92 @@ export default function AdminUsersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Confirm Permanent Deletion */}
+      {deleteModalAdmin && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-[#E8E6DF] rounded-sm max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E8E6DF]">
+              <div className="flex items-center space-x-2 text-red-700">
+                <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+                <h3 className="font-serif text-lg font-medium text-[#0B0B0B]">
+                  Supprimer l&apos;Administrateur
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  if (!deleting) {
+                    setDeleteModalAdmin(null);
+                    setDeleteError(null);
+                  }
+                }}
+                disabled={deleting}
+                className="text-[#999] hover:text-[#0B0B0B] disabled:opacity-50"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <p className="text-xs text-[#4A4740] leading-relaxed">
+                Êtes-vous absolument certain de vouloir supprimer définitivement le compte de{" "}
+                <span className="font-semibold text-[#0B0B0B]">{deleteModalAdmin.full_name}</span>{" "}
+                (<span className="font-mono text-[#0B0B0B]">{deleteModalAdmin.email}</span>) ?
+              </p>
+
+              <div className="p-3 bg-red-50/80 border border-red-200 rounded-sm space-y-1.5">
+                <p className="text-[11px] font-semibold text-red-900 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                  Action irréversible et immédiate
+                </p>
+                <ul className="text-[11px] text-red-800 list-disc list-inside space-y-1">
+                  <li>L&apos;accès au panneau d&apos;administration sera immédiatement révoqué.</li>
+                  <li>Le compte d&apos;authentification Supabase Auth et la fiche administrateur seront supprimés définitivement.</li>
+                  <li>L&apos;historique des commandes et logs du site reste préservé et intègre.</li>
+                </ul>
+              </div>
+
+              {deleteError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-sm">
+                  {deleteError}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 pt-3 border-t border-[#E8E6DF] flex items-center justify-end space-x-3 text-xs">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => {
+                  setDeleteModalAdmin(null);
+                  setDeleteError(null);
+                }}
+                className="px-4 py-2 border border-[#D5D2C9] text-[#7A7770] hover:text-[#0B0B0B] rounded-sm cursor-pointer disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleConfirmDelete}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm font-medium uppercase tracking-wider cursor-pointer disabled:opacity-50 flex items-center gap-2 shadow-xs"
+              >
+                {deleting ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Suppression en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirmer la suppression</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
